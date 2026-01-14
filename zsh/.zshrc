@@ -24,8 +24,8 @@ compinit
 
 # Aliases generales
 alias ll='lsd -alF'
-alias la='lsd -A'
-alias l='lsd -CF'
+alias la='lsd -A' 
+alias l='lsd -F'
 alias ls='lsd'
 alias grep='grep --color=auto'
 alias ..='cd ..'
@@ -51,6 +51,9 @@ alias cleanup='sudo pacman -Rns $(pacman -Qtdq)'
 
 # Configuración de lsd
 alias tree='lsd --tree'
+alias lt='lsd --tree'
+alias lh='lsd -lah'  # listado detallado con tamaños humanizados
+alias lr='lsd -R'    # listado recursivo
 
 # Configuraciones de herramientas
 # Starship prompt (se carga al final)
