@@ -1,64 +1,118 @@
 #!/bin/bash
 
-# Script de instalación para dotfiles
-# Este script crea enlaces simbólicos de los archivos de configuración
+# Script de instalación para dotfiles usando GNU Stow
+# Automatiza la instalación de paquetes de configuración
 
 set -e
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HOME_DIR="$HOME"
 
-echo "📂 Instalando dotfiles desde $DOTFILES_DIR"
+echo "📂 Instalando dotfiles desde $DOTFILES_DIR usando GNU Stow"
 
-# Función para crear enlace simbólico
-create_symlink() {
-    local source="$1"
-    local target="$2"
+# Verificar si stow está instalado
+if ! command -v stow &> /dev/null; then
+    echo "❌ GNU Stow no está instalado."
+    echo "📦 Instálalo con:"
+    echo "   Ubuntu/Debian: sudo apt install stow"
+    echo "   macOS: brew install stow"
+    echo "   Arch: sudo pacman -S stow"
+    exit 1
+fi
+
+# Función para instalar un paquete con stow
+install_package() {
+    local package="$1"
+    local action="${2:-stow}"
     
-    if [ -L "$target" ]; then
-        echo "🔗 $target ya es un enlace simbólico"
+    if [ ! -d "$package" ]; then
+        echo "⚠️  Directorio $package no existe, saltando..."
         return
     fi
     
-    if [ -f "$target" ] || [ -d "$target" ]; then
-        echo "📁 Creando backup de $target"
-        mv "$target" "${target}.backup.$(date +%Y%m%d_%H%M%S)"
+    echo "📦 ${action^}ing $package..."
+    if [ "$action" = "stow" ]; then
+        stow -d "$DOTFILES_DIR" -t "$HOME" "$package" -v
+    else
+        stow -d "$DOTFILES_DIR" -t "$HOME" -D "$package" -v
     fi
-    
-    echo "🔗 Creando enlace: $target -> $source"
-    ln -s "$source" "$target"
 }
 
-# Crear directorio .config si no existe
-mkdir -p "$HOME_DIR/.config"
-
-# Enlazar archivos de configuración
-echo "🔧 Enlazando archivos de configuración..."
-
-# Enlazar archivos del directorio home
-if [ -d "$DOTFILES_DIR/home" ]; then
-    for file in "$DOTFILES_DIR/home"/.* "$DOTFILES_DIR/home"/*; do
-        if [ -f "$file" ]; then
-            filename=$(basename "$file")
-            create_symlink "$file" "$HOME_DIR/$filename"
+# Función para mostrar ayuda
+show_help() {
+    echo "Uso: $0 [OPCIONES] [PAQUETES...]"
+    echo ""
+    echo "OPCIONES:"
+    echo "  -h, --help        Mostrar esta ayuda"
+    echo "  -u, --uninstall   Desinstalar paquetes (unstow)"
+    echo "  -a, --all         Instalar todos los paquetes disponibles"
+    echo ""
+    echo "PAQUETES disponibles:"
+    for dir in */; do
+        if [ -d "$dir" ] && [ "$dir" != ".git/" ]; then
+            echo "  ${dir%/}"
         fi
+    done
+    echo ""
+    echo "Ejemplos:"
+    echo "  $0 git bash vim          # Instalar paquetes específicos"
+    echo "  $0 -a                    # Instalar todos los paquetes"
+    echo "  $0 -u git               # Desinstalar el paquete git"
+}
+
+# Procesar argumentos
+ACTION="stow"
+PACKAGES=()
+INSTALL_ALL=false
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -u|--uninstall)
+            ACTION="unstow"
+            shift
+            ;;
+        -a|--all)
+            INSTALL_ALL=true
+            shift
+            ;;
+        *)
+            PACKAGES+=("$1")
+            shift
+            ;;
+    esac
+done
+
+cd "$DOTFILES_DIR"
+
+# Determinar qué paquetes instalar
+if [ "$INSTALL_ALL" = true ]; then
+    echo "🔧 Instalando todos los paquetes disponibles..."
+    for dir in */; do
+        if [ -d "$dir" ] && [ "$dir" != ".git/" ]; then
+            install_package "${dir%/}" "$ACTION"
+        fi
+    done
+elif [ ${#PACKAGES[@]} -eq 0 ]; then
+    # Si no se especificaron paquetes, mostrar opciones
+    echo "📋 Selecciona los paquetes a instalar:"
+    echo ""
+    show_help
+    exit 0
+else
+    # Instalar paquetes específicos
+    for package in "${PACKAGES[@]}"; do
+        install_package "$package" "$ACTION"
     done
 fi
 
-# Enlazar directorios de configuración
-if [ -d "$DOTFILES_DIR/config" ]; then
-    for dir in "$DOTFILES_DIR/config"/*; do
-        if [ -d "$dir" ]; then
-            dirname=$(basename "$dir")
-            create_symlink "$dir" "$HOME_DIR/.config/$dirname"
-        fi
-    done
+echo ""
+echo "✅ Operación completada!"
+if [ "$ACTION" = "stow" ]; then
+    echo "💡 Reinicia tu shell para aplicar los cambios"
+    echo "🔧 Para desinstalar usa: $0 -u [paquetes]"
+else
+    echo "🗑️  Paquetes desinstalados correctamente"
 fi
-
-# Hacer ejecutables los scripts
-if [ -d "$DOTFILES_DIR/bin" ]; then
-    chmod +x "$DOTFILES_DIR/bin"/*
-fi
-
-echo "✅ Instalación completada!"
-echo "💡 Reinicia tu shell o ejecuta 'source ~/.bashrc' (o ~/.zshrc) para aplicar los cambios"

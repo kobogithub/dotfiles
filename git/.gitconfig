@@ -1,0 +1,25 @@
+[user]
+	name = Kevin Barroso
+	email = kobouharriet@gmail.com
+
+[init]
+	defaultBranch = dev
+
+[core]
+	editor = vim
+	autocrlf = false
+
+[alias]
+	st = status
+	co = checkout
+	br = branch
+	cm = commit
+	pl = pull
+	ps = push
+	lg = log --oneline --graph --decorate --all
+
+[pull]
+	rebase = false
+
+[push]
+	default = simple
