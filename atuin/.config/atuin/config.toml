@@ -33,9 +33,10 @@ keymap_mode = "emacs"
 word_jump_mode = "word"
 word_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-# Configuración de estadísticas
-stats = true
-records = true
+# Configuración de estadísticas (struct format)
+[stats]
+common_prefix = ["sudo"]
+common_subcommands = ["git", "cargo", "npm", "yarn"]
 
 # Configuración de sesión  
 session_path = ""
