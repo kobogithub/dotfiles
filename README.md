@@ -1,225 +1,261 @@
-# 🏠 Dotfiles
+# 🏠 Dotfiles de Kevin Barroso
 
-Repositorio centralizado para mis configuraciones personales usando GNU Stow para una gestión limpia y modular de dotfiles.
+Repositorio centralizado para configuraciones personales optimizado para **Arch Linux** usando GNU Stow. Incluye instalación automática de herramientas esenciales y sus configuraciones.
 
 ## 📁 Estructura
 
 ```
 dotfiles/
-├── git/             # Configuración de Git (~/.gitconfig)
-├── bash/            # Configuración de Bash (~/.bashrc)
-├── vim/             # Configuración de Vim (~/.vimrc, ~/.vim/)
-├── nvim/            # Configuración de Neovim (~/.config/nvim/)
-├── tmux/            # Configuración de tmux (~/.tmux.conf)
-├── scripts/         # Scripts útiles (~/.local/bin/)
-├── install.sh       # Script de instalación automática
-└── README.md        # Este archivo
+├── git/                    # Configuración de Git (~/.gitconfig)
+├── bash/                   # Configuración de Bash (~/.bashrc)
+├── zsh/                    # Configuración de Zsh (~/.zshrc) 
+├── vim/                    # Configuración de Vim (~/.vimrc, ~/.vim/)
+├── nvim/                   # Configuración de Neovim (~/.config/nvim/)
+├── tmux/                   # Configuración de tmux (~/.tmux.conf)
+├── starship/               # Configuración de Starship (~/.config/starship.toml)
+├── atuin/                  # Configuración de Atuin (~/.config/atuin/)
+├── scripts/                # Scripts útiles (~/.local/bin/)
+├── install.sh              # Script de instalación completa
+└── README.md               # Este archivo
 ```
 
-## 🚀 Instalación
-
-### Prerrequisitos
-
-Instalar GNU Stow:
-
-```bash
-# Ubuntu/Debian
-sudo apt install stow
-
-# macOS
-brew install stow
-
-# Arch Linux
-sudo pacman -S stow
-
-# CentOS/RHEL
-sudo yum install stow
-```
-
-### Instalación automática
+## 🚀 Instalación rápida
 
 ```bash
 # Clonar el repositorio
 git clone https://github.com/kobogithub/dotfiles.git ~/.dotfiles
 
-# Ir al directorio
+# Instalación completa (recomendado)
 cd ~/.dotfiles
-
-# Instalar todos los paquetes
-./install.sh -a
-
-# O instalar paquetes específicos
-./install.sh git bash vim
-```
-
-### Instalación manual con stow
-
-```bash
-cd ~/.dotfiles
-
-# Instalar paquetes específicos
-stow git     # Instala ~/.gitconfig
-stow bash    # Instala ~/.bashrc
-stow vim     # Instala ~/.vimrc y ~/.vim/
-
-# Desinstalar un paquete
-stow -D git  # Remueve enlaces de git
-```
-
-## 📦 Paquetes disponibles
-
-### 🔧 git
-- `.gitconfig` - Configuración global de Git con aliases útiles
-- Incluye configuración de usuario y preferencias
-
-### 🐚 bash
-- `.bashrc` - Configuración de Bash con aliases y prompt personalizado
-- Variables de entorno y configuración de historial
-
-### ✏️ vim
-- `.vimrc` - Configuración básica de Vim
-- `.vim/` - Directorio para plugins y temas
-
-### 🚀 scripts
-- `.local/bin/backup-files` - Script para backup rápido de configuraciones
-- Otros scripts útiles para automatización
-
-## 🔧 Uso del script de instalación
-
-```bash
-# Mostrar ayuda
-./install.sh -h
-
-# Instalar todos los paquetes
-./install.sh -a
-
-# Instalar paquetes específicos
-./install.sh git bash vim
-
-# Desinstalar paquetes
-./install.sh -u git bash
-
-# Ver paquetes disponibles
 ./install.sh
+
+# Reiniciar terminal para aplicar cambios
 ```
 
-## ✨ Características de Stow
+## 📦 Herramientas instaladas automáticamente
 
-- **Enlaces simbólicos**: Mantiene archivos organizados en el repo
-- **Modular**: Instala/desinstala paquetes independientemente
-- **Sin conflictos**: Detecta y previene sobreescribir archivos existentes
-- **Reversible**: Fácil desinstalación con `stow -D`
+El script instala estos paquetes en **Arch Linux**:
 
-## 📋 Flujo de trabajo
+- **neovim** - Editor moderno basado en Vim
+- **tmux** - Multiplexor de terminal  
+- **github-cli** - CLI oficial de GitHub
+- **zsh** - Shell avanzado (configurado como default)
+- **lsd** - Reemplazo moderno de `ls`
+- **starship** - Prompt personalizable
+- **atuin** - Historial de comandos inteligente
+- **stow** - Gestor de enlaces simbólicos
+
+## 🔧 Opciones del script de instalación
+
+```bash
+# Instalación completa (sistema + dotfiles)
+./install.sh                    # o ./install.sh -a
+
+# Solo paquetes del sistema
+./install.sh -s
+
+# Solo dotfiles específicos
+./install.sh -d git zsh nvim tmux
+
+# Solo dotfiles (sin paquetes del sistema)
+./install.sh -d
+
+# Desinstalar dotfiles
+./install.sh -u git zsh
+
+# Ver ayuda
+./install.sh -h
+```
+
+## ✨ Características principales
+
+### 🐚 Shell (Zsh)
+- **Starship prompt** - Prompt hermoso y funcional
+- **Atuin** - Historial inteligente y búsqueda fuzzy
+- **lsd** - Listado de archivos con colores e iconos
+- **Aliases útiles** - Para git, pacman y navegación
+- **Configurado automáticamente** como shell por defecto
+
+### ⚡ Editor (Neovim)
+- Configuración Lua moderna
+- Keybindings intuitivos
+- Navegación entre ventanas con Ctrl+hjkl
+- Leader key configurado como espacio
+
+### 🖥️ Terminal (tmux)
+- Prefix cambiado a `Ctrl-a`
+- Navegación con vim keys (hjkl)
+- División intuitiva de ventanas (`|` y `-`)
+- Mouse habilitado
+- Configuración de colores
+
+### 🚀 Prompt (Starship)
+- Información de Git visible
+- Duración de comandos
+- Indicador de Python/Node.js
+- Diseño minimalista pero informativo
+
+### 🔍 Historial (Atuin)
+- Búsqueda fuzzy en historial
+- Filtros inteligentes
+- Estadísticas de uso
+- Configuración optimizada
+
+## 📋 Uso diario
+
+### Comandos esenciales
+```bash
+# Git (aliases incluidos)
+gs          # git status
+ga .        # git add .
+gc "msg"    # git commit -m "msg"
+gp          # git push
+
+# Sistema (Arch Linux)
+update      # sudo pacman -Syu
+install pkg # sudo pacman -S pkg
+search pkg  # pacman -Ss pkg
+cleanup     # limpiar paquetes huérfanos
+
+# Navegación
+ll          # lsd -alF (listado detallado)
+tree        # lsd --tree (vista de árbol)
+..          # cd ..
+...         # cd ../..
+```
+
+### Tmux workflow
+```bash
+# Crear sesión
+tmux new -s trabajo
+
+# Dividir ventanas
+Ctrl-a |    # División vertical
+Ctrl-a -    # División horizontal
+
+# Navegación
+Ctrl-a h/j/k/l    # Cambiar paneles
+Ctrl-a c          # Nueva ventana
+```
+
+### Neovim basics
+```bash
+# Abrir neovim
+nvim archivo.txt
+
+# Comandos básicos (modo normal)
+Space w     # Guardar
+Space q     # Cerrar
+Space h     # Limpiar búsqueda
+Ctrl-hjkl   # Navegar ventanas
+```
+
+## 🔄 Gestión de dotfiles
 
 ### Agregar nueva configuración
 
-1. **Crear nuevo paquete**:
-   ```bash
-   mkdir nueva-herramienta
-   mkdir -p nueva-herramienta/.config/nueva-herramienta
-   ```
+```bash
+# Crear nuevo paquete
+mkdir nueva-app
+mkdir -p nueva-app/.config/nueva-app
 
-2. **Agregar archivos de configuración**:
-   ```bash
-   # Copiar configuración existente
-   cp ~/.config/nueva-herramienta/config nueva-herramienta/.config/nueva-herramienta/
-   ```
+# Copiar configuración
+cp ~/.config/nueva-app/config nueva-app/.config/nueva-app/
 
-3. **Instalar con stow**:
-   ```bash
-   stow nueva-herramienta
-   ```
+# Instalar con stow
+stow nueva-app
 
-4. **Commit y push**:
-   ```bash
-   git add nueva-herramienta/
-   git commit -m "Add nueva-herramienta configuration"
-   git push origin dev
-   ```
+# Commit
+git add nueva-app/
+git commit -m "Add nueva-app configuration"
+git push origin dev
+```
 
 ### Actualizar configuraciones
 
 ```bash
 cd ~/.dotfiles
 
-# Actualizar desde el repositorio
+# Actualizar desde repositorio
 git pull origin dev
 
-# Re-instalar paquetes si es necesario
-./install.sh git bash vim
+# Reinstalar si hay cambios
+./install.sh -d
 ```
 
-### Backup antes de instalar
+### Backup antes de cambios
 
 ```bash
-# Usar el script de backup incluido
+# Usar script incluido
 ~/.local/bin/backup-files
 
-# O hacer backup manual
-cp ~/.bashrc ~/.bashrc.backup
-cp ~/.gitconfig ~/.gitconfig.backup
+# O backup manual
+cp ~/.zshrc ~/.zshrc.backup
+cp ~/.tmux.conf ~/.tmux.conf.backup
 ```
 
-## 🎯 Ejemplos prácticos
+## 🖥️ Instalación en nueva máquina
 
-### Configuración nueva en otra máquina
-
+### Setup completo
 ```bash
-# Clonar dotfiles
+# En Arch Linux
 git clone https://github.com/kobogithub/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-
-# Ver qué paquetes están disponibles
 ./install.sh
-
-# Instalar solo lo básico
-./install.sh git bash scripts
-
-# Instalar desarrollo
-./install.sh vim nvim tmux
+# Reiniciar terminal
 ```
 
-### Probar configuración temporalmente
-
+### Setup mínimo (solo dotfiles)
 ```bash
-# Instalar temporalmente
-stow vim
-
-# Probar la configuración...
-
-# Desinstalar si no gusta
-stow -D vim
+# Si ya tienes las herramientas instaladas
+git clone https://github.com/kobogithub/dotfiles.git ~/.dotfiles
+cd ~/.dotfiles
+./install.sh -d git zsh nvim tmux
 ```
 
-## 🛠️ Estructura de paquetes
+## 🛠️ Personalización
 
-Cada paquete debe replicar la estructura del home directory:
+### Modificar prompt (Starship)
+```bash
+nvim ~/.config/starship.toml
+# Reiniciar terminal para aplicar
+```
 
+### Agregar aliases (Zsh)
+```bash
+nvim ~/.dotfiles/zsh/.zshrc
+# Agregar alias, luego:
+stow zsh
+source ~/.zshrc
 ```
-paquete/
-├── .archivo-config          # Va a ~/.archivo-config
-├── .config/
-│   └── herramienta/
-│       └── config.conf      # Va a ~/.config/herramienta/config.conf
-└── .local/
-    └── bin/
-        └── script           # Va a ~/.local/bin/script
+
+### Configurar tmux
+```bash
+nvim ~/.dotfiles/tmux/.tmux.conf
+# Recargar: Ctrl-a r
 ```
+
+## 🐧 Compatibilidad
+
+- **Optimizado para**: Arch Linux
+- **Compatible con**: Otras distribuciones Linux (requiere instalación manual de paquetes)
+- **Shell principal**: Zsh
+- **Editor principal**: Neovim
+- **Terminal**: Compatible con cualquier terminal moderno
 
 ## 🤝 Contribuir
 
 1. Fork del repositorio
-2. Crear branch: `git checkout -b feature/nuevo-paquete`
-3. Agregar/modificar paquetes siguiendo la estructura de stow
-4. Commit: `git commit -m 'Add nuevo paquete'`
-5. Push: `git push origin feature/nuevo-paquete`
+2. Crear branch: `git checkout -b feature/mejora`
+3. Seguir estructura de stow para nuevos paquetes
+4. Commit: `git commit -m 'Add mejora'`
+5. Push: `git push origin feature/mejora`
 6. Pull Request
 
 ## 📄 Licencia
 
-Este repositorio es personal, pero siéntete libre de usar cualquier configuración que te sea útil.
+Repositorio personal de Kevin Barroso. Libre uso de configuraciones.
 
 ---
 
-⭐ Si este repositorio te ayuda, ¡dale una estrella!
+⭐ **¡Dale una estrella si te ayuda!** 🚀

@@ -1,0 +1,45 @@
+# ~/.config/atuin/config.toml - Configuración de Atuin
+
+# Configuración general
+auto_sync = false
+sync_frequency = "1h"
+sync_address = "https://api.atuin.sh"
+search_mode = "fuzzy"
+
+# Configuración de filtros
+filter_mode = "global"
+filter_mode_shell_up_key_binding = "session"
+show_preview = true
+max_preview_height = 4
+
+# Configuración de estilo
+style = "compact"
+show_help = true
+exit_mode = "return-original"
+
+# Configuración de historial
+history_filter = [
+    "^ls$",
+    "^cd$",
+    "^cd ..$",
+    "^pwd$",
+    "^exit$",
+    "^clear$",
+    "^history$"
+]
+
+# Configuración de teclas
+keymap_mode = "emacs"
+word_jump_mode = "word"
+word_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+# Configuración de estadísticas
+stats = true
+records = true
+
+# Configuración de sesión  
+session_path = ""
+dialect = "us"
+
+# Configuración de sincronización
+update_check = false
