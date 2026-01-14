@@ -18,6 +18,8 @@ SYSTEM_PACKAGES=(
     "starship"
     "atuin"
     "stow"
+    "kubectl"
+    "k9s"
 )
 
 # Paquetes de dotfiles disponibles
@@ -33,6 +35,8 @@ DOTFILE_PACKAGES=(
     "scripts"
     "system"
     "ssh"
+    "kubectl"
+    "k9s"
 )
 
 echo "🏠 Instalando dotfiles de Kevin Barroso"

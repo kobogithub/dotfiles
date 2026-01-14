@@ -15,6 +15,8 @@ dotfiles/
 ├── starship/               # Configuración de Starship (~/.config/starship.toml)
 ├── atuin/                  # Configuración de Atuin (~/.config/atuin/)
 ├── ssh/                    # Configuración de SSH (~/.ssh/config)
+├── kubectl/                # Configuración de kubectl (~/.kube/)
+├── k9s/                    # Configuración de k9s (~/.config/k9s/)
 ├── scripts/                # Scripts útiles (~/.local/bin/)
 ├── install.sh              # Script de instalación completa
 └── README.md               # Este archivo
@@ -46,6 +48,8 @@ El script instala estos paquetes en **Arch Linux**:
 - **starship** - Prompt personalizable
 - **atuin** - Historial de comandos inteligente
 - **stow** - Gestor de enlaces simbólicos
+- **kubectl** - CLI oficial de Kubernetes
+- **k9s** - Dashboard terminal para Kubernetes
 
 ## 🔧 Opciones del script de instalación
 
@@ -110,6 +114,13 @@ El script instala estos paquetes en **Arch Linux**:
 - Configuración preconfigurada para GitHub
 - Timeouts y keep-alive configurados
 
+### ☸️ Kubernetes
+- **kubectl** configurado con aliases útiles
+- **k9s** dashboard terminal con configuración optimizada
+- Autocompletado inteligente para kubectl
+- Aliases comunes para operaciones frecuentes
+- Configuración base para múltiples clusters
+
 ## 📋 Uso diario
 
 ### Comandos esenciales
@@ -131,6 +142,16 @@ ll          # lsd -alF (listado detallado)
 tree        # lsd --tree (vista de árbol)
 ..          # cd ..
 ...         # cd ../..
+
+# Kubernetes (aliases incluidos)
+k           # kubectl
+kgp         # kubectl get pods
+kgs         # kubectl get services
+kgd         # kubectl get deployments
+kl          # kubectl logs
+klf         # kubectl logs -f
+ke          # kubectl exec -it
+k9s         # abrir dashboard de k9s
 ```
 
 ### Tmux workflow

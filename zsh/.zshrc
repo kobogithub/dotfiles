@@ -49,6 +49,27 @@ alias search='pacman -Ss'
 alias remove='sudo pacman -R'
 alias cleanup='sudo pacman -Rns $(pacman -Qtdq)'
 
+# Aliases de Kubernetes
+alias k='kubectl'
+alias kgp='kubectl get pods'
+alias kgs='kubectl get services'
+alias kgd='kubectl get deployments'
+alias kgn='kubectl get nodes'
+alias kga='kubectl get all'
+alias kdp='kubectl describe pod'
+alias kds='kubectl describe service'
+alias kdd='kubectl describe deployment'
+alias kdn='kubectl describe node'
+alias kl='kubectl logs'
+alias klf='kubectl logs -f'
+alias ke='kubectl exec -it'
+alias kpf='kubectl port-forward'
+alias kctx='kubectl config current-context'
+alias kns='kubectl config set-context --current --namespace'
+alias kdel='kubectl delete'
+alias kapp='kubectl apply -f'
+alias kroll='kubectl rollout'
+
 # Configuración de lsd
 alias tree='lsd --tree'
 alias lt='lsd --tree'
@@ -64,6 +85,10 @@ eval "$(atuin init zsh)"
 
 # GitHub CLI completion
 eval "$(gh completion -s zsh)"
+
+# kubectl completion
+source <(kubectl completion zsh)
+complete -F __start_kubectl k
 
 # Configuración del editor
 export EDITOR=nvim
