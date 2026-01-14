@@ -134,11 +134,52 @@ install_dotfile_package() {
 
 # Función para configurar zsh como shell por defecto
 setup_zsh() {
-    if [[ "$SHELL" != */zsh ]]; then
-        echo "🐚 Configurando zsh como shell por defecto..."
-        chsh -s $(which zsh)
-        echo "✅ Zsh configurado como shell por defecto"
-        echo "💡 Cierra la sesión y vuelve a entrar para aplicar cambios"
+    echo "🐚 Configurando zsh como shell por defecto..."
+    
+    # Encontrar la ruta correcta de zsh
+    local zsh_path=""
+    for path in "/bin/zsh" "/usr/bin/zsh" "/usr/sbin/zsh" "/usr/local/bin/zsh"; do
+        if [[ -x "$path" ]]; then
+            zsh_path="$path"
+            break
+        fi
+    done
+    
+    if [[ -z "$zsh_path" ]]; then
+        echo "❌ No se encontró zsh instalado"
+        return 1
+    fi
+    
+    echo "📍 zsh encontrado en: $zsh_path"
+    
+    # Verificar si zsh está en /etc/shells
+    if ! grep -Fxq "$zsh_path" /etc/shells; then
+        echo "⚠️  $zsh_path no está en /etc/shells"
+        echo "🔧 Agregando $zsh_path a /etc/shells..."
+        
+        if sudo -n true 2>/dev/null; then
+            echo "$zsh_path" | sudo tee -a /etc/shells
+            echo "✅ $zsh_path agregado a /etc/shells"
+        else
+            echo "❌ Se requiere sudo para agregar $zsh_path a /etc/shells"
+            echo "💡 Ejecuta manualmente: echo '$zsh_path' | sudo tee -a /etc/shells"
+            echo "💡 Luego ejecuta: chsh -s $zsh_path"
+            return 1
+        fi
+    else
+        echo "✅ $zsh_path ya está en /etc/shells"
+    fi
+    
+    # Cambiar shell si no es ya zsh
+    if [[ "$SHELL" != "$zsh_path" ]]; then
+        echo "🔄 Cambiando shell por defecto a zsh..."
+        if chsh -s "$zsh_path"; then
+            echo "✅ Zsh configurado como shell por defecto"
+            echo "💡 Cierra la sesión y vuelve a entrar para aplicar cambios"
+        else
+            echo "❌ Error al cambiar shell. Intenta manualmente:"
+            echo "   chsh -s $zsh_path"
+        fi
     else
         echo "✅ Zsh ya es el shell por defecto"
     fi
