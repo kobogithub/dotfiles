@@ -1,0 +1,125 @@
+#!/bin/bash
+# Docker utility functions and aliases
+
+# Docker aliases for common operations
+alias d='docker'
+alias dc='docker compose'
+alias dcu='docker compose up'
+alias dcd='docker compose down'
+alias dcl='docker compose logs'
+alias dcp='docker compose pull'
+alias dcr='docker compose restart'
+
+# Docker container management
+alias di='docker images'
+alias dps='docker ps'
+alias dpsa='docker ps -a'
+alias drm='docker rm'
+alias drmi='docker rmi'
+alias dexec='docker exec -it'
+alias dlogs='docker logs'
+
+# Docker system commands
+alias dsystem='docker system'
+alias dprune='docker system prune'
+alias dprunea='docker system prune -a'
+alias ddf='docker system df'
+
+# Docker network and volume management
+alias dnetwork='docker network'
+alias dvolume='docker volume'
+alias dvls='docker volume ls'
+alias dnls='docker network ls'
+
+# Quick container operations
+alias dstop='docker stop $(docker ps -q)'
+alias drmall='docker rm $(docker ps -aq)'
+alias drmiall='docker rmi $(docker images -q)'
+
+# Development containers
+alias dnode='docker run --rm -it -v $(pwd):/app -w /app node:alpine'
+alias dpython='docker run --rm -it -v $(pwd):/app -w /app python:alpine'
+alias dalpine='docker run --rm -it -v $(pwd):/app -w /app alpine'
+alias dubuntu='docker run --rm -it -v $(pwd):/app -w /app ubuntu'
+
+# Docker compose shortcuts for common stacks
+alias dcdev='docker compose -f docker-compose.dev.yml'
+alias dcprod='docker compose -f docker-compose.prod.yml'
+alias dctest='docker compose -f docker-compose.test.yml'
+
+# Functions for Docker development
+
+# Build and run a Dockerfile in current directory
+drun() {
+    if [[ -f "Dockerfile" ]]; then
+        local tag=${1:-$(basename $PWD)}
+        docker build -t $tag .
+        docker run --rm -it -v $(pwd):/app $tag
+    else
+        echo "No Dockerfile found in current directory"
+    fi
+}
+
+# Enter a running container by name or ID
+denter() {
+    if [[ -z "$1" ]]; then
+        echo "Usage: denter <container_name_or_id>"
+        return 1
+    fi
+    docker exec -it $1 /bin/sh 2>/dev/null || docker exec -it $1 /bin/bash
+}
+
+# Clean up Docker environment
+dcleanup() {
+    echo "Stopping all containers..."
+    docker stop $(docker ps -q) 2>/dev/null
+    echo "Removing all containers..."
+    docker rm $(docker ps -aq) 2>/dev/null
+    echo "Removing unused images..."
+    docker image prune -f
+    echo "Removing unused volumes..."
+    docker volume prune -f
+    echo "Removing unused networks..."
+    docker network prune -f
+    echo "Docker cleanup complete!"
+}
+
+# Show Docker resource usage
+dusage() {
+    echo "=== Docker System Info ==="
+    docker system df
+    echo ""
+    echo "=== Running Containers ==="
+    docker ps --format "table {{.Names}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}"
+    echo ""
+    echo "=== Container Resource Usage ==="
+    docker stats --no-stream
+}
+
+# Quick log viewer for compose services
+dclogf() {
+    if [[ -z "$1" ]]; then
+        docker compose logs -f
+    else
+        docker compose logs -f $1
+    fi
+}
+
+# Restart specific service in compose
+dcrestart() {
+    if [[ -z "$1" ]]; then
+        echo "Usage: dcrestart <service_name>"
+        return 1
+    fi
+    docker compose restart $1
+}
+
+# Pull and rebuild all services
+dcupdate() {
+    echo "Pulling latest images..."
+    docker compose pull
+    echo "Rebuilding services..."
+    docker compose build
+    echo "Restarting services..."
+    docker compose up -d
+}

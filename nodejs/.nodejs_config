@@ -1,0 +1,293 @@
+#!/bin/bash
+# Node.js development environment setup and aliases
+
+# NVM (Node Version Manager) setup
+export NVM_DIR="$HOME/.nvm"
+if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+    source "$NVM_DIR/nvm.sh"
+fi
+if [[ -s "$NVM_DIR/bash_completion" ]]; then
+    source "$NVM_DIR/bash_completion"
+fi
+
+# Node.js aliases
+alias n='node'
+alias nv='node --version'
+alias ni='npm install'
+alias nid='npm install --save-dev'
+alias nig='npm install --global'
+alias nu='npm uninstall'
+alias nud='npm uninstall --save-dev'
+alias nug='npm uninstall --global'
+alias nr='npm run'
+alias ns='npm start'
+alias nt='npm test'
+alias nb='npm run build'
+alias nd='npm run dev'
+alias nw='npm run watch'
+alias nl='npm list'
+alias nlg='npm list --global'
+alias no='npm outdated'
+alias nup='npm update'
+alias ncc='npm cache clean --force'
+
+# NPM scripts shortcuts
+alias nrs='npm run start'
+alias nrt='npm run test'
+alias nrb='npm run build'
+alias nrd='npm run dev'
+alias nrw='npm run watch'
+alias nrl='npm run lint'
+alias nrf='npm run format'
+
+# Yarn aliases
+alias y='yarn'
+alias ya='yarn add'
+alias yad='yarn add --dev'
+alias yag='yarn global add'
+alias yr='yarn remove'
+alias yrd='yarn remove --dev'
+alias yrg='yarn global remove'
+alias ys='yarn start'
+alias yt='yarn test'
+alias yb='yarn build'
+alias yd='yarn dev'
+alias yw='yarn watch'
+alias yu='yarn upgrade'
+alias yui='yarn upgrade-interactive'
+alias ycc='yarn cache clean'
+
+# pnpm aliases
+alias p='pnpm'
+alias pi='pnpm install'
+alias pa='pnpm add'
+alias pad='pnpm add --save-dev'
+alias pr='pnpm remove'
+alias ps='pnpm start'
+alias pt='pnpm test'
+alias pb='pnpm build'
+alias pd='pnpm dev'
+alias pu='pnpm update'
+
+# Package manager detection and unified commands
+pkg_manager() {
+    if [[ -f "pnpm-lock.yaml" ]]; then
+        echo "pnpm"
+    elif [[ -f "yarn.lock" ]]; then
+        echo "yarn"
+    elif [[ -f "package-lock.json" ]]; then
+        echo "npm"
+    else
+        echo "npm"  # default
+    fi
+}
+
+# Unified package manager commands
+alias install='$(pkg_manager) install'
+alias add='$(pkg_manager) add'
+alias remove='$(pkg_manager) remove'
+alias run='$(pkg_manager) run'
+alias start='$(pkg_manager) start'
+alias test='$(pkg_manager) test'
+alias build='$(pkg_manager) build'
+alias dev='$(pkg_manager) dev'
+
+# Node.js functions
+
+# Install Node.js version with nvm
+nodeinstall() {
+    if ! command -v nvm >/dev/null 2>&1; then
+        echo "nvm not found. Please install nvm first."
+        return 1
+    fi
+    
+    if [[ -z "$1" ]]; then
+        echo "Usage: nodeinstall <version>"
+        echo "Examples: nodeinstall 18, nodeinstall lts, nodeinstall latest"
+        return 1
+    fi
+    
+    nvm install $1
+    nvm use $1
+}
+
+# List Node.js versions
+nodeversions() {
+    echo "=== NVM Versions ==="
+    if command -v nvm >/dev/null 2>&1; then
+        nvm list
+    else
+        echo "nvm not installed"
+    fi
+    
+    echo ""
+    echo "=== Current Node ==="
+    if command -v node >/dev/null 2>&1; then
+        echo "Node: $(node --version)"
+        echo "NPM: $(npm --version)"
+        echo "Path: $(which node)"
+    else
+        echo "Node.js not found"
+    fi
+    
+    if command -v yarn >/dev/null 2>&1; then
+        echo "Yarn: $(yarn --version)"
+    fi
+    
+    if command -v pnpm >/dev/null 2>&1; then
+        echo "pnpm: $(pnpm --version)"
+    fi
+}
+
+# Create new Node.js project
+nodeinit() {
+    local project_name=${1:-$(basename $PWD)}
+    local template=${2:-"basic"}
+    
+    case $template in
+        "express")
+            npm init -y
+            npm install express
+            npm install --save-dev nodemon
+            echo "const express = require('express');
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/', (req, res) => {
+    res.json({ message: 'Hello World!' });
+});
+
+app.listen(PORT, () => {
+    console.log(\`Server running on port \${PORT}\`);
+});" > index.js
+            echo "Express.js project initialized!"
+            ;;
+        "react")
+            npx create-react-app $project_name
+            echo "React project '$project_name' created!"
+            ;;
+        "next")
+            npx create-next-app@latest $project_name
+            echo "Next.js project '$project_name' created!"
+            ;;
+        "vue")
+            npm create vue@latest $project_name
+            echo "Vue.js project '$project_name' created!"
+            ;;
+        "typescript"|"ts")
+            npm init -y
+            npm install --save-dev typescript @types/node ts-node nodemon
+            npx tsc --init
+            echo "TypeScript project initialized!"
+            ;;
+        *)
+            npm init -y
+            echo "Basic Node.js project initialized!"
+            ;;
+    esac
+}
+
+# Run development server with auto-detection
+nodedev() {
+    if [[ -f "package.json" ]]; then
+        local pkg_mgr=$(pkg_manager)
+        
+        if npm run | grep -q "dev"; then
+            echo "Running dev script with $pkg_mgr..."
+            $pkg_mgr run dev
+        elif npm run | grep -q "start"; then
+            echo "Running start script with $pkg_mgr..."
+            $pkg_mgr start
+        else
+            echo "No dev or start script found. Running node directly..."
+            if [[ -f "index.js" ]]; then
+                node index.js
+            elif [[ -f "server.js" ]]; then
+                node server.js
+            elif [[ -f "app.js" ]]; then
+                node app.js
+            else
+                echo "No main file found (index.js, server.js, app.js)"
+            fi
+        fi
+    else
+        echo "No package.json found in current directory"
+    fi
+}
+
+# Install common development dependencies
+nodedevdeps() {
+    echo "Installing Node.js development dependencies..."
+    local pkg_mgr=$(pkg_manager)
+    
+    $pkg_mgr add --save-dev \
+        eslint \
+        prettier \
+        jest \
+        nodemon \
+        @types/node
+    
+    echo "Development dependencies installed:"
+    echo "- eslint (linting)"
+    echo "- prettier (formatting)"
+    echo "- jest (testing)"
+    echo "- nodemon (auto-restart)"
+    echo "- @types/node (TypeScript types)"
+}
+
+# Show package information
+nodeinfo() {
+    local package=${1:-"."}
+    
+    if [[ "$package" == "." && -f "package.json" ]]; then
+        echo "=== Current Project ==="
+        cat package.json | grep -E '"name"|"version"|"description"' | head -3
+        echo ""
+        echo "=== Dependencies ==="
+        npm list --depth=0 2>/dev/null || echo "No dependencies"
+        echo ""
+        echo "=== Scripts ==="
+        npm run 2>&1 | grep -A 100 "available via"
+    else
+        npm info $package
+    fi
+}
+
+# Clean node modules and reinstall
+nodeclean() {
+    echo "Cleaning node_modules and lock files..."
+    rm -rf node_modules
+    rm -f package-lock.json yarn.lock pnpm-lock.yaml
+    
+    local pkg_mgr=$(pkg_manager)
+    echo "Reinstalling with $pkg_mgr..."
+    $pkg_mgr install
+    
+    echo "Clean installation complete!"
+}
+
+# Update all dependencies
+nodeupdate() {
+    local pkg_mgr=$(pkg_manager)
+    
+    echo "Checking for outdated packages with $pkg_mgr..."
+    $pkg_mgr outdated
+    
+    echo ""
+    read -p "Update all packages? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        case $pkg_mgr in
+            "yarn")
+                yarn upgrade-interactive
+                ;;
+            "pnpm")
+                pnpm update
+                ;;
+            *)
+                npm update
+                ;;
+        esac
+        echo "Packages updated!"
+    fi
+}

@@ -101,6 +101,25 @@ setopt EXTENDED_GLOB        # habilitar patrones extendidos
 setopt NO_CASE_GLOB         # matching case-insensitive
 setopt NUMERIC_GLOB_SORT    # ordenar archivos numéricamente
 
+# Cargar configuraciones de desarrollo
+if [ -f "$HOME/.dotfiles/docker/.docker_aliases" ]; then
+    source "$HOME/.dotfiles/docker/.docker_aliases"
+fi
+
+if [ -f "$HOME/.dotfiles/python/.python_config" ]; then
+    source "$HOME/.dotfiles/python/.python_config"
+fi
+
+if [ -f "$HOME/.dotfiles/nodejs/.nodejs_config" ]; then
+    source "$HOME/.dotfiles/nodejs/.nodejs_config"
+fi
+
+# Aliases de desarrollo adicionales
+alias dev-status='dev-status'
+alias dev-init='dev-init'
+alias dev-clean='dev-clean'
+alias code-ext='~/.dotfiles/vscode/install-extensions.sh'
+
 # Keybindings útiles
 bindkey '^[[A' history-search-backward    # Flecha arriba
 bindkey '^[[B' history-search-forward     # Flecha abajo

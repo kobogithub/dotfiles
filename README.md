@@ -18,6 +18,12 @@ dotfiles/
 ├── kubectl/                # Configuración de kubectl (~/.kube/)
 ├── k9s/                    # Configuración de k9s (~/.config/k9s/)
 ├── scripts/                # Scripts útiles (~/.local/bin/)
+├── devscripts/             # Scripts de desarrollo (~/.local/bin/)
+├── docker/                 # Configuración de Docker y aliases
+├── python/                 # Entorno Python + pyenv + virtual envs
+├── nodejs/                 # Entorno Node.js + nvm + npm/yarn
+├── vscode/                 # Configuración de VS Code + extensiones
+├── system/                 # Configuraciones del sistema
 ├── install.sh              # Script de instalación completa
 └── README.md               # Este archivo
 ```
@@ -39,6 +45,7 @@ cd ~/.dotfiles
 
 El script instala estos paquetes en **Arch Linux**:
 
+### 🔧 Herramientas del sistema
 - **openssh** - Cliente SSH para conexiones seguras
 - **neovim** - Editor moderno basado en Vim
 - **tmux** - Multiplexor de terminal  
@@ -50,6 +57,19 @@ El script instala estos paquetes en **Arch Linux**:
 - **stow** - Gestor de enlaces simbólicos
 - **kubectl** - CLI oficial de Kubernetes
 - **k9s** - Dashboard terminal para Kubernetes
+
+### 🛠️ Herramientas de desarrollo
+- **docker** + **docker-compose** - Containerización
+- **python** + **python-pip** + **python-virtualenv** - Python development
+- **nodejs** + **npm** + **yarn** - JavaScript/TypeScript development
+- **code** - Visual Studio Code
+- **base-devel** - Herramientas de compilación
+- **git**, **curl**, **wget**, **jq** - Utilidades
+- **tree**, **htop**, **unzip**, **zip** - Herramientas del sistema
+
+### 🚀 Gestores de versiones (instalados automáticamente)
+- **nvm** - Node Version Manager
+- **pyenv** - Python Version Manager
 
 ## 🔧 Opciones del script de instalación
 
@@ -68,6 +88,43 @@ El script instala estos paquetes en **Arch Linux**:
 
 # Desinstalar dotfiles
 ./install.sh -u git zsh
+
+# Ver ayuda
+./install.sh -h
+```
+
+## 🛠️ Funciones de desarrollo
+
+### 🐳 Docker
+- **Aliases completos** - `d`, `dc`, `dcu`, `dcd`, `dlogs`, etc.
+- **Funciones útiles** - `drun`, `denter`, `dcleanup`, `dusage`
+- **Docker Compose shortcuts** - para dev, prod, test
+- **Auto-configuración** - Usuario agregado al grupo docker
+- **Dockerfiles** - Plantillas para Node.js y Python
+
+### 🐍 Python
+- **pyenv integration** - Manejo de versiones Python
+- **Virtual environments** - Creación y manejo automático
+- **Development tools** - black, flake8, mypy, pytest
+- **Aliases útiles** - `py`, `pip`, `venv`, `venvact`, etc.
+- **Functions** - `pymkenv`, `pyquick`, `pyformat`, `pylint`
+- **Poetry support** - Si usas Poetry para dependencias
+- **Django/Flask shortcuts** - Comandos rápidos
+
+### 🟢 Node.js
+- **nvm integration** - Manejo de versiones Node.js
+- **Multiple package managers** - npm, yarn, pnpm
+- **Auto-detection** - Detecta qué package manager usar
+- **Project templates** - React, Next.js, Express, Vue
+- **Development tools** - ESLint, Prettier, Jest
+- **Unified commands** - `install`, `start`, `build` automáticos
+
+### 💻 VS Code
+- **Settings optimizados** - Para desarrollo full-stack
+- **Extensions installer** - Script automático
+- **Configuración completa** - Keybindings, themes, linting
+- **Language support** - Python, JS/TS, Docker, K8s
+- **Project templates** - .vscode settings incluidos
 
 # Ver ayuda
 ./install.sh -h
@@ -121,6 +178,45 @@ El script instala estos paquetes en **Arch Linux**:
 - Aliases comunes para operaciones frecuentes
 - Configuración base para múltiples clusters
 
+## 🛠️ Herramientas de desarrollo
+
+### 🐳 Docker
+- **Aliases completos** - `d`, `dc`, `dcu`, `dcd`, `dlogs`, etc.
+- **Funciones útiles** - `drun`, `denter`, `dcleanup`, `dusage`
+- **Docker Compose shortcuts** - para dev, prod, test
+- **Auto-configuración** - Usuario agregado al grupo docker
+- **Dockerfiles** - Plantillas para Node.js y Python
+
+### 🐍 Python
+- **pyenv integration** - Manejo de versiones Python
+- **Virtual environments** - Creación y manejo automático
+- **Development tools** - black, flake8, mypy, pytest
+- **Aliases útiles** - `py`, `pip`, `venv`, `venvact`, etc.
+- **Functions** - `pymkenv`, `pyquick`, `pyformat`, `pylint`
+- **Poetry support** - Si usas Poetry para dependencias
+- **Django/Flask shortcuts** - Comandos rápidos
+
+### 🟢 Node.js
+- **nvm integration** - Manejo de versiones Node.js
+- **Multiple package managers** - npm, yarn, pnpm
+- **Auto-detection** - Detecta qué package manager usar
+- **Project templates** - React, Next.js, Express, Vue
+- **Development tools** - ESLint, Prettier, Jest
+- **Unified commands** - `install`, `start`, `build` automáticos
+
+### 💻 VS Code
+- **Settings optimizados** - Para desarrollo full-stack
+- **Extensions installer** - Script automático
+- **Configuración completa** - Keybindings, themes, linting
+- **Language support** - Python, JS/TS, Docker, K8s
+- **Project templates** - .vscode settings incluidos
+
+### 📜 Scripts de desarrollo
+- **`dev-status`** - Verificar estado del entorno
+- **`dev-init`** - Crear proyectos (Python, Node, React, etc.)
+- **`dev-clean`** - Limpiar artifacts (node_modules, cache, etc.)
+- **`code-ext`** - Instalar extensiones VS Code
+
 ## 📋 Uso diario
 
 ### Comandos esenciales
@@ -152,6 +248,31 @@ kl          # kubectl logs
 klf         # kubectl logs -f
 ke          # kubectl exec -it
 k9s         # abrir dashboard de k9s
+
+# Desarrollo
+dev-status  # verificar entorno
+dev-init python my-api     # crear proyecto Python
+dev-init react my-app      # crear proyecto React  
+dev-clean node            # limpiar artifacts Node.js
+code-ext essential        # instalar extensiones VS Code
+
+# Docker
+d ps        # docker ps
+dc up       # docker compose up
+dc logs     # docker compose logs
+dcleanup    # limpiar sistema Docker
+
+# Python
+py --version           # python version
+pymkenv myproject      # crear virtual env
+pyquick                # crear env con tools
+pyformat .             # formatear código
+
+# Node.js
+nodeversions           # ver versiones disponibles
+nodeinit express api   # crear proyecto Express
+nodedev                # ejecutar en development
+nodeclean              # limpiar node_modules
 ```
 
 ### Tmux workflow

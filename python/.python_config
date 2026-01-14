@@ -1,0 +1,181 @@
+#!/bin/bash
+# Python development environment setup and aliases
+
+# Python version management with pyenv
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"
+
+# Initialize pyenv if available
+if command -v pyenv >/dev/null 2>&1; then
+    eval "$(pyenv init -)"
+    eval "$(pyenv virtualenv-init -)"
+fi
+
+# Python aliases
+alias py='python'
+alias py3='python3'
+alias pip='pip3'
+alias pir='pip install -r requirements.txt'
+alias pipu='pip install --upgrade'
+alias pipf='pip freeze > requirements.txt'
+alias pipl='pip list'
+alias pips='pip show'
+
+# Virtual environment management
+alias venv='python -m venv'
+alias venvact='source venv/bin/activate'
+alias venvdeact='deactivate'
+alias venvls='ls -la */pyvenv.cfg 2>/dev/null | sed "s|/pyvenv.cfg||"'
+
+# Poetry aliases (if using Poetry)
+alias po='poetry'
+alias poi='poetry install'
+alias poa='poetry add'
+alias por='poetry remove'
+alias pos='poetry shell'
+alias pob='poetry build'
+alias pox='poetry run'
+
+# Django shortcuts
+alias dj='django-admin'
+alias djrun='python manage.py runserver'
+alias djmig='python manage.py makemigrations'
+alias djmigrate='python manage.py migrate'
+alias djshell='python manage.py shell'
+alias djtest='python manage.py test'
+alias djcollect='python manage.py collectstatic'
+
+# Flask shortcuts
+alias flask-run='flask run'
+alias flask-shell='flask shell'
+
+# Jupyter/IPython
+alias jn='jupyter notebook'
+alias jl='jupyter lab'
+alias ipy='ipython'
+
+# Testing aliases
+alias pytest='python -m pytest'
+alias pyt='python -m pytest'
+alias pytv='python -m pytest -v'
+alias pyts='python -m pytest -s'
+alias pytc='python -m pytest --cov'
+
+# Python HTTP server
+alias pyserver='python -m http.server'
+alias pyserver8000='python -m http.server 8000'
+
+# Python functions
+
+# Create and activate virtual environment
+pymkenv() {
+    local env_name=${1:-venv}
+    python -m venv $env_name
+    source $env_name/bin/activate
+    echo "Virtual environment '$env_name' created and activated"
+    echo "Python: $(which python)"
+    echo "Version: $(python --version)"
+}
+
+# Quick virtual environment with common packages
+pyquick() {
+    local env_name=${1:-quickenv}
+    python -m venv $env_name
+    source $env_name/bin/activate
+    pip install --upgrade pip
+    pip install ipython jupyter requests pytest black flake8
+    echo "Quick Python environment '$env_name' ready with:"
+    echo "- ipython, jupyter"
+    echo "- requests"
+    echo "- pytest"
+    echo "- black (formatter)"
+    echo "- flake8 (linter)"
+}
+
+# Install Python with pyenv
+pyinstall() {
+    if ! command -v pyenv >/dev/null 2>&1; then
+        echo "pyenv not found. Please install pyenv first."
+        return 1
+    fi
+    
+    if [[ -z "$1" ]]; then
+        echo "Usage: pyinstall <version>"
+        echo "Available versions:"
+        pyenv install --list | grep -E "^\s*[0-9]+\.[0-9]+\.[0-9]+$" | tail -10
+        return 1
+    fi
+    
+    pyenv install $1
+    echo "Python $1 installed. Set as global with: pyenv global $1"
+}
+
+# List Python environments
+pyenvs() {
+    echo "=== Pyenv Versions ==="
+    if command -v pyenv >/dev/null 2>&1; then
+        pyenv versions
+    else
+        echo "pyenv not installed"
+    fi
+    
+    echo ""
+    echo "=== Virtual Environments in Current Directory ==="
+    find . -maxdepth 2 -name "pyvenv.cfg" -exec dirname {} \; 2>/dev/null | sort
+    
+    echo ""
+    echo "=== Active Environment ==="
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        echo "Active: $(basename $VIRTUAL_ENV)"
+        echo "Path: $VIRTUAL_ENV"
+        echo "Python: $(which python)"
+    else
+        echo "No virtual environment active"
+    fi
+}
+
+# Format Python code with black
+pyformat() {
+    if ! command -v black >/dev/null 2>&1; then
+        echo "black not found. Install with: pip install black"
+        return 1
+    fi
+    
+    local target=${1:-.}
+    black $target
+}
+
+# Lint Python code with flake8
+pylint() {
+    if ! command -v flake8 >/dev/null 2>&1; then
+        echo "flake8 not found. Install with: pip install flake8"
+        return 1
+    fi
+    
+    local target=${1:-.}
+    flake8 $target
+}
+
+# Create requirements.txt from installed packages
+pyreq() {
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        pip freeze > requirements.txt
+        echo "requirements.txt created with $(wc -l < requirements.txt) packages"
+    else
+        echo "No virtual environment active. Activate one first."
+        return 1
+    fi
+}
+
+# Install development dependencies
+pydevinstall() {
+    echo "Installing Python development tools..."
+    pip install --upgrade pip
+    pip install black flake8 mypy pytest pytest-cov ipython jupyter
+    echo "Development tools installed:"
+    echo "- black (code formatter)"
+    echo "- flake8 (linter)" 
+    echo "- mypy (type checker)"
+    echo "- pytest + pytest-cov (testing)"
+    echo "- ipython + jupyter (interactive development)"
+}

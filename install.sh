@@ -20,6 +20,28 @@ SYSTEM_PACKAGES=(
     "stow"
     "kubectl"
     "k9s"
+    
+    # Herramientas de desarrollo
+    "docker"
+    "docker-compose"
+    "python"
+    "python-pip"
+    "python-virtualenv"
+    "nodejs"
+    "npm"
+    "yarn"
+    "code"  # VS Code
+    
+    # Herramientas de desarrollo adicionales
+    "base-devel"  # Herramientas de compilación
+    "git"
+    "curl"
+    "wget"
+    "jq"
+    "tree"
+    "htop"
+    "unzip"
+    "zip"
 )
 
 # Paquetes de dotfiles disponibles
@@ -33,10 +55,17 @@ DOTFILE_PACKAGES=(
     "starship"
     "atuin"
     "scripts"
+    "devscripts"
     "system"
     "ssh"
     "kubectl"
     "k9s"
+    
+    # Nuevos paquetes de desarrollo
+    "docker"
+    "python"
+    "nodejs"
+    "vscode"
 )
 
 echo "🏠 Instalando dotfiles de Kevin Barroso"
@@ -219,6 +248,61 @@ setup_locale() {
     fi
 }
 
+# Función para configurar herramientas de desarrollo
+setup_development_tools() {
+    echo "🛠️  Configurando herramientas de desarrollo..."
+    
+    # Instalar NVM (Node Version Manager)
+    if [[ ! -d "$HOME/.nvm" ]]; then
+        echo "📦 Instalando NVM..."
+        curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash >/dev/null 2>&1
+        export NVM_DIR="$HOME/.nvm"
+        if [[ -s "$NVM_DIR/nvm.sh" ]]; then
+            source "$NVM_DIR/nvm.sh"
+            echo "✅ NVM instalado correctamente"
+        fi
+    else
+        echo "✅ NVM ya está instalado"
+    fi
+    
+    # Instalar pyenv (Python Version Manager)
+    if [[ ! -d "$HOME/.pyenv" ]]; then
+        echo "📦 Instalando pyenv..."
+        curl https://pyenv.run | bash >/dev/null 2>&1
+        export PYENV_ROOT="$HOME/.pyenv"
+        export PATH="$PYENV_ROOT/bin:$PATH"
+        if command -v pyenv >/dev/null 2>&1; then
+            echo "✅ pyenv instalado correctamente"
+        fi
+    else
+        echo "✅ pyenv ya está instalado"
+    fi
+    
+    # Configurar Docker para usuario actual
+    if command -v docker >/dev/null 2>&1; then
+        if ! groups | grep -q docker; then
+            echo "🐳 Agregando usuario al grupo docker..."
+            sudo usermod -aG docker $USER >/dev/null 2>&1
+            echo "✅ Usuario agregado al grupo docker"
+            echo "💡 Cierra sesión y vuelve a entrar para aplicar cambios"
+        else
+            echo "✅ Usuario ya está en el grupo docker"
+        fi
+        
+        # Habilitar servicio de docker
+        if systemctl is-enabled docker.service >/dev/null 2>&1; then
+            echo "✅ Servicio docker ya está habilitado"
+        else
+            echo "🐳 Habilitando servicio docker..."
+            sudo systemctl enable docker.service >/dev/null 2>&1
+            sudo systemctl start docker.service >/dev/null 2>&1
+            echo "✅ Servicio docker habilitado y iniciado"
+        fi
+    fi
+    
+    echo "✅ Herramientas de desarrollo configuradas"
+}
+
 # Función para mostrar ayuda
 show_help() {
     echo "Uso: $0 [OPCIONES] [PAQUETES...]"
@@ -342,6 +426,9 @@ if [[ "$INSTALL_SYSTEM" == true && "$ACTION" == "stow" ]]; then
     # Configurar locales del sistema
     setup_locale
     
+    # Configurar herramientas de desarrollo
+    setup_development_tools
+    
     # Configurar zsh como shell por defecto
     setup_zsh
     
@@ -359,6 +446,22 @@ if [[ "$ACTION" == "stow" ]]; then
     echo "✅ Dotfiles instalados correctamente"
     if [[ "$INSTALL_SYSTEM" == true ]]; then
         echo "✅ Paquetes del sistema instalados"
+        echo "✅ Herramientas de desarrollo configuradas"
+        echo ""
+        echo "🛠️  Herramientas disponibles:"
+        echo "   • Docker + Docker Compose"
+        echo "   • Python + pip + pyenv"
+        echo "   • Node.js + npm + yarn + nvm"
+        echo "   • VS Code + extensiones"
+        echo "   • Git con aliases optimizados"
+        echo "   • Kubernetes (kubectl + k9s)"
+        echo ""
+        echo "📜 Comandos útiles:"
+        echo "   dev-status  - Verificar estado del entorno"
+        echo "   dev-init    - Crear nuevos proyectos"
+        echo "   dev-clean   - Limpiar archivos temporales"
+        echo "   code-ext    - Instalar extensiones de VS Code"
+        echo ""
         echo "🐚 Para aplicar completamente la configuración:"
         echo "   1. Cierra la terminal actual"
         echo "   2. Abre una nueva terminal (zsh será el shell por defecto)"
