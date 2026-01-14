@@ -1,5 +1,10 @@
 # ~/.zshrc - Configuración de Zsh
 
+# Cargar configuración del sistema
+if [ -f "$HOME/.profile" ]; then
+    source "$HOME/.profile"
+fi
+
 # Configuración del PATH
 export PATH=$HOME/.local/bin:$PATH
 

@@ -30,6 +30,7 @@ DOTFILE_PACKAGES=(
     "starship"
     "atuin"
     "scripts"
+    "system"
 )
 
 echo "🏠 Instalando dotfiles de Kevin Barroso"
@@ -70,6 +71,36 @@ install_system_packages() {
     done
 }
 
+# Función para hacer backup de archivos conflictivos
+backup_conflicting_files() {
+    local package="$1"
+    local backup_dir="$HOME/.dotfiles-backup/$(date +%Y%m%d_%H%M%S)"
+    
+    echo "🔍 Verificando conflictos para el paquete: $package..."
+    
+    # Verificar si hay conflictos usando stow dry-run
+    if ! stow -n -d "$DOTFILES_DIR" -t "$HOME" "$package" 2>/dev/null; then
+        echo "⚠️  Detectados archivos conflictivos para $package"
+        mkdir -p "$backup_dir"
+        
+        # Encontrar archivos conflictivos y hacer backup
+        while IFS= read -r line; do
+            if [[ "$line" =~ "existing target" ]]; then
+                # Extraer el nombre del archivo del mensaje de error
+                file=$(echo "$line" | sed -n 's/.*existing target \(.*\) since.*/\1/p')
+                if [[ -n "$file" && -e "$HOME/$file" ]]; then
+                    echo "📁 Haciendo backup de: ~/$file"
+                    mkdir -p "$backup_dir/$(dirname "$file")" 2>/dev/null || true
+                    cp "$HOME/$file" "$backup_dir/$file" 2>/dev/null || true
+                    rm "$HOME/$file"
+                fi
+            fi
+        done < <(stow -n -d "$DOTFILES_DIR" -t "$HOME" "$package" 2>&1)
+        
+        echo "✅ Backup guardado en: $backup_dir"
+    fi
+}
+
 # Función para instalar paquetes con stow
 install_dotfile_package() {
     local package="$1"
@@ -81,10 +112,21 @@ install_dotfile_package() {
     fi
     
     echo "📦 ${action^}ing dotfiles: $package..."
+    
     if [ "$action" = "stow" ]; then
-        stow -d "$DOTFILES_DIR" -t "$HOME" "$package" -v
+        # Hacer backup de archivos conflictivos antes de instalar
+        backup_conflicting_files "$package"
+        
+        # Intentar instalar con stow
+        if stow -d "$DOTFILES_DIR" -t "$HOME" "$package" -v; then
+            echo "✅ $package instalado correctamente"
+        else
+            echo "❌ Error instalando $package"
+            return 1
+        fi
     else
         stow -d "$DOTFILES_DIR" -t "$HOME" -D "$package" -v
+        echo "✅ $package desinstalado correctamente"
     fi
 }
 
@@ -97,6 +139,36 @@ setup_zsh() {
         echo "💡 Cierra la sesión y vuelve a entrar para aplicar cambios"
     else
         echo "✅ Zsh ya es el shell por defecto"
+    fi
+}
+
+# Función para configurar locales
+setup_locale() {
+    echo "🌍 Configurando locales del sistema..."
+    
+    # Configurar variables de entorno para evitar warnings de Perl
+    export LANG=C.UTF-8
+    export LC_ALL=C.UTF-8
+    export LC_CTYPE=C.UTF-8
+    
+    # Verificar si C.UTF-8 está disponible (más universal que en_US.UTF-8)
+    if locale -a 2>/dev/null | grep -q "C.utf8\|C.UTF-8"; then
+        echo "✅ Locale C.UTF-8 ya está disponible"
+    else
+        echo "⚠️  C.UTF-8 no está disponible, usando configuración manual"
+    fi
+    
+    # Crear archivo de configuración de locale si no existe
+    if [[ ! -f /etc/locale.conf ]] || ! grep -q "LANG=C.UTF-8" /etc/locale.conf 2>/dev/null; then
+        if [[ -w /etc/locale.conf ]] || sudo -n true 2>/dev/null; then
+            echo "LANG=C.UTF-8" | sudo tee /etc/locale.conf >/dev/null 2>&1
+            echo "✅ Configurado /etc/locale.conf"
+        else
+            echo "💡 No se pudo configurar /etc/locale.conf (sin permisos sudo)"
+            echo "💡 Las variables de entorno se configurarán en ~/.profile"
+        fi
+    else
+        echo "✅ /etc/locale.conf ya está configurado"
     fi
 }
 
@@ -219,6 +291,9 @@ fi
 if [[ "$INSTALL_SYSTEM" == true && "$ACTION" == "stow" ]]; then
     echo ""
     echo "⚙️  Realizando configuraciones adicionales..."
+    
+    # Configurar locales del sistema
+    setup_locale
     
     # Configurar zsh como shell por defecto
     setup_zsh
