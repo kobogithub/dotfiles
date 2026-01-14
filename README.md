@@ -14,6 +14,7 @@ dotfiles/
 ├── tmux/                   # Configuración de tmux (~/.tmux.conf)
 ├── starship/               # Configuración de Starship (~/.config/starship.toml)
 ├── atuin/                  # Configuración de Atuin (~/.config/atuin/)
+├── ssh/                    # Configuración de SSH (~/.ssh/config)
 ├── scripts/                # Scripts útiles (~/.local/bin/)
 ├── install.sh              # Script de instalación completa
 └── README.md               # Este archivo
@@ -36,6 +37,7 @@ cd ~/.dotfiles
 
 El script instala estos paquetes en **Arch Linux**:
 
+- **openssh** - Cliente SSH para conexiones seguras
 - **neovim** - Editor moderno basado en Vim
 - **tmux** - Multiplexor de terminal  
 - **github-cli** - CLI oficial de GitHub
@@ -100,6 +102,13 @@ El script instala estos paquetes en **Arch Linux**:
 - Filtros inteligentes
 - Estadísticas de uso
 - Configuración optimizada
+
+### 🔒 SSH
+- Configuración optimizada para conexiones seguras
+- Control de conexiones persistentes (ControlMaster)
+- Compresión automática para conexiones lentas
+- Configuración preconfigurada para GitHub
+- Timeouts y keep-alive configurados
 
 ## 📋 Uso diario
 

@@ -9,6 +9,7 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Paquetes del sistema que siempre se instalan
 SYSTEM_PACKAGES=(
+    "openssh"
     "neovim"
     "tmux" 
     "github-cli"
@@ -31,6 +32,7 @@ DOTFILE_PACKAGES=(
     "atuin"
     "scripts"
     "system"
+    "ssh"
 )
 
 echo "🏠 Instalando dotfiles de Kevin Barroso"
