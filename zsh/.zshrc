@@ -7,6 +7,7 @@ fi
 
 # Configuración del PATH
 export PATH=$HOME/.local/bin:$PATH
+export PATH="/home/kobo/.cache/.bun/bin:$PATH"
 
 # Historia
 HISTSIZE=10000
@@ -123,3 +124,8 @@ alias code-ext='~/.dotfiles/vscode/install-extensions.sh'
 # Keybindings útiles
 bindkey '^[[A' history-search-backward    # Flecha arriba
 bindkey '^[[B' history-search-forward     # Flecha abajo
+
+# opencode
+export PATH=/home/kobo/.opencode/bin:$PATH
+
+eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"

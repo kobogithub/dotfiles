@@ -21,8 +21,7 @@ SYSTEM_PACKAGES=(
     "kubectl"
     "k9s"
     
-    # Herramientas de desarrollo
-    "docker"
+    # Herramientas de desarrollo (docker se verifica por separado)
     "docker-compose"
     "python"
     "python-pip"
@@ -89,6 +88,30 @@ check_arch() {
 # Función para instalar paquetes del sistema
 install_system_packages() {
     echo "🔧 Instalando paquetes del sistema..."
+    
+    # Verificar Docker por separado debido a posibles conflictos
+    if ! command -v docker >/dev/null 2>&1; then
+        echo "📦 Instalando Docker..."
+        sudo pacman -S --noconfirm docker
+    else
+        echo "✅ Docker ya está instalado ($(docker --version | cut -d' ' -f3 | tr -d ','))"
+        
+        # Verificar si es la versión de pacman
+        if ! pacman -Qi docker >/dev/null 2>&1; then
+            echo "⚠️  Docker está instalado pero no es gestionado por pacman"
+            echo "💡 Esto puede causar conflictos. ¿Continuar? (y/N)"
+            read -p ": " -n 1 -r
+            echo
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                echo "🔧 Saltando instalación de docker via pacman"
+            else
+                echo "❌ Instalación cancelada"
+                exit 1
+            fi
+        fi
+    fi
+    
+    echo "📦 Instalando el resto de paquetes del sistema..."
     
     # Actualizar sistema
     echo "⬆️  Actualizando sistema..."
