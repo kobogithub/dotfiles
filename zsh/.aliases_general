@@ -1,0 +1,21 @@
+# ~/.dotfiles/zsh/.aliases_general - Aliases generales y de gestión
+
+# Aliases para editar archivos de configuración de dotfiles
+alias edit-zsh='${EDITOR:-nvim} ~/.dotfiles/zsh/.zshrc'
+alias edit-aliases-k8s='${EDITOR:-nvim} ~/.dotfiles/kubectl/.aliases_k8s'
+alias edit-aliases-docker='${EDITOR:-nvim} ~/.dotfiles/docker/.docker_aliases'
+alias edit-aliases-general='${EDITOR:-nvim} ~/.dotfiles/zsh/.aliases_general'
+
+# Aliases para recargar configuración
+alias reload-zsh='source ~/.zshrc'
+alias reload-aliases='source ~/.dotfiles/zsh/.zshrc'
+
+# Shortcuts para navegar en dotfiles
+alias cdot='cd ~/.dotfiles'
+alias lsdot='ls -la ~/.dotfiles'
+
+# Listar todos los archivos de aliases cargados
+alias list-aliases='echo "Loaded alias files:"; \
+    [ -f "$HOME/.dotfiles/docker/.docker_aliases" ] && echo "✓ Docker aliases"; \
+    [ -f "$HOME/.dotfiles/kubectl/.aliases_k8s" ] && echo "✓ Kubernetes aliases"; \
+    [ -f "$HOME/.dotfiles/zsh/.aliases_general" ] && echo "✓ General aliases"'

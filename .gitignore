@@ -28,3 +28,7 @@ local/
 *.key
 *.pem
 secrets/
+
+# Kubernetes
+kubectl/.kube/config
+kubectl/.kube/cache/

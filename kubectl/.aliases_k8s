@@ -1,0 +1,141 @@
+# ~/.dotfiles/kubectl/.aliases_k8s - Aliases de Kubernetes
+
+# Aliases básicos de kubectl
+alias k='kubectl'
+alias kc='kubectl'
+alias kb='kubectl'
+
+# Get resources
+alias kgp='kubectl get pods'
+alias kgs='kubectl get services'
+alias kgd='kubectl get deployments'
+alias kgn='kubectl get nodes'
+alias kga='kubectl get all'
+alias kgns='kubectl get namespaces'
+alias kgi='kubectl get ingress'
+alias kgpv='kubectl get pv'
+alias kgpvc='kubectl get pvc'
+alias kgcm='kubectl get configmaps'
+alias kgsec='kubectl get secrets'
+alias kgev='kubectl get events'
+alias kgj='kubectl get jobs'
+alias kgcj='kubectl get cronjobs'
+alias kghpa='kubectl get hpa'
+alias kgsa='kubectl get serviceaccounts'
+
+# Get with output formatting
+alias kgpo='kubectl get pods -o wide'
+alias kgdo='kubectl get deployments -o wide'
+alias kgno='kubectl get nodes -o wide'
+alias kgso='kubectl get services -o wide'
+
+# Get with watch
+alias kgpw='kubectl get pods -w'
+alias kgdw='kubectl get deployments -w'
+alias kgsw='kubectl get services -w'
+alias kgevw='kubectl get events -w'
+
+# Describe resources
+alias kdp='kubectl describe pod'
+alias kds='kubectl describe service'
+alias kdd='kubectl describe deployment'
+alias kdn='kubectl describe node'
+alias kdns='kubectl describe namespace'
+alias kdi='kubectl describe ingress'
+alias kdpv='kubectl describe pv'
+alias kdpvc='kubectl describe pvc'
+alias kdcm='kubectl describe configmap'
+alias kdsec='kubectl describe secret'
+alias kdj='kubectl describe job'
+alias kdcj='kubectl describe cronjob'
+alias kdhpa='kubectl describe hpa'
+alias kdsa='kubectl describe serviceaccount'
+
+# Logs
+alias kl='kubectl logs'
+alias klf='kubectl logs -f'
+alias klp='kubectl logs --previous'
+alias klpf='kubectl logs --previous -f'
+alias klt='kubectl logs --tail=100'
+alias kltf='kubectl logs --tail=100 -f'
+
+# Exec and port-forward
+alias ke='kubectl exec -it'
+alias kpf='kubectl port-forward'
+alias kcp='kubectl cp'
+
+# Context and namespace management
+alias kctx='kubectl config current-context'
+alias kctxs='kubectl config get-contexts'
+alias kctxu='kubectl config use-context'
+alias kns='kubectl config set-context --current --namespace'
+alias knsv='kubectl config view --minify --output "jsonpath={..namespace}"'
+alias knsget='kubectl get namespace'
+
+# Apply and delete
+alias kapp='kubectl apply -f'
+alias kappr='kubectl apply -R -f'
+alias kdel='kubectl delete'
+alias kdelf='kubectl delete -f'
+alias kdelall='kubectl delete all --all'
+
+# Scale and rollout
+alias kscale='kubectl scale'
+alias kroll='kubectl rollout'
+alias krollhist='kubectl rollout history'
+alias krollstat='kubectl rollout status'
+alias krollrestart='kubectl rollout restart'
+alias krollundo='kubectl rollout undo'
+
+# Edit resources
+alias ked='kubectl edit'
+alias kedp='kubectl edit pod'
+alias keds='kubectl edit service'
+alias kedd='kubectl edit deployment'
+alias kedcm='kubectl edit configmap'
+alias kedsec='kubectl edit secret'
+
+# Create resources
+alias kcr='kubectl create'
+alias kcrns='kubectl create namespace'
+alias kcrsec='kubectl create secret'
+alias kcrcm='kubectl create configmap'
+alias kcrsa='kubectl create serviceaccount'
+
+# Patch resources
+alias kpatch='kubectl patch'
+
+# Top (resource usage)
+alias ktop='kubectl top'
+alias ktopn='kubectl top nodes'
+alias ktopp='kubectl top pods'
+
+# Shortcuts for common operations
+alias k9='k9s'  # Si tienes k9s instalado
+alias kgpall='kubectl get pods --all-namespaces'
+alias kgdall='kubectl get deployments --all-namespaces'
+alias kgsall='kubectl get services --all-namespaces'
+alias kgiall='kubectl get ingress --all-namespaces'
+
+# Debug helpers
+alias kdebug='kubectl run debug-shell --rm -i --tty --image=nicolaka/netshoot -- /bin/bash'
+alias kgetall='kubectl get all,pv,pvc,configmaps,secrets,ingress,networkpolicies,serviceaccounts,roles,rolebindings,clusterroles,clusterrolebindings'
+
+# JSON/YAML output
+alias kgy='kubectl get -o yaml'
+alias kgj='kubectl get -o json'
+alias kdy='kubectl describe -o yaml'
+
+# Quick pod creation for testing
+alias kruntest='kubectl run test-pod --image=busybox --rm -it --restart=Never --'
+
+# Aliases para helm (si lo usas)
+alias h='helm'
+alias hls='helm list'
+alias hlsa='helm list --all-namespaces'
+alias hinst='helm install'
+alias hup='helm upgrade'
+alias hdel='helm delete'
+alias hget='helm get'
+alias hstat='helm status'
+alias hhist='helm history'
