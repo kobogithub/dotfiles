@@ -26,3 +26,10 @@ alias alias-add='alias-manager add'
 alias alias-rm='alias-manager remove'
 alias alias-list='alias-manager list'
 alias alias-search='alias-manager search'
+
+# Atuin dotfiles (aliases persistentes con Atuin)
+alias atuin-alias-set='atuin dotfiles alias set'
+alias atuin-alias-list='atuin dotfiles alias list'
+alias atuin-alias-rm='atuin dotfiles alias delete'
+alias atuin-var-set='atuin dotfiles var set'
+alias atuin-var-list='atuin dotfiles var list'

@@ -44,3 +44,7 @@ dialect = "us"
 
 # Configuración de sincronización
 update_check = false
+
+# Configuración de dotfiles
+[dotfiles]
+enabled = true
