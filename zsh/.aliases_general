@@ -33,3 +33,10 @@ alias atuin-alias-list='atuin dotfiles alias list'
 alias atuin-alias-rm='atuin dotfiles alias delete'
 alias atuin-var-set='atuin dotfiles var set'
 alias atuin-var-list='atuin dotfiles var list'
+
+# Zoxide (navegación inteligente)
+alias cdi='cd'  # cd interactivo con fzf (si --cmd cd está configurado, cdi = zi)
+alias zq='zoxide query'
+alias zql='zoxide query -l'
+alias zqs='zoxide query -l -s'
+alias zr='zoxide remove'

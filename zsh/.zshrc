@@ -8,6 +8,7 @@ fi
 # Configuración del PATH
 export PATH=$HOME/.local/bin:$PATH
 export PATH="/home/kobo/.cache/.bun/bin:$PATH"
+export PATH="/home/kobo/go/bin:$PATH"
 
 # Historia
 HISTSIZE=10000
@@ -32,6 +33,7 @@ alias grep='grep --color=auto'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
+alias cd='z'
 
 # Aliases de Git
 alias gs='git status'
@@ -67,6 +69,9 @@ eval "$(atuin init zsh)"
 
 # GitHub CLI completion
 eval "$(gh completion -s zsh)"
+
+# Zoxide (reemplazo inteligente de cd)
+eval "$(zoxide init zsh --cmd cd)"
 
 # # kubectl completion
 # source <(kubectl completion zsh)

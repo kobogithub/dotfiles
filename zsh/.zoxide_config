@@ -1,0 +1,32 @@
+# ~/.zoxide_config - Configuración de Zoxide
+
+# Zoxide reemplaza cd con navegación inteligente
+# aprende de tus patrones de navegación
+
+# Comandos principales:
+# cd <directorio>     - Navegar normalmente o saltar a directorio frecuente
+# cd <fragmento>      - Buscar directorio por fragmento (ej: cd dot -> ~/github/dotfiles)
+# cdi                 - Modo interactivo con fzf (si está instalado)
+# cd -                - Directorio anterior
+# cd ..               - Directorio padre
+
+# Ejemplos de uso después de visitar algunos directorios:
+# cd github/dotfiles  # Primera vez, path completo
+# cd dot              # Después, solo un fragmento es suficiente
+# cd nvim             # Salta a ~/.config/nvim si lo has visitado
+# cd proj work        # Busca directorios que contengan "proj" y "work"
+
+# Comandos de gestión:
+# zoxide query <term>     - Ver a qué directorio saltaría
+# zoxide query -l         - Listar todos los directorios trackeados
+# zoxide query -l -s      - Listar con scores (frecuencia)
+# zoxide remove <path>    - Remover directorio del historial
+# zoxide edit             - Editar base de datos manualmente
+
+# Variables de entorno (opcional, descomenta para personalizar):
+# export _ZO_DATA_DIR="$HOME/.local/share"  # Directorio de datos
+# export _ZO_ECHO=1                         # Mostrar directorio al cambiar
+# export _ZO_EXCLUDE_DIRS="/tmp:/mnt"       # Directorios a excluir
+# export _ZO_FZF_OPTS="--height 40%"        # Opciones de fzf para cdi
+# export _ZO_MAXAGE=10000                   # Edad máxima de entradas
+# export _ZO_RESOLVE_SYMLINKS=1             # Resolver symlinks
