@@ -1,0 +1,277 @@
+#!/bin/bash
+
+# alias-manager - Gestionar aliases en dotfiles
+# Uso: alias-manager <comando> [argumentos]
+
+# Detectar directorio de dotfiles
+if [ -d "$HOME/.dotfiles" ]; then
+    DOTFILES_DIR="$HOME/.dotfiles"
+elif [ -d "$HOME/github/dotfiles" ]; then
+    DOTFILES_DIR="$HOME/github/dotfiles"
+else
+    DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)"
+fi
+
+ALIASES_FILE="$DOTFILES_DIR/zsh/.aliases_general"
+ALIASES_K8S="$DOTFILES_DIR/kubectl/.aliases_k8s"
+ALIASES_DOCKER="$DOTFILES_DIR/docker/.docker_aliases"
+
+# Colores usando tput (más portable)
+if command -v tput >/dev/null 2>&1 && [ -t 1 ]; then
+    GREEN=$(tput setaf 2)
+    BLUE=$(tput setaf 4)
+    YELLOW=$(tput setaf 3)
+    RED=$(tput setaf 1)
+    BOLD=$(tput bold)
+    NC=$(tput sgr0)
+else
+    GREEN=""
+    BLUE=""
+    YELLOW=""
+    RED=""
+    BOLD=""
+    NC=""
+fi
+
+show_help() {
+    printf "${BLUE}alias-manager${NC} - Gestión de aliases en dotfiles\n\n"
+    printf "${YELLOW}USO:${NC}\n"
+    printf "    alias-manager <comando> [argumentos]\n\n"
+    printf "${YELLOW}COMANDOS:${NC}\n"
+    printf "    add <nombre> <comando>       Agregar nuevo alias\n"
+    printf "    remove <nombre>              Eliminar alias\n"
+    printf "    list [type]                  Listar aliases (general|k8s|docker|all)\n"
+    printf "    search <término>             Buscar alias por nombre o comando\n"
+    printf "    edit [type]                  Editar archivo de aliases (general|k8s|docker)\n"
+    printf "    reload                       Recargar configuración de zsh\n\n"
+    printf "${YELLOW}EJEMPLOS:${NC}\n"
+    printf "    alias-manager add gst 'git status'\n"
+    printf "    alias-manager add ll 'ls -la'\n"
+    printf "    alias-manager remove gst\n"
+    printf "    alias-manager list\n"
+    printf "    alias-manager list k8s\n"
+    printf "    alias-manager search git\n"
+    printf "    alias-manager edit\n"
+    printf "    alias-manager reload\n\n"
+    printf "${YELLOW}ARCHIVOS:${NC}\n"
+    printf "    General:    $ALIASES_FILE\n"
+    printf "    Kubernetes: $ALIASES_K8S\n"
+    printf "    Docker:     $ALIASES_DOCKER\n"
+}
+
+add_alias() {
+    local name="$1"
+    local command="$2"
+    
+    if [ -z "$name" ] || [ -z "$command" ]; then
+        printf "${RED}Error: Debes proporcionar nombre y comando${NC}\n"
+        echo "Uso: alias-manager add <nombre> <comando>"
+        exit 1
+    fi
+    
+    # Verificar si el alias ya existe
+    if grep -q "^alias $name=" "$ALIASES_FILE" 2>/dev/null; then
+        printf "${YELLOW}Advertencia: El alias '$name' ya existe${NC}\n"
+        read -p "¿Sobrescribir? (y/n) " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            echo "Operación cancelada"
+            exit 0
+        fi
+        # Eliminar alias existente
+        sed -i "/^alias $name=/d" "$ALIASES_FILE"
+    fi
+    
+    # Agregar nuevo alias
+    echo "alias $name='$command'" >> "$ALIASES_FILE"
+    printf "${GREEN}✓${NC} Alias agregado: ${BLUE}$name${NC} -> ${YELLOW}'$command'${NC}\n"
+    printf "${BLUE}Tip:${NC} Ejecuta 'alias-manager reload' o 'source ~/.zshrc' para aplicar cambios\n"
+}
+
+remove_alias() {
+    local name="$1"
+    
+    if [ -z "$name" ]; then
+        printf "${RED}Error: Debes proporcionar el nombre del alias${NC}\n"
+        echo "Uso: alias-manager remove <nombre>"
+        exit 1
+    fi
+    
+    if grep -q "^alias $name=" "$ALIASES_FILE" 2>/dev/null; then
+        sed -i "/^alias $name=/d" "$ALIASES_FILE"
+        printf "${GREEN}✓${NC} Alias eliminado: ${BLUE}$name${NC}\n"
+        printf "${BLUE}Tip:${NC} Ejecuta 'alias-manager reload' para aplicar cambios\n"
+    else
+        printf "${RED}Error: Alias '$name' no encontrado${NC}\n"
+        exit 1
+    fi
+}
+
+list_aliases() {
+    local type="${1:-all}"
+    
+    case "$type" in
+        general)
+            printf "${BLUE}=== Aliases Generales ===${NC}\n"
+            if [ -f "$ALIASES_FILE" ]; then
+                grep "^alias " "$ALIASES_FILE" | sed 's/^alias /  /'
+                local count=$(grep "^alias " "$ALIASES_FILE" | wc -l)
+                echo ""
+                printf "${GREEN}Total: $count aliases${NC}\n"
+            else
+                echo "  No hay aliases"
+            fi
+            ;;
+        k8s|kubernetes)
+            printf "${BLUE}=== Aliases de Kubernetes ===${NC}\n"
+            if [ -f "$ALIASES_K8S" ]; then
+                grep "^alias " "$ALIASES_K8S" | sed 's/^alias /  /'
+                local count=$(grep "^alias " "$ALIASES_K8S" | wc -l)
+                echo ""
+                printf "${GREEN}Total: $count aliases${NC}\n"
+            else
+                echo "  No hay aliases"
+            fi
+            ;;
+        docker)
+            printf "${BLUE}=== Aliases de Docker ===${NC}\n"
+            if [ -f "$ALIASES_DOCKER" ]; then
+                grep "^alias " "$ALIASES_DOCKER" | sed 's/^alias /  /'
+                local count=$(grep "^alias " "$ALIASES_DOCKER" | wc -l)
+                echo ""
+                printf "${GREEN}Total: $count aliases${NC}\n"
+            else
+                echo "  No hay aliases"
+            fi
+            ;;
+        all|*)
+            printf "${BLUE}=== Aliases Generales ===${NC}\n"
+            if [ -f "$ALIASES_FILE" ]; then
+                grep "^alias " "$ALIASES_FILE" | sed 's/^alias /  /'
+            else
+                echo "  No hay aliases"
+            fi
+            echo ""
+            printf "${BLUE}=== Aliases de Kubernetes ===${NC}\n"
+            if [ -f "$ALIASES_K8S" ]; then
+                grep "^alias " "$ALIASES_K8S" | sed 's/^alias /  /'
+            else
+                echo "  No hay aliases"
+            fi
+            echo ""
+            printf "${BLUE}=== Aliases de Docker ===${NC}\n"
+            if [ -f "$ALIASES_DOCKER" ]; then
+                grep "^alias " "$ALIASES_DOCKER" | sed 's/^alias /  /'
+            else
+                echo "  No hay aliases"
+            fi
+            ;;
+    esac
+}
+
+search_alias() {
+    local term="$1"
+    
+    if [ -z "$term" ]; then
+        printf "${RED}Error: Debes proporcionar un término de búsqueda${NC}\n"
+        exit 1
+    fi
+    
+    printf "${BLUE}Buscando aliases que contengan: ${YELLOW}'$term'${NC}\n"
+    echo ""
+    
+    local found=0
+    
+    if [ -f "$ALIASES_FILE" ]; then
+        local results=$(grep -i "alias.*$term" "$ALIASES_FILE")
+        if [ -n "$results" ]; then
+            printf "${GREEN}General:${NC}\n"
+            echo "$results" | sed 's/alias /  /'
+            found=1
+        fi
+    fi
+    
+    if [ -f "$ALIASES_K8S" ]; then
+        local results=$(grep -i "alias.*$term" "$ALIASES_K8S")
+        if [ -n "$results" ]; then
+            printf "${GREEN}Kubernetes:${NC}\n"
+            echo "$results" | sed 's/alias /  /'
+            found=1
+        fi
+    fi
+    
+    if [ -f "$ALIASES_DOCKER" ]; then
+        local results=$(grep -i "alias.*$term" "$ALIASES_DOCKER")
+        if [ -n "$results" ]; then
+            printf "${GREEN}Docker:${NC}\n"
+            echo "$results" | sed 's/alias /  /'
+            found=1
+        fi
+    fi
+    
+    if [ $found -eq 0 ]; then
+        printf "${YELLOW}No se encontraron aliases${NC}\n"
+    fi
+}
+
+edit_aliases() {
+    local type="${1:-general}"
+    local editor="${EDITOR:-nvim}"
+    
+    case "$type" in
+        general)
+            $editor "$ALIASES_FILE"
+            ;;
+        k8s|kubernetes)
+            $editor "$ALIASES_K8S"
+            ;;
+        docker)
+            $editor "$ALIASES_DOCKER"
+            ;;
+        *)
+            printf "${RED}Error: Tipo inválido. Use: general, k8s, docker${NC}\n"
+            exit 1
+            ;;
+    esac
+}
+
+reload_config() {
+    printf "${BLUE}Recargando configuración de zsh...${NC}\n"
+    if [ -n "$ZSH_VERSION" ]; then
+        source ~/.zshrc
+        printf "${GREEN}✓${NC} Configuración recargada\n"
+    else
+        printf "${YELLOW}Advertencia: No estás en zsh. Ejecuta 'source ~/.zshrc' manualmente${NC}\n"
+    fi
+}
+
+# Main
+case "${1:-}" in
+    add)
+        add_alias "$2" "$3"
+        ;;
+    remove|rm)
+        remove_alias "$2"
+        ;;
+    list|ls)
+        list_aliases "$2"
+        ;;
+    search|find)
+        search_alias "$2"
+        ;;
+    edit)
+        edit_aliases "$2"
+        ;;
+    reload)
+        reload_config
+        ;;
+    help|--help|-h|"")
+        show_help
+        ;;
+    *)
+        printf "${RED}Error: Comando desconocido: $1${NC}\n"
+        echo ""
+        show_help
+        exit 1
+        ;;
+esac
