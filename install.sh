@@ -137,8 +137,8 @@ backup_conflicting_files() {
     
     echo "🔍 Verificando conflictos para el paquete: $package..."
     
-    # Verificar si hay conflictos usando stow dry-run
-    if ! stow -n -d "$DOTFILES_DIR" -t "$HOME" "$package" 2>/dev/null; then
+    # Verificar si hay conflictos usando stow dry-run con rutas absolutas
+    if ! stow -n --dir="$DOTFILES_DIR" --target="$HOME" --no-folding "$package" 2>/dev/null; then
         echo "⚠️  Detectados archivos conflictivos para $package"
         mkdir -p "$backup_dir"
         
@@ -154,7 +154,7 @@ backup_conflicting_files() {
                     rm "$HOME/$file"
                 fi
             fi
-        done < <(stow -n -d "$DOTFILES_DIR" -t "$HOME" "$package" 2>&1)
+        done < <(stow -n --dir="$DOTFILES_DIR" --target="$HOME" --no-folding "$package" 2>&1)
         
         echo "✅ Backup guardado en: $backup_dir"
     fi
@@ -176,15 +176,15 @@ install_dotfile_package() {
         # Hacer backup de archivos conflictivos antes de instalar
         backup_conflicting_files "$package"
         
-        # Intentar instalar con stow
-        if stow -d "$DOTFILES_DIR" -t "$HOME" "$package" -v; then
+        # Intentar instalar con stow usando ruta absoluta
+        if stow --dir="$DOTFILES_DIR" --target="$HOME" --no-folding "$package" -v; then
             echo "✅ $package instalado correctamente"
         else
             echo "❌ Error instalando $package"
             return 1
         fi
     else
-        stow -d "$DOTFILES_DIR" -t "$HOME" -D "$package" -v
+        stow --dir="$DOTFILES_DIR" --target="$HOME" --no-folding -D "$package" -v
         echo "✅ $package desinstalado correctamente"
     fi
 }
