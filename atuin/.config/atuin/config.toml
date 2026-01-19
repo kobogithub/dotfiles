@@ -1,5 +1,10 @@
 # ~/.config/atuin/config.toml - Configuración de Atuin
 
+# Rutas personalizadas
+db_path = "~/.dotfiles/atuin/data/history.db"
+key_path = "~/.dotfiles/atuin/data/key"
+session_path = "~/.dotfiles/atuin/data/session"
+
 # Configuración general
 auto_sync = false
 sync_frequency = "1h"

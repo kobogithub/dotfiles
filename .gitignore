@@ -32,3 +32,9 @@ secrets/
 # Kubernetes
 kubectl/.kube/config
 kubectl/.kube/cache/
+
+# Atuin - datos de historial y sesión
+atuin/data/
+*.db
+*.db-shm
+*.db-wal

@@ -12,10 +12,13 @@ Los datos se almacenan en la base de datos de Atuin y pueden sincronizarse entre
 
 ## Ubicación de datos
 
-- **Configuración**: `~/.config/atuin/config.toml`
-- **Base de datos**: `~/.local/share/atuin/`
-- **Historial**: `~/.local/share/atuin/history.db`
-- **Dotfiles**: Almacenados en la base de datos de Atuin
+**Configuración personalizada:**
+- **Configuración**: `~/.config/atuin/config.toml` (versionado en dotfiles)
+- **Base de datos**: `~/.dotfiles/atuin/data/history.db` (excluido de Git)
+- **Clave de encriptación**: `~/.dotfiles/atuin/data/key` (excluido de Git)
+- **Sesión**: `~/.dotfiles/atuin/data/session` (excluido de Git)
+
+**Nota:** Los datos personales (historial, claves, sesiones) están en `atuin/data/` y están excluidos del control de versiones mediante `.gitignore`. Solo la configuración se versiona en Git.
 
 ## Comandos principales
 
