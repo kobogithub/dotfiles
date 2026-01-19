@@ -19,3 +19,10 @@ alias list-aliases='echo "Loaded alias files:"; \
     [ -f "$HOME/.dotfiles/docker/.docker_aliases" ] && echo "✓ Docker aliases"; \
     [ -f "$HOME/.dotfiles/kubectl/.aliases_k8s" ] && echo "✓ Kubernetes aliases"; \
     [ -f "$HOME/.dotfiles/zsh/.aliases_general" ] && echo "✓ General aliases"'
+
+# Gestor de aliases
+alias alm='alias-manager'
+alias alias-add='alias-manager add'
+alias alias-rm='alias-manager remove'
+alias alias-list='alias-manager list'
+alias alias-search='alias-manager search'
