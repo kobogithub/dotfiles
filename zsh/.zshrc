@@ -33,7 +33,6 @@ alias grep='grep --color=auto'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
-alias cd='z'
 
 # Aliases de Git
 alias gs='git status'
@@ -72,6 +71,7 @@ eval "$(gh completion -s zsh)"
 
 # Zoxide (reemplazo inteligente de cd)
 eval "$(zoxide init zsh --cmd cd)"
+alias z='cd'  # Alias para usar z con zoxide
 
 # # kubectl completion
 # source <(kubectl completion zsh)

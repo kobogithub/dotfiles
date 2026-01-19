@@ -65,6 +65,7 @@ DOTFILE_PACKAGES=(
     "python"
     "nodejs"
     "vscode"
+    "opencode"
 )
 
 echo "🏠 Instalando dotfiles de Kevin Barroso"

@@ -23,6 +23,7 @@ dotfiles/
 ├── python/                 # Entorno Python + pyenv + virtual envs
 ├── nodejs/                 # Entorno Node.js + nvm + npm/yarn
 ├── vscode/                 # Configuración de VS Code + extensiones
+├── opencode/               # OpenCode agents & skills (~/.config/opencode/)
 ├── system/                 # Configuraciones del sistema
 ├── install.sh              # Script de instalación completa
 └── README.md               # Este archivo
@@ -220,6 +221,14 @@ El script instala estos paquetes en **Arch Linux**:
 - **`dev-init`** - Crear proyectos (Python, Node, React, etc.)
 - **`dev-clean`** - Limpiar artifacts (node_modules, cache, etc.)
 - **`code-ext`** - Instalar extensiones VS Code
+
+### 🤖 OpenCode AI Agents & Skills
+- **7 Custom Agents** - Expertos en FastAPI, PostgreSQL, Supabase, Docker, Astro, Documentation, QA
+- **6 Skills** - Guías completas de best practices, patterns, testing, y documentation
+- **7,000+ líneas** - De expertise técnico en código y configuraciones
+- **Project-ready** - Configuraciones reutilizables para tus proyectos
+- **Invoke with @** - `@fastapi-dev`, `@postgres-admin`, `@docker-expert`, `@docs-writer`, `@qa-engineer`
+- **[Ver documentación completa](opencode/README.md)**
 
 ## 📋 Uso diario
 
