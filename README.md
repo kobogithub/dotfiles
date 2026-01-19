@@ -150,7 +150,11 @@ El script instala estos paquetes en **Arch Linux**:
 - Navegación con vim keys (hjkl)
 - División intuitiva de ventanas (`|` y `-`)
 - Mouse habilitado
-- Configuración de colores
+- **Tema Catppuccin Frappe** con personalización
+- Barra de estado posicionada arriba
+- Color de fondo personalizado (#303446)
+- Plugins: tmux-cpu, tmux-battery
+- Módulos de estado: directorio, sesión, host, fecha/hora
 
 ### 🚀 Prompt (Starship)
 - Información de Git visible
@@ -287,6 +291,11 @@ Ctrl-a -    # División horizontal
 # Navegación
 Ctrl-a h/j/k/l    # Cambiar paneles
 Ctrl-a c          # Nueva ventana
+
+# Utilidades
+Ctrl-a r          # Recargar configuración
+Ctrl-a S          # Sincronizar paneles
+Ctrl-a a          # Alternar último panel
 ```
 
 ### Neovim basics
