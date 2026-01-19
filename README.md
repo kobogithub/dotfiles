@@ -153,7 +153,7 @@ El script instala estos paquetes en **Arch Linux**:
 - **Tema Catppuccin Frappe** con personalización
 - Barra de estado posicionada arriba
 - Color de fondo personalizado (#303446)
-- Plugins: tmux-cpu, tmux-battery
+- Barra de estado personalizada con información esencial
 - Módulos de estado: directorio, sesión, host, fecha/hora
 
 ### 🚀 Prompt (Starship)
