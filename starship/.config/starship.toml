@@ -2,7 +2,7 @@
 
 # Configuración general del prompt
 format = """
-[┌─ ](bold green)$username$hostname$directory$git_branch$git_status$git_state$package$python$nodejs$rust$cmd_duration
+[┌─ ](bold green)$username$hostname$directory$git_branch$git_status$git_state$aws$kubernetes$docker_context$package$python$nodejs$rust$cmd_duration
 [└─ ](bold green)$character"""
 
 # Configuración del directorio
