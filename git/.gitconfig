@@ -6,8 +6,9 @@
 	defaultBranch = dev
 
 [core]
-	editor = vim
+	editor = nvim
 	autocrlf = false
+  pager = cat
 
 [alias]
 	st = status
