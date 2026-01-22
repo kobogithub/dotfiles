@@ -187,6 +187,97 @@ Complete testing strategy guide:
 - Performance testing with Locust
 - Coverage goals and best practices
 
+## 🛠️ Configuration Tools
+
+### Quick Setup Script
+
+Use the interactive configuration tool to set up OpenCode for any repository:
+
+```bash
+# Configure current repository
+opencode-config-setup
+
+# List all OpenCode configurations
+opencode-config-list
+
+# Search in a specific directory
+opencode-config-list ~/projects
+```
+
+The `opencode-config-setup` tool provides an interactive way to:
+- ✅ Select agents for your project needs
+- ✅ Choose relevant skills
+- ✅ Configure MCP servers (Model Context Protocol)
+- ✅ Set up custom MCPs with environment variables
+- ✅ Create `.opencode/config.json` with best practices
+
+**Example session:**
+```
+🔧 OpenCode Configuration Setup
+
+Repository path: /home/user/my-project
+
+Select Agents:
+  1. Astro Developer - Astro framework expert
+  2. Docker Expert - Container expert
+  3. FastAPI Developer - FastAPI REST API expert
+  ...
+
+Your selection: 3 5 7
+
+✅ Selected 3 agent(s)
+
+Select Skills:
+  1. Astro Performance
+  2. FastAPI Best Practices
+  ...
+
+✅ Configuration saved to: /home/user/my-project/.opencode/config.json
+```
+
+### Available MCPs
+
+The setup tool includes common MCP servers:
+
+| MCP | Description | Use Case |
+|-----|-------------|----------|
+| **filesystem** | Enhanced file operations | Complex file manipulations |
+| **postgres** | Database operations | PostgreSQL queries and admin |
+| **git** | Advanced git operations | Repository management |
+| **github** | GitHub API integration | Issues, PRs, workflows |
+| **brave-search** | Web search | Research and documentation lookup |
+| **playwright** | E2E testing (Docker) | Browser testing for Astro apps |
+| **puppeteer** | Browser automation | Testing and scraping |
+| **memory** | Persistent memory | Remember configs across sessions |
+| **fetch** | HTTP requests | API testing and web scraping |
+| **sqlite** | SQLite database | Lightweight testing database |
+
+You can also add custom MCPs:
+```json
+{
+  "mcp": {
+    "my-custom-mcp": {
+      "type": "stdio",
+      "command": ["bun", "x", "my-mcp-server"],
+      "env": {
+        "API_KEY": "your-key"
+      }
+    }
+  }
+}
+```
+
+**Testing with Playwright:**
+```bash
+# Pull Playwright Docker image
+docker pull mcp/playwright
+
+# Use the Astro testing example
+cp ~/.dotfiles/opencode/examples/astro-testing-config.json .opencode/config.json
+```
+
+For detailed information, see: [Configuration Tools Guide](./TOOLS.md)
+
 ## 🚀 Usage
 
 ### Using Agents

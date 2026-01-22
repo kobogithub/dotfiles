@@ -1,0 +1,72 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "_comment": "Configuration for Astro project with E2E testing",
+  
+  "agent": {
+    "astro-dev": {
+      "mode": "subagent",
+      "description": "Astro framework expert for building modern web applications",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    },
+    "qa-engineer": {
+      "mode": "subagent",
+      "description": "QA and testing expert for comprehensive test strategies",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    },
+    "docs-writer": {
+      "mode": "subagent",
+      "description": "Technical documentation expert for code, APIs, and architecture",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    }
+  },
+  
+  "mcp": {
+    "playwright": {
+      "type": "stdio",
+      "command": ["docker", "run", "-i", "--rm", "mcp/playwright"],
+      "_comment": "E2E testing with Playwright in Docker container"
+    },
+    "puppeteer": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-puppeteer"],
+      "_comment": "Alternative browser automation for testing"
+    },
+    "git": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-git"]
+    },
+    "github": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_your_token_here"
+      }
+    },
+    "memory": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
+      "_comment": "Persist test results and configurations across sessions"
+    },
+    "fetch": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-fetch"],
+      "_comment": "Test API endpoints and external services"
+    }
+  },
+  
+  "tools": {
+    "puppeteer": false,
+    "memory": false
+  },
+  
+  "permission": {
+    "skill": {
+      "astro-performance": "allow",
+      "testing-strategies": "allow",
+      "documentation-guide": "allow"
+    }
+  }
+}

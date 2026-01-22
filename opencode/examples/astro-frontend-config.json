@@ -1,0 +1,40 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "_comment": "Configuration for an Astro frontend project",
+  
+  "agent": {
+    "astro-dev": {
+      "mode": "subagent",
+      "description": "Astro framework expert for building modern web applications",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    },
+    "docs-writer": {
+      "mode": "subagent",
+      "description": "Technical documentation expert for code, APIs, and architecture",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    }
+  },
+  
+  "mcp": {
+    "git": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-git"]
+    },
+    "github": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_your_token_here"
+      }
+    }
+  },
+  
+  "permission": {
+    "skill": {
+      "astro-performance": "allow",
+      "documentation-guide": "allow"
+    }
+  }
+}

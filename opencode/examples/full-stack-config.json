@@ -1,0 +1,88 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "_comment": "Example configuration for a full-stack FastAPI + Astro project",
+  
+  "agent": {
+    "fastapi-dev": {
+      "mode": "subagent",
+      "description": "FastAPI development expert for building robust REST APIs",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    },
+    "astro-dev": {
+      "mode": "subagent",
+      "description": "Astro framework expert for building modern web applications",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    },
+    "postgres-admin": {
+      "mode": "subagent",
+      "description": "PostgreSQL database expert for optimization and administration",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    },
+    "docker-expert": {
+      "mode": "subagent",
+      "description": "Docker containerization expert for development and production",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    },
+    "qa-engineer": {
+      "mode": "subagent",
+      "description": "QA and testing expert for comprehensive test strategies",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    }
+  },
+  
+  "mcp": {
+    "postgres": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/mydb"
+      }
+    },
+    "git": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-git"]
+    },
+    "github": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_your_token_here"
+      }
+    },
+    "brave-search": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "your_brave_api_key_here"
+      }
+    },
+    "my-custom-mcp": {
+      "type": "stdio",
+      "command": ["bun", "x", "my-custom-mcp-server"],
+      "env": {
+        "CUSTOM_API_KEY": "your_custom_key",
+        "CUSTOM_API_URL": "https://api.example.com"
+      }
+    }
+  },
+  
+  "tools": {
+    "brave-search": false,
+    "my-custom-mcp": false
+  },
+  
+  "permission": {
+    "skill": {
+      "fastapi-best-practices": "allow",
+      "astro-performance": "allow",
+      "postgres-optimization": "allow",
+      "docker-compose-patterns": "allow",
+      "testing-strategies": "allow"
+    }
+  }
+}

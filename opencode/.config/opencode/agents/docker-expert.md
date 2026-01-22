@@ -1,7 +1,7 @@
 ---
 description: Docker containerization expert for development and production
 mode: subagent
-model: anthropic/claude-sonnet-4-20250514
+model: github-copilot/claude-sonnet-4.5
 temperature: 0.2
 tools:
   write: true

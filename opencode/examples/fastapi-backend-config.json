@@ -1,0 +1,47 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "_comment": "Minimal configuration for a FastAPI backend project",
+  
+  "agent": {
+    "fastapi-dev": {
+      "mode": "subagent",
+      "description": "FastAPI development expert for building robust REST APIs",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    },
+    "postgres-admin": {
+      "mode": "subagent",
+      "description": "PostgreSQL database expert for optimization and administration",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    },
+    "qa-engineer": {
+      "mode": "subagent",
+      "description": "QA and testing expert for comprehensive test strategies",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    }
+  },
+  
+  "mcp": {
+    "postgres": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "DATABASE_URL": "postgresql://localhost:5432/mydb"
+      }
+    },
+    "git": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-git"]
+    }
+  },
+  
+  "permission": {
+    "skill": {
+      "fastapi-best-practices": "allow",
+      "postgres-optimization": "allow",
+      "testing-strategies": "allow"
+    }
+  }
+}

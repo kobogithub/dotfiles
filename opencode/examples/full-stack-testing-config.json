@@ -1,0 +1,96 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "_comment": "Complete configuration for full-stack testing: FastAPI backend + Astro frontend with E2E tests",
+  
+  "agent": {
+    "fastapi-dev": {
+      "mode": "subagent",
+      "description": "FastAPI development expert for building robust REST APIs",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    },
+    "astro-dev": {
+      "mode": "subagent",
+      "description": "Astro framework expert for building modern web applications",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    },
+    "postgres-admin": {
+      "mode": "subagent",
+      "description": "PostgreSQL database expert for optimization and administration",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    },
+    "qa-engineer": {
+      "mode": "subagent",
+      "description": "QA and testing expert for comprehensive test strategies",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    },
+    "docker-expert": {
+      "mode": "subagent",
+      "description": "Docker containerization expert for development and production",
+      "model": "github-copilot/claude-sonnet-4.5",
+      "temperature": 0.2
+    }
+  },
+  
+  "mcp": {
+    "postgres": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-postgres"],
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/mydb"
+      },
+      "_comment": "Database operations for backend testing"
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": ["docker", "run", "-i", "--rm", "mcp/playwright"],
+      "_comment": "E2E testing for frontend with Playwright"
+    },
+    "git": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-git"],
+      "_comment": "Version control operations"
+    },
+    "github": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_TOKEN": "ghp_your_token_here"
+      },
+      "_comment": "CI/CD integration and PR management"
+    },
+    "memory": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-memory"],
+      "_comment": "Remember test configurations and results"
+    },
+    "fetch": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-fetch"],
+      "_comment": "Test API endpoints and external integrations"
+    },
+    "sqlite": {
+      "type": "stdio",
+      "command": ["npx", "-y", "@modelcontextprotocol/server-sqlite", "./test.db"],
+      "_comment": "Lightweight database for integration tests"
+    }
+  },
+  
+  "tools": {
+    "memory": false,
+    "sqlite": false
+  },
+  
+  "permission": {
+    "skill": {
+      "fastapi-best-practices": "allow",
+      "astro-performance": "allow",
+      "postgres-optimization": "allow",
+      "docker-compose-patterns": "allow",
+      "testing-strategies": "allow"
+    }
+  }
+}
