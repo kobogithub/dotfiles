@@ -9,6 +9,7 @@ fi
 export PATH=$HOME/.local/bin:$PATH
 export PATH="/home/kobo/.cache/.bun/bin:$PATH"
 export PATH="/home/kobo/go/bin:$PATH"
+export PATH="/home/kobo/.local/bin:$PATH"
 
 # Historia
 HISTSIZE=10000
