@@ -87,7 +87,7 @@ disabled = false
 
 # AWS
 [aws]
-format = 'on [$symbol($profile )(\($region\) )]($style)'
+format = 'on [$symbol($profile )]($style)'
 style = "bold blue"
 symbol = "☁️  "
 
@@ -101,6 +101,9 @@ symbol = "🐳 "
 [kubernetes]
 format = 'on [⎈ $context\($namespace\)](bold purple) '
 disabled = false
+
+[kubernetes.context_aliases]
+"arn:aws:eks:us-east-1:777555387664:cluster/lycsa" = "lycsa"
 
 # Tiempo (opcional, descomenta si quieres ver la hora)
 # [time]
