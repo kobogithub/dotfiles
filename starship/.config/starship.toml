@@ -102,8 +102,13 @@ symbol = "🐳 "
 format = 'on [⎈ $context\($namespace\)](bold purple) '
 disabled = false
 
-[kubernetes.context_aliases]
-"arn:aws:eks:us-east-1:777555387664:cluster/lycsa" = "lycsa"
+[[kubernetes.contexts]]
+context_pattern = "arn:aws:eks:us-east-1:777555387664:cluster/lycsa"
+context_alias = "lycsa"
+
+[[kubernetes.contexts]]
+context_pattern = "docker-desktop"
+context_alias = "local"
 
 # Tiempo (opcional, descomenta si quieres ver la hora)
 # [time]
