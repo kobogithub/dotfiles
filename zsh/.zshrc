@@ -124,3 +124,5 @@ bindkey '^[[B' history-search-forward     # Flecha abajo
 export PATH=/home/kobo/.opencode/bin:$PATH
 
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+export LANG=C.UTF-8
+unset LC_ALL 2>/dev/null
