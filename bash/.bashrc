@@ -43,3 +43,4 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+. "/home/kobo/.local/share/cargo/env"
