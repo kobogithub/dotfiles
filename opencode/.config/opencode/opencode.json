@@ -23,6 +23,7 @@
       }
     }
   },
+  "plugin": ["opencode-antigravity-auth@latest"],
   "permission": {
     "skill": {
       "*": "allow"
