@@ -126,3 +126,13 @@ export PATH=/home/kobo/.opencode/bin:$PATH
 eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
 export LANG=C.UTF-8
 unset LC_ALL 2>/dev/null
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/home/kobo/google-cloud-sdk/path.zsh.inc' ]; then . '/home/kobo/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/home/kobo/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/kobo/google-cloud-sdk/completion.zsh.inc'; fi
+
+export NVM_DIR="$HOME/.config/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
