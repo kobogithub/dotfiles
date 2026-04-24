@@ -34,6 +34,7 @@ alias grep='grep --color=auto'
 alias ..='cd ..'
 alias ...='cd ../..'
 alias ....='cd ../../..'
+alias clima="curl wttr.in"
 
 # Aliases de Git
 alias gs='git status'
