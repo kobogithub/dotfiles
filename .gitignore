@@ -24,7 +24,6 @@ temp/
 local/
 
 # Secretos
-.env
 *.key
 *.pem
 secrets/
