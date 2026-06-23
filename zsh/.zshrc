@@ -82,6 +82,7 @@ alias z='cd'  # Alias para usar z con zoxide
 # Configuración del editor
 export EDITOR=nvim
 export VISUAL=nvim
+export GPG_TTY=$(tty)
 
 # Configuraciones adicionales
 setopt AUTO_CD              # cd automático al escribir directorio

@@ -40,3 +40,10 @@ alias zq='zoxide query'
 alias zql='zoxide query -l'
 alias zqs='zoxide query -l -s'
 alias zr='zoxide remove'
+
+# Opencode
+export OPENCODE_SERVER_USERNAME="kobo"
+alias ocsrv='OPENCODE_SERVER_PASSWORD=$OPENCODE_SERVER_PASSWORD opencode serve'
+
+# Homebrew
+export HOMEBREW_NO_ENV_HINTS=1
