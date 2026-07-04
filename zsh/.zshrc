@@ -141,7 +141,11 @@ if [[ "$(uname)" == "Linux" ]] && [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]]; 
 elif [[ "$(uname)" == "Darwin" ]]; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
-export LANG=C.UTF-8
+if [[ "$(uname)" == "Darwin" ]]; then
+    export LANG=en_US.UTF-8
+else
+    export LANG=C.UTF-8
+fi
 unset LC_ALL 2>/dev/null
 
 # Google Cloud SDK
