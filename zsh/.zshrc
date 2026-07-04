@@ -7,9 +7,8 @@ fi
 
 # Configuración del PATH
 export PATH=$HOME/.local/bin:$PATH
-export PATH="/home/kobo/.cache/.bun/bin:$PATH"
-export PATH="/home/kobo/go/bin:$PATH"
-export PATH="/home/kobo/.local/bin:$PATH"
+export PATH="$HOME/.cache/.bun/bin:$PATH"
+export PATH="$HOME/go/bin:$PATH"
 
 # Historia
 HISTSIZE=10000
@@ -46,12 +45,20 @@ alias gd='git diff'
 alias gb='git branch'
 alias gco='git checkout'
 
-# Aliases de sistema
-alias update='sudo pacman -Syu'
-alias install='sudo pacman -S'
-alias search='pacman -Ss'
-alias remove='sudo pacman -R'
-alias cleanup='sudo pacman -Rns $(pacman -Qtdq)'
+# Aliases de sistema (por plataforma)
+if [[ "$(uname)" == "Linux" ]]; then
+    alias update='sudo pacman -Syu'
+    alias install='sudo pacman -S'
+    alias search='pacman -Ss'
+    alias remove='sudo pacman -R'
+    alias cleanup='sudo pacman -Rns $(pacman -Qtdq)'
+elif [[ "$(uname)" == "Darwin" ]]; then
+    alias update='brew update && brew upgrade'
+    alias install='brew install'
+    alias search='brew search'
+    alias remove='brew uninstall'
+    alias cleanup='brew cleanup'
+fi
 
 # Nota: Los aliases de Kubernetes se cargan desde ~/.dotfiles/kubectl/.aliases_k8s
 
@@ -91,6 +98,9 @@ setopt EXTENDED_GLOB        # habilitar patrones extendidos
 setopt NO_CASE_GLOB         # matching case-insensitive
 setopt NUMERIC_GLOB_SORT    # ordenar archivos numéricamente
 
+# Configuraciones de Brew
+export HOMEBREW_NO_ENV_HINTS=1
+
 # Cargar configuraciones de desarrollo
 if [ -f "$HOME/.dotfiles/zsh/.aliases_general" ]; then
     source "$HOME/.dotfiles/zsh/.aliases_general"
@@ -123,17 +133,20 @@ bindkey '^[[A' history-search-backward    # Flecha arriba
 bindkey '^[[B' history-search-forward     # Flecha abajo
 
 # opencode
-export PATH=/home/kobo/.opencode/bin:$PATH
+export PATH=$HOME/.opencode/bin:$PATH
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+# Homebrew
+if [[ "$(uname)" == "Linux" ]] && [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+elif [[ "$(uname)" == "Darwin" ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
 export LANG=C.UTF-8
 unset LC_ALL 2>/dev/null
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/home/kobo/google-cloud-sdk/path.zsh.inc' ]; then . '/home/kobo/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/home/kobo/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/kobo/google-cloud-sdk/completion.zsh.inc'; fi
+# Google Cloud SDK
+if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then . "$HOME/google-cloud-sdk/path.zsh.inc"; fi
+if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then . "$HOME/google-cloud-sdk/completion.zsh.inc"; fi
 
 export NVM_DIR="$HOME/.config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
