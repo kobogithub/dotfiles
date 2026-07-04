@@ -66,6 +66,7 @@ DOTFILE_PACKAGES=(
     "nodejs"
     "vscode"
     "opencode"
+    "ghostty"
 )
 
 echo "🏠 Instalando dotfiles de Kevin Barroso"
