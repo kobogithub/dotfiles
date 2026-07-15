@@ -101,6 +101,9 @@ setopt NUMERIC_GLOB_SORT    # ordenar archivos numéricamente
 # Configuraciones de Brew
 export HOMEBREW_NO_ENV_HINTS=1
 
+# Password Store
+export PASSWORD_STORE_DIR=~/Github/personal/pass
+
 # Cargar configuraciones de desarrollo
 if [ -f "$HOME/.dotfiles/zsh/.aliases_general" ]; then
     source "$HOME/.dotfiles/zsh/.aliases_general"
@@ -158,3 +161,5 @@ export NVM_DIR="$HOME/.config/nvm"
 
 # Secrets / env vars locales
 [[ -f "$HOME/.env" ]] && source "$HOME/.env"
+fpath+=/opt/homebrew/share/zsh/site-functions
+autoload -Uz compinit && compinit

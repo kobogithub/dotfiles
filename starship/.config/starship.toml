@@ -1,13 +1,18 @@
 # ~/.config/starship.toml - Configuración personalizada de Starship
 
+# Tiempo máximo (ms) que Starship espera por comandos externos como
+# `python --version`. El shim de pyenv es lento, así que subimos el
+# default (500) para evitar el timeout.
+command_timeout = 1000
+
 # Configuración general del prompt
 format = """
-[┌─ ](bold green)$username$hostname$directory$git_branch$git_status$git_state$aws$kubernetes$docker_context$package$python$nodejs$rust$cmd_duration
-[└─ ](bold green)$character"""
+[┌─❄ ](bold #3FE0E0)$username$hostname$directory$git_branch$git_status$git_state$aws$kubernetes$docker_context$package$python$nodejs$rust$cmd_duration
+[└─ ](bold #3FE0E0)$character"""
 
 # Configuración del directorio
 [directory]
-style = "bold cyan"
+style = "bold #6FC5F0"
 truncation_length = 3
 truncate_to_repo = false
 format = "[$path]($style)[$read_only]($read_only_style) "
@@ -16,11 +21,11 @@ format = "[$path]($style)[$read_only]($read_only_style) "
 [git_branch]
 symbol = " "
 format = "on [$symbol$branch]($style) "
-style = "bold purple"
+style = "bold #9D7CD8"
 
 [git_status]
 format = '([$all_status$ahead_behind]($style) )'
-style = "bold red"
+style = "bold #C75450"
 conflicted = "⚡"
 ahead = "⇡"
 behind = "⇣"
@@ -35,31 +40,31 @@ deleted = "✘"
 
 [git_state]
 format = '\([$state( $progress_current/$progress_total)]($style)\) '
-style = "bright-yellow"
+style = "#A9D4E8"
 
 # Configuración del prompt principal
 [character]
-success_symbol = "[❯](bold green)"
-error_symbol = "[❯](bold red)"
-vicmd_symbol = "[❮](bold yellow)"
+success_symbol = "[❯](bold #3FE0E0)"
+error_symbol = "[❯](bold #E06C75)"
+vicmd_symbol = "[❮](bold #A9D4E8)"
 
 # Usuario y hostname
 [username]
-style_user = "bold blue"
-style_root = "bold red"
+style_user = "bold #4FA8D8"
+style_root = "bold #C75450"
 format = "[$user]($style)"
 disabled = false
 show_always = false
 
 [hostname]
 ssh_only = true
-format = "@[$hostname](bold yellow) "
+format = "@[$hostname](bold #6FC5F0) "
 disabled = false
 
 # Duración del comando
 [cmd_duration]
 format = "took [$duration]($style) "
-style = "bold yellow"
+style = "bold #A9D4E8"
 show_milliseconds = false
 min_time = 2000
 
@@ -68,6 +73,8 @@ min_time = 2000
 symbol = "🐍 "
 format = 'via [$symbol$pyenv_prefix($version) ]($style)'
 style = "bold yellow"
+# Evita el shim lento de pyenv al resolver la versión para el prompt.
+python_binary = ["python3"]
 
 [nodejs]
 symbol = "⬢ "
@@ -99,7 +106,7 @@ symbol = "🐳 "
 
 # Kubernetes
 [kubernetes]
-format = 'on [⎈ $context\($namespace\)](bold purple) '
+format = 'on [⎈ $context\($namespace\)](bold #9D7CD8) '
 disabled = false
 
 [[kubernetes.contexts]]

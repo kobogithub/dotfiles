@@ -47,3 +47,27 @@ alias ocsrv='OPENCODE_SERVER_PASSWORD=$OPENCODE_SERVER_PASSWORD opencode serve'
 
 # Homebrew
 export HOMEBREW_NO_ENV_HINTS=1
+
+# Herdr
+alias hr='herdr'
+
+# Git clone helpers — usan los hosts SSH definidos en ~/.ssh/config
+# Uso: clone-personal [owner/]repo   →  ~/Github/personal/<repo>
+#      clone-work     [owner/]repo   →  ~/Github/taligent/<repo>
+clone-personal() {
+    local arg="${1:?Uso: clone-personal [owner/]repo}"
+    local slug repo dest
+    [[ "$arg" == */* ]] && slug="$arg" || slug="kobogithub/$arg"
+    repo="${slug##*/}"; repo="${repo%.git}"
+    dest="$HOME/Github/personal/$repo"
+    git clone "git@me:${slug%.git}.git" "$dest" && cd "$dest"
+}
+
+clone-work() {
+    local arg="${1:?Uso: clone-work [owner/]repo}"
+    local slug repo dest
+    [[ "$arg" == */* ]] && slug="$arg" || slug="kevintali/$arg"
+    repo="${slug##*/}"; repo="${repo%.git}"
+    dest="$HOME/Github/taligent/$repo"
+    git clone "git@work:${slug%.git}.git" "$dest" && cd "$dest"
+}

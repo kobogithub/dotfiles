@@ -1,6 +1,5 @@
 [user]
 	name = Kevin Barroso
-	email = kobouharriet@gmail.com
 
 [init]
 	defaultBranch = dev
@@ -30,3 +29,17 @@
 [credential "https://gist.github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
+
+
+[user]
+    name = Kevin Barroso
+# no pongas signingkey acá arriba, lo definimos por carpeta
+
+[commit]
+    gpgsign = true
+
+[includeIf "gitdir:~/Github/taligent/"]
+    path = ~/.gitconfig-work
+
+[includeIf "gitdir:~/Github/personal/"]
+    path = ~/.gitconfig-personal
