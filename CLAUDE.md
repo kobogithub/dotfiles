@@ -56,9 +56,12 @@ Secrets are **not stored in the repo**. `zsh/.env` (→ `~/.env`) populates env 
 bash -n install.sh           # syntax-check a shell script
 shellcheck <script>          # lint (if installed)
 source ~/.zshrc              # test shell config changes in current shell
+dotfiles-doctor              # health-check: stow links, tools, secrets (read-only)
 ```
 
 Test shell config in a subshell/new terminal before committing — a malformed `.zshrc` can break login. Default branch is `dev`; commit messages use imperative mood (see `AGENTS.md`).
+
+`dotfiles-doctor` (in the `scripts` package, → `~/.local/bin/`) is a read-only diagnostic: it verifies every `DOTFILE_PACKAGES` entry is correctly stowed, the key tools for the detected OS are installed, and the `pass` secrets referenced in `zsh/.env` resolve. It reports OK/WARN/FAIL per category and exits non-zero on any FAIL. See `scripts/README.md`.
 
 ## OpenCode package
 

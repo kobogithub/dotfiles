@@ -34,9 +34,9 @@ implementation tasks touch the **same file** and therefore run **sequentially**
 
 **Purpose**: Create the script skeleton and shared scaffolding.
 
-- [ ] T001 Create `scripts/.local/bin/dotfiles-doctor` with `#!/bin/bash`, header comment (name/usage), `set -e` + `set -o pipefail`, and `chmod +x`
-- [ ] T002 Add repo-root resolution to `scripts/.local/bin/dotfiles-doctor` — the `DOTFILES_DIR` ladder calqued from `scripts/.local/bin/alias-manager` (`$HOME/.dotfiles` → `$HOME/github/dotfiles` → derive from `BASH_SOURCE`)
-- [ ] T003 Add the tput color block to `scripts/.local/bin/dotfiles-doctor` guarded by `command -v tput` + `[ -t 1 ]` (GREEN/YELLOW/RED/BOLD/NC), plus ✅/⚠️/❌ emoji constants
+- [x] T001 Create `scripts/.local/bin/dotfiles-doctor` with `#!/bin/bash`, header comment (name/usage), `set -e` + `set -o pipefail`, and `chmod +x`
+- [x] T002 Add repo-root resolution to `scripts/.local/bin/dotfiles-doctor` — the `DOTFILES_DIR` ladder calqued from `scripts/.local/bin/alias-manager` (`$HOME/.dotfiles` → `$HOME/github/dotfiles` → derive from `BASH_SOURCE`)
+- [x] T003 Add the tput color block to `scripts/.local/bin/dotfiles-doctor` guarded by `command -v tput` + `[ -t 1 ]` (GREEN/YELLOW/RED/BOLD/NC), plus ✅/⚠️/❌ emoji constants
 
 ---
 
@@ -46,10 +46,10 @@ implementation tasks touch the **same file** and therefore run **sequentially**
 
 **⚠️ CRITICAL**: No category check can be implemented until this phase is done.
 
-- [ ] T004 Implement the reporting core in `scripts/.local/bin/dotfiles-doctor`: `report_check <category> <status> <item> <message>` that prints the emoji line (respecting `--quiet` for OK) and increments `fail_count` / `warn_count` integer globals (Bash 3.2-safe, no associative arrays)
-- [ ] T005 Implement `detect_os` in `scripts/.local/bin/dotfiles-doctor` mirroring `install.sh` (darwin→`macos`, `/etc/arch-release`→`arch`, else `other`)
-- [ ] T006 Implement CLI arg parsing + `show_help` in `scripts/.local/bin/dotfiles-doctor`: `-h/--help` (exit 0), `-q/--quiet`, `--only <stow|tools|secrets>`, unknown option → usage to stderr + exit 2 (per contracts/cli.md)
-- [ ] T007 Implement the final verdict logic in `scripts/.local/bin/dotfiles-doctor`: per-category rollup (worst status), `print_summary`, and exit `1` iff `fail_count > 0` else `0` (data-model.md severity ordering, SC-003)
+- [x] T004 Implement the reporting core in `scripts/.local/bin/dotfiles-doctor`: `report_check <category> <status> <item> <message>` that prints the emoji line (respecting `--quiet` for OK) and increments `fail_count` / `warn_count` integer globals (Bash 3.2-safe, no associative arrays)
+- [x] T005 Implement `detect_os` in `scripts/.local/bin/dotfiles-doctor` mirroring `install.sh` (darwin→`macos`, `/etc/arch-release`→`arch`, else `other`)
+- [x] T006 Implement CLI arg parsing + `show_help` in `scripts/.local/bin/dotfiles-doctor`: `-h/--help` (exit 0), `-q/--quiet`, `--only <stow|tools|secrets>`, unknown option → usage to stderr + exit 2 (per contracts/cli.md)
+- [x] T007 Implement the final verdict logic in `scripts/.local/bin/dotfiles-doctor`: per-category rollup (worst status), `print_summary`, and exit `1` iff `fail_count > 0` else `0` (data-model.md severity ordering, SC-003)
 
 **Checkpoint**: The harness runs, prints a header + (empty) summary, and exits 0.
 
@@ -64,9 +64,9 @@ prints a categorized summary, and returns a correct pass/fail exit code.
 exits 0; replace a package symlink with a real file and it reports Stow FAIL and
 exits non-zero.
 
-- [ ] T008 [US1] Implement `parse_dotfile_packages` in `scripts/.local/bin/dotfiles-doctor` — extract the `DOTFILE_PACKAGES=( … )` array from `install.sh` (strip comments/quotes; FAIL the Stow category if unreadable) per research R1
-- [ ] T009 [US1] Implement per-package symlink verification in `scripts/.local/bin/dotfiles-doctor`: for each package, `find "$pkg" -type f`, map `pkg/rel` → `$HOME/rel`, and classify target as linked-OK vs broken via `readlink` (research R2) — emit one `report_check stow …` per package
-- [ ] T010 [US1] Wire the Stow category and overall run in `scripts/.local/bin/dotfiles-doctor` so a no-arg invocation runs Stow + summary and returns the right exit code
+- [x] T008 [US1] Implement `parse_dotfile_packages` in `scripts/.local/bin/dotfiles-doctor` — extract the `DOTFILE_PACKAGES=( … )` array from `install.sh` (strip comments/quotes; FAIL the Stow category if unreadable) per research R1
+- [x] T009 [US1] Implement per-package symlink verification in `scripts/.local/bin/dotfiles-doctor`: for each package, `find "$pkg" -type f`, map `pkg/rel` → `$HOME/rel`, and classify target as linked-OK vs broken via `readlink` (research R2) — emit one `report_check stow …` per package
+- [x] T010 [US1] Wire the Stow category and overall run in `scripts/.local/bin/dotfiles-doctor` so a no-arg invocation runs Stow + summary and returns the right exit code
 
 **Checkpoint**: MVP — healthy machine → all-OK exit 0; broken symlink → FAIL exit 1.
 
@@ -80,9 +80,9 @@ distinguishes not-stowed vs conflict vs dangling; adds the Secrets category.
 **Independent Test**: Break a symlink, remove a tool, and point a secret at a
 bad path — each failing line identifies the item and includes a fix hint.
 
-- [ ] T011 [US2] Enrich Stow classification in `scripts/.local/bin/dotfiles-doctor` to distinguish `not stowed` / `conflict (real file or foreign symlink)` / `dangling` / missing-`repo_dir`, each with a specific message + hint (e.g. `→ run: stow -R <pkg>`) per data-model.md + FR-003/FR-010
-- [ ] T012 [US2] Implement `parse_secret_refs` in `scripts/.local/bin/dotfiles-doctor` — textual scan of `zsh/.env` for `pass show <path>` (never source the file; research R4)
-- [ ] T013 [US2] Implement the Secrets category in `scripts/.local/bin/dotfiles-doctor`: verify each ref with `pass show "<path>" >/dev/null 2>&1` (OK/FAIL naming the path, never the value); degrade whole category to WARN if `pass` unavailable (FR-011)
+- [x] T011 [US2] Enrich Stow classification in `scripts/.local/bin/dotfiles-doctor` to distinguish `not stowed` / `conflict (real file or foreign symlink)` / `dangling` / missing-`repo_dir`, each with a specific message + hint (e.g. `→ run: stow -R <pkg>`) per data-model.md + FR-003/FR-010
+- [x] T012 [US2] Implement `parse_secret_refs` in `scripts/.local/bin/dotfiles-doctor` — textual scan of `zsh/.env` for `pass show <path>` (never source the file; research R4)
+- [x] T013 [US2] Implement the Secrets category in `scripts/.local/bin/dotfiles-doctor`: verify each ref with `pass show "<path>" >/dev/null 2>&1` (OK/FAIL naming the path, never the value); degrade whole category to WARN if `pass` unavailable (FR-011)
 
 **Checkpoint**: US1 + US2 — every failure is specific and actionable; Secrets checked.
 
@@ -96,8 +96,8 @@ detected OS, skip Linux-only notions on macOS, degrade on `other`.
 **Independent Test**: Run `--only tools` on Arch and on macOS; each checks the
 right set and no Linux-only item is flagged on macOS.
 
-- [ ] T014 [US3] Define the critical vs optional tool lists in `scripts/.local/bin/dotfiles-doctor` (research R3), normalizing package→binary names (`neovim`→`nvim`, `github-cli`→`gh`, `nodejs`→`node`)
-- [ ] T015 [US3] Implement the Tools category in `scripts/.local/bin/dotfiles-doctor`: `command -v <bin>` per tool → critical missing = FAIL, optional missing = WARN; on `other` skip the OS set with a WARN (FR-004/FR-005, edge case)
+- [x] T014 [US3] Define the critical vs optional tool lists in `scripts/.local/bin/dotfiles-doctor` (research R3), normalizing package→binary names (`neovim`→`nvim`, `github-cli`→`gh`, `nodejs`→`node`)
+- [x] T015 [US3] Implement the Tools category in `scripts/.local/bin/dotfiles-doctor`: `command -v <bin>` per tool → critical missing = FAIL, optional missing = WARN; on `other` skip the OS set with a WARN (FR-004/FR-005, edge case)
 
 **Checkpoint**: All three categories functional and platform-appropriate.
 
@@ -107,11 +107,11 @@ right set and no Linux-only item is flagged on macOS.
 
 **Purpose**: Validation and honest documentation (Constitution Principle V + doc rule).
 
-- [ ] T016 Static validation: `bash -n scripts/.local/bin/dotfiles-doctor` and `shellcheck scripts/.local/bin/dotfiles-doctor` — fix findings
-- [ ] T017 Run the `quickstart.md` scenarios (healthy run, broken-Stow temp-`$HOME` run, secrets, pipe-safety) and confirm exit codes match
-- [ ] T018 `stow -R -d . -t $HOME scripts` to link the new script, then confirm `dotfiles-doctor` runs from any directory
-- [ ] T019 [P] Document `dotfiles-doctor` in `scripts/README.md`
-- [ ] T020 [P] Update `CLAUDE.md` (validation/commands section) and `AGENTS.md` if needed to mention `dotfiles-doctor`
+- [x] T016 Static validation: `bash -n scripts/.local/bin/dotfiles-doctor` and `shellcheck scripts/.local/bin/dotfiles-doctor` — fix findings
+- [x] T017 Run the `quickstart.md` scenarios (healthy run, broken-Stow temp-`$HOME` run, secrets, pipe-safety) and confirm exit codes match
+- [x] T018 `stow -R -d . -t $HOME scripts` to link the new script, then confirm `dotfiles-doctor` runs from any directory
+- [x] T019 [P] Document `dotfiles-doctor` in `scripts/README.md`
+- [x] T020 [P] Update `CLAUDE.md` (validation/commands section) and `AGENTS.md` if needed to mention `dotfiles-doctor`
 
 ---
 

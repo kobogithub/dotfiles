@@ -1,0 +1,379 @@
+#!/bin/bash
+
+# dotfiles-doctor - Diagnostica la salud de la instalacion de dotfiles
+# Uso: dotfiles-doctor [-h] [-q] [--only stow|tools|secrets]
+#
+# Verifica, en modo SOLO LECTURA:
+#   - Stow:    cada paquete de DOTFILE_PACKAGES esta enlazado a este repo
+#   - Tools:   herramientas clave instaladas segun el SO detectado
+#   - Secrets: los secretos referenciados en zsh/.env resuelven en `pass`
+# Reporta OK/WARN/FAIL por categoria y sale != 0 si hay algun FAIL.
+
+set -e
+set -o pipefail
+
+# ---------------------------------------------------------------------------
+# Resolucion del directorio de dotfiles (mismo ladder que alias-manager)
+# ---------------------------------------------------------------------------
+if [ -d "$HOME/.dotfiles" ]; then
+    DOTFILES_DIR="$HOME/.dotfiles"
+elif [ -d "$HOME/github/dotfiles" ]; then
+    DOTFILES_DIR="$HOME/github/dotfiles"
+else
+    # scripts/.local/bin/dotfiles-doctor → 3 niveles hasta la raiz del repo
+    DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
+fi
+
+# ---------------------------------------------------------------------------
+# Colores (via tput, solo si hay TTY) y marcas de estado
+# ---------------------------------------------------------------------------
+if command -v tput >/dev/null 2>&1 && [ -t 1 ]; then
+    GREEN=$(tput setaf 2)
+    YELLOW=$(tput setaf 3)
+    RED=$(tput setaf 1)
+    BOLD=$(tput bold)
+    NC=$(tput sgr0)
+else
+    GREEN=""; YELLOW=""; RED=""; BOLD=""; NC=""
+fi
+
+# ---------------------------------------------------------------------------
+# Estado global (Bash 3.2: sin arrays asociativos)
+# ---------------------------------------------------------------------------
+QUIET=false
+ONLY=""
+fail_count=0
+warn_count=0
+CAT_STOW="OK"
+CAT_TOOLS="OK"
+CAT_SECRETS="OK"
+
+# Herramientas esperadas. Criticas = FAIL si faltan; opcionales = WARN.
+CRITICAL_TOOLS="stow git zsh nvim tmux starship atuin jq"
+OPTIONAL_TOOLS="lsd kubectl k9s docker docker-compose node yarn htop tree gh code"
+
+# ---------------------------------------------------------------------------
+# Ayuda
+# ---------------------------------------------------------------------------
+show_help() {
+    printf "%sdotfiles-doctor%s - Diagnostico de salud de los dotfiles\n\n" "$BOLD" "$NC"
+    printf "%sUSO:%s\n" "$YELLOW" "$NC"
+    printf "    dotfiles-doctor [OPCIONES]\n\n"
+    printf "%sOPCIONES:%s\n" "$YELLOW" "$NC"
+    printf "    -h, --help              Mostrar esta ayuda\n"
+    printf "    -q, --quiet             Ocultar lineas OK; mostrar solo WARN/FAIL\n"
+    printf "    --only <categoria>      Ejecutar solo una: stow | tools | secrets\n\n"
+    printf "%sSALIDA:%s\n" "$YELLOW" "$NC"
+    printf "    exit 0  sin FAIL (todo OK, o solo WARN)\n"
+    printf "    exit 1  al menos un FAIL\n"
+    printf "    exit 2  error de uso\n"
+}
+
+# ---------------------------------------------------------------------------
+# Deteccion de SO (espejo de install.sh)
+# ---------------------------------------------------------------------------
+detect_os() {
+    if [[ "$OSTYPE" == darwin* ]] || [[ "$(uname -s)" == "Darwin" ]]; then
+        echo "macos"
+    elif [[ -f /etc/arch-release ]]; then
+        echo "arch"
+    else
+        echo "other"
+    fi
+}
+
+# ---------------------------------------------------------------------------
+# Motor de reporte
+# ---------------------------------------------------------------------------
+
+# bump_category <categoria> <status> - eleva el rollup de la categoria (FAIL>WARN>OK)
+bump_category() {
+    local cat="$1" status="$2" cur new
+    case "$cat" in
+        stow) cur="$CAT_STOW" ;;
+        tools) cur="$CAT_TOOLS" ;;
+        secrets) cur="$CAT_SECRETS" ;;
+    esac
+    new="$cur"
+    if [[ "$status" == "FAIL" ]]; then
+        new="FAIL"
+    elif [[ "$status" == "WARN" && "$cur" != "FAIL" ]]; then
+        new="WARN"
+    fi
+    case "$cat" in
+        stow) CAT_STOW="$new" ;;
+        tools) CAT_TOOLS="$new" ;;
+        secrets) CAT_SECRETS="$new" ;;
+    esac
+}
+
+# report_check <categoria> <status> <item> <mensaje>
+report_check() {
+    local category="$1" status="$2" item="$3" message="$4" mark
+    case "$status" in
+        FAIL) fail_count=$((fail_count + 1)); mark="${RED}❌${NC}" ;;
+        WARN) warn_count=$((warn_count + 1)); mark="${YELLOW}⚠️ ${NC}" ;;
+        OK)   mark="${GREEN}✅${NC}" ;;
+    esac
+    bump_category "$category" "$status"
+    if [[ "$status" == "OK" && "$QUIET" == "true" ]]; then
+        return 0
+    fi
+    printf "  %s %-16s %s\n" "$mark" "$item" "$message"
+}
+
+# status_word <status> - version coloreada para el resumen
+status_word() {
+    case "$1" in
+        OK)   printf "%s✅ OK%s" "$GREEN" "$NC" ;;
+        WARN) printf "%s⚠️  WARN%s" "$YELLOW" "$NC" ;;
+        FAIL) printf "%s❌ FAIL%s" "$RED" "$NC" ;;
+    esac
+}
+
+summary_line() {
+    printf "  %-9s %s\n" "$1" "$(status_word "$2")"
+}
+
+# ---------------------------------------------------------------------------
+# Categoria: Stow
+# ---------------------------------------------------------------------------
+
+# parse_dotfile_packages - extrae el array DOTFILE_PACKAGES de install.sh
+parse_dotfile_packages() {
+    awk '/^DOTFILE_PACKAGES=\(/{flag=1; next} flag && /^\)/{flag=0} flag{print}' \
+        "$DOTFILES_DIR/install.sh" \
+        | sed 's/#.*//' | tr -d '"'"'" | tr ' \t' '\n\n' \
+        | grep -v '^[[:space:]]*$' || true
+}
+
+# stow_ignored <ruta-relativa> - replica la lista de ignore por defecto de GNU Stow
+stow_ignored() {
+    case "$1" in
+        README*|LICENSE*|COPYING*) return 0 ;;
+        *~|.stow-local-ignore|.gitignore) return 0 ;;
+        *) return 1 ;;
+    esac
+}
+
+# resolve_link <symlink> - ruta canonica absoluta a la que apunta (portable, sin readlink -f)
+resolve_link() {
+    local link="$1" dest dir
+    dest="$(readlink "$link")" || return 1
+    case "$dest" in
+        /*) printf '%s\n' "$dest" ;;
+        *)
+            dir="$(cd "$(dirname "$link")" && pwd -P)" || return 1
+            if cd "$dir" 2>/dev/null && cd "$(dirname "$dest")" 2>/dev/null; then
+                printf '%s/%s\n' "$(pwd -P)" "$(basename "$dest")"
+            else
+                printf '%s/%s\n' "$dir" "$dest"
+            fi
+            ;;
+    esac
+}
+
+check_stow_package() {
+    local pkg="$1" pkgdir
+    pkgdir="$(cd "$DOTFILES_DIR/$pkg" 2>/dev/null && pwd -P)" || {
+        report_check stow FAIL "$pkg" "listado en DOTFILE_PACKAGES pero falta $pkg/ en el repo"
+        return 0
+    }
+
+    local total=0 linked=0 missing=0 conflict=0 dangling=0
+    local conflict_detail="" missing_detail=""
+    local file rel target dest
+    while IFS= read -r file; do
+        [[ -z "$file" ]] && continue
+        rel="${file#$pkgdir/}"
+        stow_ignored "$rel" && continue
+        total=$((total + 1))
+        target="$HOME/$rel"
+        if [[ -L "$target" ]]; then
+            dest="$(resolve_link "$target")" || dest=""
+            if [[ "$dest" == "$file" ]]; then
+                linked=$((linked + 1))
+            elif [[ ! -e "$target" ]]; then
+                dangling=$((dangling + 1)); [[ -z "$conflict_detail" ]] && conflict_detail="~/$rel (symlink roto)"
+            else
+                conflict=$((conflict + 1)); [[ -z "$conflict_detail" ]] && conflict_detail="~/$rel apunta fuera del repo"
+            fi
+        elif [[ -e "$target" ]]; then
+            conflict=$((conflict + 1)); [[ -z "$conflict_detail" ]] && conflict_detail="~/$rel es un archivo real"
+        else
+            missing=$((missing + 1)); [[ -z "$missing_detail" ]] && missing_detail="~/$rel"
+        fi
+    done <<< "$(find "$pkgdir" -type f 2>/dev/null)"
+
+    if [[ "$total" -eq 0 ]]; then
+        report_check stow OK "$pkg" "sin archivos que enlazar"
+    elif [[ "$conflict" -gt 0 || "$dangling" -gt 0 ]]; then
+        report_check stow FAIL "$pkg" "conflicto: $conflict_detail → corre: stow -R $pkg"
+    elif [[ "$missing" -eq "$total" ]]; then
+        report_check stow FAIL "$pkg" "no stoweado → corre: stow -R $pkg"
+    elif [[ "$missing" -gt 0 ]]; then
+        report_check stow FAIL "$pkg" "parcial ($linked/$total), falta $missing_detail → corre: stow -R $pkg"
+    else
+        report_check stow OK "$pkg" "enlazado ($linked/$total)"
+    fi
+}
+
+check_stow() {
+    local pkgs pkg
+    if [[ ! -f "$DOTFILES_DIR/install.sh" ]]; then
+        report_check stow FAIL "install.sh" "no existe en $DOTFILES_DIR → no se puede leer DOTFILE_PACKAGES"
+        return 0
+    fi
+    pkgs="$(parse_dotfile_packages)"
+    if [[ -z "$pkgs" ]]; then
+        report_check stow FAIL "DOTFILE_PACKAGES" "no se pudo extraer la lista de install.sh"
+        return 0
+    fi
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" ]] && continue
+        check_stow_package "$pkg"
+    done <<< "$pkgs"
+}
+
+# ---------------------------------------------------------------------------
+# Categoria: Tools
+# ---------------------------------------------------------------------------
+check_tools() {
+    local os="$1" t
+    if [[ "$os" == "other" ]]; then
+        report_check tools WARN "SO" "sistema no reconocido (ni arch ni macos) → checks de herramientas omitidos"
+        return 0
+    fi
+    for t in $CRITICAL_TOOLS; do
+        if command -v "$t" >/dev/null 2>&1; then
+            report_check tools OK "$t" "instalado"
+        else
+            report_check tools FAIL "$t" "no encontrado (critico) → instalalo con tu gestor de paquetes"
+        fi
+    done
+    for t in $OPTIONAL_TOOLS; do
+        if command -v "$t" >/dev/null 2>&1; then
+            report_check tools OK "$t" "instalado"
+        else
+            report_check tools WARN "$t" "no encontrado (opcional)"
+        fi
+    done
+}
+
+# ---------------------------------------------------------------------------
+# Categoria: Secrets
+# ---------------------------------------------------------------------------
+
+# parse_secret_refs - extrae las rutas `pass show <ruta>` de zsh/.env (sin ejecutar el archivo)
+parse_secret_refs() {
+    [[ -f "$DOTFILES_DIR/zsh/.env" ]] || return 0
+    grep -oE 'pass show [^")]+' "$DOTFILES_DIR/zsh/.env" 2>/dev/null \
+        | sed 's/^pass show //; s/[[:space:]]*$//' \
+        | grep -v '^[[:space:]]*$' || true
+}
+
+check_secrets() {
+    local refs ref store
+    refs="$(parse_secret_refs)"
+    if [[ -z "$refs" ]]; then
+        report_check secrets OK "zsh/.env" "sin secretos referenciados"
+        return 0
+    fi
+    if ! command -v pass >/dev/null 2>&1; then
+        report_check secrets WARN "pass" "no instalado → no se pueden verificar secretos"
+        return 0
+    fi
+    store="${PASSWORD_STORE_DIR:-$HOME/.password-store}"
+    if [[ ! -d "$store" ]]; then
+        report_check secrets WARN "pass" "store no inicializado ($store) → no se pueden verificar secretos"
+        return 0
+    fi
+    while IFS= read -r ref; do
+        [[ -z "$ref" ]] && continue
+        if pass show "$ref" >/dev/null 2>&1; then
+            report_check secrets OK "$ref" "resuelve"
+        else
+            report_check secrets FAIL "$ref" "no resuelve en pass → verifica: pass show $ref"
+        fi
+    done <<< "$refs"
+}
+
+# ---------------------------------------------------------------------------
+# Resumen y veredicto
+# ---------------------------------------------------------------------------
+print_summary() {
+    printf "%sResumen%s\n" "$BOLD" "$NC"
+    if [[ -z "$ONLY" || "$ONLY" == "stow" ]]; then summary_line "Stow" "$CAT_STOW"; fi
+    if [[ -z "$ONLY" || "$ONLY" == "tools" ]]; then summary_line "Tools" "$CAT_TOOLS"; fi
+    if [[ -z "$ONLY" || "$ONLY" == "secrets" ]]; then summary_line "Secrets" "$CAT_SECRETS"; fi
+    printf "  ───────────────────────\n"
+    local overall="OK"
+    if [[ "$fail_count" -gt 0 ]]; then
+        overall="FAIL"
+    elif [[ "$warn_count" -gt 0 ]]; then
+        overall="WARN"
+    fi
+    summary_line "Overall" "$overall"
+}
+
+# ---------------------------------------------------------------------------
+# Parseo de argumentos
+# ---------------------------------------------------------------------------
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        -q|--quiet)
+            QUIET=true
+            shift
+            ;;
+        --only)
+            shift
+            ONLY="${1:-}"
+            case "$ONLY" in
+                stow|tools|secrets) ;;
+                *)
+                    echo "❌ Valor invalido para --only: '${ONLY}' (usa stow|tools|secrets)" >&2
+                    exit 2
+                    ;;
+            esac
+            shift
+            ;;
+        *)
+            echo "❌ Opcion desconocida: $1" >&2
+            show_help >&2
+            exit 2
+            ;;
+    esac
+done
+
+# ---------------------------------------------------------------------------
+# Ejecucion
+# ---------------------------------------------------------------------------
+OS_TYPE="$(detect_os)"
+printf "%s🔧 dotfiles-doctor%s — %s (%s)\n\n" "$BOLD" "$NC" "$OS_TYPE" "$DOTFILES_DIR"
+
+if [[ -z "$ONLY" || "$ONLY" == "stow" ]]; then
+    printf "%sStow%s\n" "$BOLD" "$NC"
+    check_stow
+    printf "\n"
+fi
+if [[ -z "$ONLY" || "$ONLY" == "tools" ]]; then
+    printf "%sTools%s\n" "$BOLD" "$NC"
+    check_tools "$OS_TYPE"
+    printf "\n"
+fi
+if [[ -z "$ONLY" || "$ONLY" == "secrets" ]]; then
+    printf "%sSecrets%s\n" "$BOLD" "$NC"
+    check_secrets
+    printf "\n"
+fi
+
+print_summary
+
+if [[ "$fail_count" -gt 0 ]]; then
+    exit 1
+fi
+exit 0
