@@ -1,0 +1,10 @@
+onboarding = false
+
+# "terminal" hereda la paleta ANSI del terminal host (Ghostty),
+# así herdr adopta automáticamente la paleta Lich King / Frostmourne.
+[theme]
+name = "terminal"
+auto_switch = false
+
+[keys]
+split_vertical = "prefix+\\"
