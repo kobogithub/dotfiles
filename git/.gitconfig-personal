@@ -1,3 +1,9 @@
 [user]
     email = kobouharriet@gmail.com
     signingkey = 3003FA9BF6962F6A
+
+# Reescribe cualquier URL de github.com al alias SSH 'me' (~/.ssh/kobogithub),
+# así push/fetch usan la cuenta personal sin depender de la cuenta activa de gh.
+[url "git@me:"]
+    insteadOf = https://github.com/
+    insteadOf = git@github.com:

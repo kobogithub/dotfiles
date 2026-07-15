@@ -1,3 +1,9 @@
 [user]
     email = kevin.barroso@taligent.com.ar
     signingkey = F9670AD31985EC24
+
+# Reescribe cualquier URL de github.com al alias SSH 'work' (~/.ssh/kevintali),
+# así push/fetch usan la cuenta de trabajo sin depender de la cuenta activa de gh.
+[url "git@work:"]
+    insteadOf = https://github.com/
+    insteadOf = git@github.com:
