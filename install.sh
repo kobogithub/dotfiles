@@ -4,6 +4,7 @@
 # Automatiza la instalación de paquetes del sistema y configuraciones
 
 set -e
+set -o pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -54,7 +55,6 @@ DOTFILE_PACKAGES=(
     "starship"
     "atuin"
     "scripts"
-    "devscripts"
     "system"
     "ssh"
     "kubectl"
@@ -70,22 +70,88 @@ DOTFILE_PACKAGES=(
     "herdr"
 )
 
+# Paquetes de Homebrew para macOS (equivalen a SYSTEM_PACKAGES en Arch).
+# Omitidos por venir con el sistema o el propio node/python:
+# openssh, base-devel, python-pip, python-virtualenv, npm, zip, unzip.
+BREW_PACKAGES=(
+    "neovim"
+    "tmux"
+    "gh"          # github-cli
+    "zsh"
+    "lsd"
+    "starship"
+    "atuin"
+    "stow"
+    "kubectl"
+    "k9s"
+    "docker-compose"
+    "python"
+    "node"        # nodejs (incluye npm)
+    "yarn"
+    "git"
+    "curl"
+    "wget"
+    "jq"
+    "tree"
+    "htop"
+)
+
+# Aplicaciones GUI de macOS (Homebrew casks)
+BREW_CASKS=(
+    "visual-studio-code"  # 'code' en Arch
+    "docker"              # Docker Desktop
+)
+
 echo "🏠 Instalando dotfiles de Kevin Barroso"
 echo "📂 Desde: $DOTFILES_DIR"
 
-# Función para verificar si estamos en Arch Linux
-check_arch() {
-    if [[ ! -f /etc/arch-release ]]; then
-        echo "❌ Este script está optimizado para Arch Linux"
-        echo "💡 Instala manualmente los paquetes necesarios y ejecuta solo la configuración de dotfiles"
-        read -p "¿Continuar solo con dotfiles? (y/N): " -n 1 -r
-        echo
-        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-            exit 1
-        fi
-        return 1
+# Detectar el sistema operativo: "macos", "arch" u "other"
+detect_os() {
+    if [[ "$OSTYPE" == darwin* ]] || [[ "$(uname -s)" == "Darwin" ]]; then
+        echo "macos"
+    elif [[ -f /etc/arch-release ]]; then
+        echo "arch"
+    else
+        echo "other"
     fi
-    return 0
+}
+
+# Verificar que Homebrew esté disponible (no lo instala, solo guía)
+ensure_homebrew() {
+    if command -v brew >/dev/null 2>&1; then
+        return 0
+    fi
+    echo "❌ Homebrew no está instalado y es necesario en macOS"
+    echo "💡 Instálalo con:"
+    echo '   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+    return 1
+}
+
+# Instalar paquetes del sistema en macOS con Homebrew
+install_system_packages_macos() {
+    echo "🍺 Instalando paquetes del sistema con Homebrew..."
+    ensure_homebrew || return 1
+
+    echo "⬆️  Actualizando Homebrew..."
+    brew update
+
+    for pkg in "${BREW_PACKAGES[@]}"; do
+        if brew list --formula "$pkg" &>/dev/null; then
+            echo "✅ $pkg ya está instalado"
+        else
+            echo "📦 Instalando $pkg..."
+            brew install "$pkg"
+        fi
+    done
+
+    for cask in "${BREW_CASKS[@]}"; do
+        if brew list --cask "$cask" &>/dev/null; then
+            echo "✅ $cask ya está instalado"
+        else
+            echo "📦 Instalando $cask (cask)..."
+            brew install --cask "$cask"
+        fi
+    done
 }
 
 # Función para instalar paquetes del sistema
@@ -197,7 +263,7 @@ setup_zsh() {
     
     # Encontrar la ruta correcta de zsh
     local zsh_path=""
-    for path in "/bin/zsh" "/usr/bin/zsh" "/usr/sbin/zsh" "/usr/local/bin/zsh"; do
+    for path in "/opt/homebrew/bin/zsh" "/usr/local/bin/zsh" "/bin/zsh" "/usr/bin/zsh" "/usr/sbin/zsh"; do
         if [[ -x "$path" ]]; then
             zsh_path="$path"
             break
@@ -247,7 +313,13 @@ setup_zsh() {
 # Función para configurar locales
 setup_locale() {
     echo "🌍 Configurando locales del sistema..."
-    
+
+    # En macOS el locale lo gestiona el sistema (no hay /etc/locale.conf)
+    if [[ "$(detect_os)" == "macos" ]]; then
+        echo "✅ macOS gestiona el locale; nada que configurar"
+        return 0
+    fi
+
     # Configurar variables de entorno para evitar warnings de Perl
     export LANG=C.UTF-8
     export LC_ALL=C.UTF-8
@@ -304,8 +376,9 @@ setup_development_tools() {
         echo "✅ pyenv ya está instalado"
     fi
     
-    # Configurar Docker para usuario actual
-    if command -v docker >/dev/null 2>&1; then
+    # Configurar Docker para usuario actual (grupo docker + systemd son solo Linux;
+    # en macOS Docker Desktop se gestiona solo)
+    if [[ "$(detect_os)" != "macos" ]] && command -v docker >/dev/null 2>&1; then
         if ! groups | grep -q docker; then
             echo "🐳 Agregando usuario al grupo docker..."
             sudo usermod -aG docker $USER >/dev/null 2>&1
@@ -345,10 +418,17 @@ show_help() {
         echo "  $package"
     done
     echo ""
-    echo "PAQUETES del sistema que se instalan:"
-    for package in "${SYSTEM_PACKAGES[@]}"; do
-        echo "  $package"
-    done
+    if [[ "$(detect_os)" == "macos" ]]; then
+        echo "PAQUETES del sistema (Homebrew) que se instalan:"
+        for package in "${BREW_PACKAGES[@]}" "${BREW_CASKS[@]}"; do
+            echo "  $package"
+        done
+    else
+        echo "PAQUETES del sistema (pacman) que se instalan:"
+        for package in "${SYSTEM_PACKAGES[@]}"; do
+            echo "  $package"
+        done
+    fi
     echo ""
     echo "Ejemplos:"
     echo "  $0                       # Instalación completa"
@@ -399,25 +479,36 @@ done
 
 cd "$DOTFILES_DIR"
 
+OS_TYPE="$(detect_os)"
+
 # Verificar si stow está disponible para dotfiles
 if [[ "$INSTALL_DOTFILES" == true ]] && ! command -v stow &> /dev/null; then
     echo "❌ GNU Stow no está instalado y es necesario para los dotfiles"
-    if check_arch; then
-        echo "📦 Instalando stow..."
-        sudo pacman -S stow --noconfirm
-    else
-        echo "💡 Instala stow manualmente: sudo pacman -S stow"
-        exit 1
-    fi
+    case "$OS_TYPE" in
+        arch)
+            echo "📦 Instalando stow..."
+            sudo pacman -S stow --noconfirm
+            ;;
+        macos)
+            ensure_homebrew && brew install stow || exit 1
+            ;;
+        *)
+            echo "💡 Instala GNU Stow manualmente y vuelve a ejecutar"
+            exit 1
+            ;;
+    esac
 fi
 
 # Instalar paquetes del sistema
 if [[ "$INSTALL_SYSTEM" == true ]]; then
-    if check_arch; then
-        install_system_packages
-    else
-        echo "⚠️  Saltando instalación de paquetes del sistema (no es Arch Linux)"
-    fi
+    case "$OS_TYPE" in
+        arch)  install_system_packages ;;
+        macos) install_system_packages_macos ;;
+        *)
+            echo "⚠️  SO no reconocido; saltando instalación de paquetes del sistema"
+            echo "💡 Instala manualmente y usa '$0 -d' para solo los dotfiles"
+            ;;
+    esac
 fi
 
 # Instalar dotfiles
