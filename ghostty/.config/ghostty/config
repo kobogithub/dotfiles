@@ -67,6 +67,10 @@ cursor-color = #3FE0E0
 selection-background = #1A2740
 selection-foreground = #E8F1FA
 
+# Transparencia — vidrio esmerilado (hielo de Icecrown)
+background-opacity = 0.88
+background-blur = true
+
 # Comportamiento
 confirm-close-surface = false
 quit-after-last-window-closed = true
