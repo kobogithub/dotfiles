@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.kobo.brew-autoupdate</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/zsh</string>
+        <string>-lc</string>
+        <string>$HOME/.local/bin/brew-autoupdate</string>
+    </array>
+
+    <!-- Cada 86400 segundos (24h). Editar y recargar (launchctl unload/load)
+         para cambiar la frecuencia. launchd corre el trabajo pendiente al
+         despertar la Mac si el intervalo ya venció mientras estaba dormida. -->
+    <key>StartInterval</key>
+    <integer>86400</integer>
+
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/com.kobo.brew-autoupdate.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/com.kobo.brew-autoupdate.log</string>
+</dict>
+</plist>

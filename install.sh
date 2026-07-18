@@ -310,6 +310,25 @@ setup_zsh() {
     fi
 }
 
+# Función para programar la actualización periódica de Homebrew (solo macOS)
+setup_brew_autoupdate() {
+    if [[ "$(detect_os)" != "macos" ]]; then
+        return
+    fi
+
+    echo "🍺 Programando actualización periódica de Homebrew..."
+
+    install_dotfile_package "macos" "stow"
+
+    local plist="$HOME/Library/LaunchAgents/com.kobo.brew-autoupdate.plist"
+    launchctl unload "$plist" >/dev/null 2>&1 || true
+    if launchctl load "$plist" 2>/dev/null; then
+        echo "✅ com.kobo.brew-autoupdate cargado en launchd (corre cada 24h)"
+    else
+        echo "⚠️  No se pudo cargar el LaunchAgent, revisa $plist"
+    fi
+}
+
 # Función para configurar locales
 setup_locale() {
     echo "🌍 Configurando locales del sistema..."
@@ -548,7 +567,10 @@ if [[ "$INSTALL_SYSTEM" == true && "$ACTION" == "stow" ]]; then
     
     # Configurar zsh como shell por defecto
     setup_zsh
-    
+
+    # Programar actualización periódica de Homebrew (macOS)
+    setup_brew_autoupdate
+
     # Inicializar atuin si es la primera vez
     if ! [[ -f "$HOME/.local/share/atuin/history.db" ]]; then
         echo "🔍 Inicializando base de datos de atuin..."

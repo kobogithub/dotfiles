@@ -20,10 +20,6 @@ setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_IGNORE_SPACE
 setopt HIST_SAVE_NO_DUPS
 
-# Completado
-autoload -Uz compinit
-compinit
-
 # Aliases generales
 alias ll='lsd -alF'
 alias la='lsd -A' 
@@ -68,6 +64,12 @@ alias lt='lsd --tree'
 alias lh='lsd -lah'  # listado detallado con tamaños humanizados
 alias lr='lsd -R'    # listado recursivo
 
+# Completado (debe ir antes de los eval de starship/atuin/gh/zoxide,
+# que llaman a `compdef` y requieren que compinit ya haya corrido)
+fpath+=/opt/homebrew/share/zsh/site-functions
+autoload -Uz compinit
+compinit
+
 # Configuraciones de herramientas
 # Starship prompt (se carga al final)
 eval "$(starship init zsh)"
@@ -100,6 +102,8 @@ setopt NUMERIC_GLOB_SORT    # ordenar archivos numéricamente
 
 # Configuraciones de Brew
 export HOMEBREW_NO_ENV_HINTS=1
+# La actualización periódica corre sola vía LaunchAgent (ver
+# macos/Library/LaunchAgents/com.kobo.brew-autoupdate.plist), no en cada shell.
 
 # Password Store
 export PASSWORD_STORE_DIR=~/Github/personal/pass
@@ -161,5 +165,3 @@ export NVM_DIR="$HOME/.config/nvm"
 
 # Secrets / env vars locales
 [[ -f "$HOME/.env" ]] && source "$HOME/.env"
-fpath+=/opt/homebrew/share/zsh/site-functions
-autoload -Uz compinit && compinit
