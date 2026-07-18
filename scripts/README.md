@@ -117,7 +117,7 @@ source ~/.zshrc
 # dotfiles-doctor
 
 Diagnóstico de salud de la instalación de dotfiles, en modo **solo lectura**
-(no modifica nada). Verifica tres categorías y sale con código `!= 0` si hay
+(no modifica nada). Verifica cuatro categorías y sale con código `!= 0` si hay
 algún `FAIL`, de modo que sirve como *gate* en scripts/CI.
 
 ## Qué verifica
@@ -131,13 +131,17 @@ algún `FAIL`, de modo que sirve como *gate* en scripts/CI.
 - **Secrets**: cada `pass show <ruta>` referenciado en `zsh/.env` resuelve.
   Nunca ejecuta `.env` ni imprime valores. Si `pass` no está disponible, la
   categoría degrada a `WARN` (no `FAIL`).
+- **Docs**: el listado de paquetes en el bloque "📁 Estructura" de `README.md`
+  coincide exactamente con `DOTFILE_PACKAGES`. Un paquete de más o de menos en
+  cualquiera de los dos lados → `WARN` nombrando el paquete y de qué lado falta
+  (nunca `FAIL`, un desfase de documentación no rompe ninguna instalación).
 
 ## Uso
 
 ```bash
 dotfiles-doctor                    # todas las categorías
 dotfiles-doctor -q                 # oculta líneas OK; solo WARN/FAIL
-dotfiles-doctor --only stow        # una sola categoría: stow|tools|secrets
+dotfiles-doctor --only stow        # una sola categoría: stow|tools|secrets|docs
 dotfiles-doctor -h                 # ayuda
 ```
 

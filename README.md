@@ -18,12 +18,13 @@ dotfiles/
 ├── kubectl/                # Configuración de kubectl (~/.kube/)
 ├── k9s/                    # Configuración de k9s (~/.config/k9s/)
 ├── scripts/                # Scripts útiles (~/.local/bin/)
-├── devscripts/             # Scripts de desarrollo (~/.local/bin/)
 ├── docker/                 # Configuración de Docker y aliases
 ├── python/                 # Entorno Python + pyenv + virtual envs
 ├── nodejs/                 # Entorno Node.js + nvm + npm/yarn
 ├── vscode/                 # Configuración de VS Code + extensiones
 ├── opencode/               # OpenCode agents & skills (~/.config/opencode/)
+├── ghostty/                # Configuración de Ghostty (~/.config/ghostty/)
+├── herdr/                  # Configuración de herdr (~/.config/herdr/)
 ├── system/                 # Configuraciones del sistema
 ├── install.sh              # Script de instalación completa
 └── README.md               # Este archivo

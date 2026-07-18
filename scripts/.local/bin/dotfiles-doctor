@@ -1,12 +1,13 @@
 #!/bin/bash
 
 # dotfiles-doctor - Diagnostica la salud de la instalacion de dotfiles
-# Uso: dotfiles-doctor [-h] [-q] [--only stow|tools|secrets]
+# Uso: dotfiles-doctor [-h] [-q] [--only stow|tools|secrets|docs]
 #
 # Verifica, en modo SOLO LECTURA:
 #   - Stow:    cada paquete de DOTFILE_PACKAGES esta enlazado a este repo
 #   - Tools:   herramientas clave instaladas segun el SO detectado
 #   - Secrets: los secretos referenciados en zsh/.env resuelven en `pass`
+#   - Docs:    el listado de paquetes en README.md coincide con DOTFILE_PACKAGES
 # Reporta OK/WARN/FAIL por categoria y sale != 0 si hay algun FAIL.
 
 set -e
@@ -47,6 +48,7 @@ warn_count=0
 CAT_STOW="OK"
 CAT_TOOLS="OK"
 CAT_SECRETS="OK"
+CAT_DOCS="OK"
 
 # Herramientas esperadas. Criticas = FAIL si faltan; opcionales = WARN.
 CRITICAL_TOOLS="stow git zsh nvim tmux starship atuin jq"
@@ -62,7 +64,7 @@ show_help() {
     printf "%sOPCIONES:%s\n" "$YELLOW" "$NC"
     printf "    -h, --help              Mostrar esta ayuda\n"
     printf "    -q, --quiet             Ocultar lineas OK; mostrar solo WARN/FAIL\n"
-    printf "    --only <categoria>      Ejecutar solo una: stow | tools | secrets\n\n"
+    printf "    --only <categoria>      Ejecutar solo una: stow | tools | secrets | docs\n\n"
     printf "%sSALIDA:%s\n" "$YELLOW" "$NC"
     printf "    exit 0  sin FAIL (todo OK, o solo WARN)\n"
     printf "    exit 1  al menos un FAIL\n"
@@ -93,6 +95,7 @@ bump_category() {
         stow) cur="$CAT_STOW" ;;
         tools) cur="$CAT_TOOLS" ;;
         secrets) cur="$CAT_SECRETS" ;;
+        docs) cur="$CAT_DOCS" ;;
     esac
     new="$cur"
     if [[ "$status" == "FAIL" ]]; then
@@ -104,6 +107,7 @@ bump_category() {
         stow) CAT_STOW="$new" ;;
         tools) CAT_TOOLS="$new" ;;
         secrets) CAT_SECRETS="$new" ;;
+        docs) CAT_DOCS="$new" ;;
     esac
 }
 
@@ -299,6 +303,56 @@ check_secrets() {
 }
 
 # ---------------------------------------------------------------------------
+# Categoria: Docs
+# ---------------------------------------------------------------------------
+
+# parse_readme_packages - extrae los paquetes listados en el bloque "Estructura" de README.md
+parse_readme_packages() {
+    awk '/^```$/{c++; if (c==1) {f=1; next} if (c==2) {f=0}} f' "$DOTFILES_DIR/README.md" \
+        | grep -E '^(├──|└──) [a-zA-Z0-9_.-]+/' \
+        | sed -E 's/^(├── |└── )//; s#/.*##'
+}
+
+# list_contains <lista> <item> - membership check portable (Bash 3.2, sin arrays asociativos)
+list_contains() {
+    local list="$1" item="$2" line
+    while IFS= read -r line; do
+        [[ "$line" == "$item" ]] && return 0
+    done <<< "$list"
+    return 1
+}
+
+check_docs() {
+    local readme_pkgs install_pkgs pkg mismatch=0
+    if [[ ! -f "$DOTFILES_DIR/README.md" ]]; then
+        report_check docs WARN "README.md" "no existe en $DOTFILES_DIR → no se puede verificar el listado de paquetes"
+        return 0
+    fi
+    readme_pkgs="$(parse_readme_packages)"
+    install_pkgs="$(parse_dotfile_packages)"
+
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" ]] && continue
+        if ! list_contains "$install_pkgs" "$pkg"; then
+            report_check docs WARN "$pkg" "en README.md pero no en DOTFILE_PACKAGES (install.sh) → revisa README.md"
+            mismatch=$((mismatch + 1))
+        fi
+    done <<< "$readme_pkgs"
+
+    while IFS= read -r pkg; do
+        [[ -z "$pkg" ]] && continue
+        if ! list_contains "$readme_pkgs" "$pkg"; then
+            report_check docs WARN "$pkg" "en DOTFILE_PACKAGES (install.sh) pero no en README.md → agregalo a README.md"
+            mismatch=$((mismatch + 1))
+        fi
+    done <<< "$install_pkgs"
+
+    if [[ "$mismatch" -eq 0 ]]; then
+        report_check docs OK "readme-packages" "README.md coincide con DOTFILE_PACKAGES"
+    fi
+}
+
+# ---------------------------------------------------------------------------
 # Resumen y veredicto
 # ---------------------------------------------------------------------------
 print_summary() {
@@ -306,6 +360,7 @@ print_summary() {
     if [[ -z "$ONLY" || "$ONLY" == "stow" ]]; then summary_line "Stow" "$CAT_STOW"; fi
     if [[ -z "$ONLY" || "$ONLY" == "tools" ]]; then summary_line "Tools" "$CAT_TOOLS"; fi
     if [[ -z "$ONLY" || "$ONLY" == "secrets" ]]; then summary_line "Secrets" "$CAT_SECRETS"; fi
+    if [[ -z "$ONLY" || "$ONLY" == "docs" ]]; then summary_line "Docs" "$CAT_DOCS"; fi
     printf "  ───────────────────────\n"
     local overall="OK"
     if [[ "$fail_count" -gt 0 ]]; then
@@ -333,9 +388,9 @@ while [[ $# -gt 0 ]]; do
             shift
             ONLY="${1:-}"
             case "$ONLY" in
-                stow|tools|secrets) ;;
+                stow|tools|secrets|docs) ;;
                 *)
-                    echo "❌ Valor invalido para --only: '${ONLY}' (usa stow|tools|secrets)" >&2
+                    echo "❌ Valor invalido para --only: '${ONLY}' (usa stow|tools|secrets|docs)" >&2
                     exit 2
                     ;;
             esac
@@ -368,6 +423,11 @@ fi
 if [[ -z "$ONLY" || "$ONLY" == "secrets" ]]; then
     printf "%sSecrets%s\n" "$BOLD" "$NC"
     check_secrets
+    printf "\n"
+fi
+if [[ -z "$ONLY" || "$ONLY" == "docs" ]]; then
+    printf "%sDocs%s\n" "$BOLD" "$NC"
+    check_docs
     printf "\n"
 fi
 
