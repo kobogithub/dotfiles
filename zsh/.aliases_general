@@ -51,6 +51,11 @@ export HOMEBREW_NO_ENV_HINTS=1
 # Herdr
 alias hr='herdr'
 
+# claude-speak (TTS de las respuestas de Claude Code, hook Stop)
+alias claude-mute='touch ~/.claude/claude-speak.mute; pkill -x say 2>/dev/null; echo "claude-speak: muteado"'
+alias claude-unmute='rm -f ~/.claude/claude-speak.mute; echo "claude-speak: activo"'
+alias claude-mute-status='[ -f ~/.claude/claude-speak.mute ] && echo "claude-speak: muteado" || echo "claude-speak: activo"'
+
 # Git clone helpers — usan los hosts SSH definidos en ~/.ssh/config
 # Uso: clone-personal [owner/]repo   →  ~/Github/personal/<repo>
 #      clone-work     [owner/]repo   →  ~/Github/taligent/<repo>
