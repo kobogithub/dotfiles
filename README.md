@@ -25,6 +25,7 @@ dotfiles/
 ├── opencode/               # OpenCode agents & skills (~/.config/opencode/)
 ├── ghostty/                # Configuración de Ghostty (~/.config/ghostty/)
 ├── herdr/                  # Configuración de herdr (~/.config/herdr/)
+├── claude-code/            # Config global de Claude Code (~/.claude/settings.json)
 ├── system/                 # Configuraciones del sistema
 ├── install.sh              # Script de instalación completa
 └── README.md               # Este archivo

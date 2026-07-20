@@ -68,6 +68,7 @@ DOTFILE_PACKAGES=(
     "opencode"
     "ghostty"
     "herdr"
+    "claude-code"
 )
 
 # Paquetes de Homebrew para macOS (equivalen a SYSTEM_PACKAGES en Arch).
