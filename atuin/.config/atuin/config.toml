@@ -53,3 +53,6 @@ update_check = false
 # Configuración de dotfiles
 [dotfiles]
 enabled = true
+
+[ai]
+enabled = true

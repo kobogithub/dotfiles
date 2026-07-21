@@ -60,8 +60,21 @@ source ~/.zshrc              # test shell config changes in current shell
 
 Test shell config in a subshell/new terminal before committing — a malformed `.zshrc` can break login. Default branch is `dev`; commit messages use imperative mood (see `AGENTS.md`).
 
+## Custom CLI tooling (`scripts/` and `devscripts/`)
+
+Both packages stow into `~/.local/bin/`. The repo-authored helpers are the user-facing entry points:
+
+- `devscripts/`: `dev-status` (environment health check), `dev-init` (scaffold new projects), `dev-clean` (clean temp files).
+- `scripts/`: `alias-manager`, `backup-files`, and the `opencode-config-*` / `opencode-*` helpers that drive the OpenCode setup.
+
+Note: `scripts/.local/bin/` also contains symlinks created by `pipx`/`uv` tool installs (e.g. `black`, `pip`, `gitingest`, `lycsa`, `specify`). Those are tool shims, not repo-authored scripts — don't treat them as source to edit.
+
 ## OpenCode package
 
 `opencode/` holds AI agent definitions and skills (FastAPI, PostgreSQL, Supabase, Docker, Astro, docs, QA) stowed into `~/.config/opencode/`. See `opencode/README.md` for the catalog. This is configuration content, not application code.
+
+## Note on AGENTS.md
+
+`AGENTS.md` is the detailed style guide and is authoritative for shell-script conventions and commit style. Be aware its examples reference a stale working path (`~/github/dotfiles`); the actual repo root is `~/.dotfiles`.
 </content>
 </invoke>
