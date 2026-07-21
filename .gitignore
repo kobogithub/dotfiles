@@ -21,6 +21,9 @@ temp/
 
 # Configuraciones locales
 *.local
+# ...pero NO el directorio .local/ que usan los paquetes Stow (~/.local/...)
+!.local/
+!**/.local/
 local/
 
 # Secretos

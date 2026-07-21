@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# brew-autoupdate - Actualiza Homebrew y sus paquetes en segundo plano
+# Uso: brew-autoupdate
+#
+# Pensado para ser invocado periódicamente por el LaunchAgent
+# macos/Library/LaunchAgents/com.kobo.brew-autoupdate.plist, no a mano.
+# Corre `brew update && brew upgrade` y registra la salida en un log,
+# evitando solaparse con otra ejecución en curso.
+
+set -e
+set -o pipefail
+
+export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"
+
+LOG_DIR="$HOME/Library/Logs/brew-autoupdate"
+LOG_FILE="$LOG_DIR/brew-autoupdate.log"
+LOCK_DIR="/tmp/brew-autoupdate.lock"
+
+mkdir -p "$LOG_DIR"
+
+if ! mkdir "$LOCK_DIR" 2>/dev/null; then
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] Ya hay una ejecución en curso, saltando" >> "$LOG_FILE"
+    exit 0
+fi
+trap 'rmdir "$LOCK_DIR"' EXIT
+
+if ! command -v brew >/dev/null 2>&1; then
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] brew no encontrado, saltando" >> "$LOG_FILE"
+    exit 0
+fi
+
+{
+    echo "===== $(date '+%Y-%m-%d %H:%M:%S') ====="
+    brew update
+    brew upgrade
+} >> "$LOG_FILE" 2>&1

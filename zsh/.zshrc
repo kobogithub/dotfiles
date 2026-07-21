@@ -7,9 +7,8 @@ fi
 
 # Configuración del PATH
 export PATH=$HOME/.local/bin:$PATH
-export PATH="/home/kobo/.cache/.bun/bin:$PATH"
-export PATH="/home/kobo/go/bin:$PATH"
-export PATH="/home/kobo/.local/bin:$PATH"
+export PATH="$HOME/.cache/.bun/bin:$PATH"
+export PATH="$HOME/go/bin:$PATH"
 
 # Historia
 HISTSIZE=10000
@@ -20,10 +19,6 @@ setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_IGNORE_SPACE
 setopt HIST_SAVE_NO_DUPS
-
-# Completado
-autoload -Uz compinit
-compinit
 
 # Aliases generales
 alias ll='lsd -alF'
@@ -46,12 +41,20 @@ alias gd='git diff'
 alias gb='git branch'
 alias gco='git checkout'
 
-# Aliases de sistema
-alias update='sudo pacman -Syu'
-alias install='sudo pacman -S'
-alias search='pacman -Ss'
-alias remove='sudo pacman -R'
-alias cleanup='sudo pacman -Rns $(pacman -Qtdq)'
+# Aliases de sistema (por plataforma)
+if [[ "$(uname)" == "Linux" ]]; then
+    alias update='sudo pacman -Syu'
+    alias install='sudo pacman -S'
+    alias search='pacman -Ss'
+    alias remove='sudo pacman -R'
+    alias cleanup='sudo pacman -Rns $(pacman -Qtdq)'
+elif [[ "$(uname)" == "Darwin" ]]; then
+    alias update='brew update && brew upgrade'
+    alias install='brew install'
+    alias search='brew search'
+    alias remove='brew uninstall'
+    alias cleanup='brew cleanup'
+fi
 
 # Nota: Los aliases de Kubernetes se cargan desde ~/.dotfiles/kubectl/.aliases_k8s
 
@@ -60,6 +63,12 @@ alias tree='lsd --tree'
 alias lt='lsd --tree'
 alias lh='lsd -lah'  # listado detallado con tamaños humanizados
 alias lr='lsd -R'    # listado recursivo
+
+# Completado (debe ir antes de los eval de starship/atuin/gh/zoxide,
+# que llaman a `compdef` y requieren que compinit ya haya corrido)
+fpath+=/opt/homebrew/share/zsh/site-functions
+autoload -Uz compinit
+compinit
 
 # Configuraciones de herramientas
 # Starship prompt (se carga al final)
@@ -90,6 +99,14 @@ setopt GLOB_DOTS            # incluir archivos ocultos en glob
 setopt EXTENDED_GLOB        # habilitar patrones extendidos
 setopt NO_CASE_GLOB         # matching case-insensitive
 setopt NUMERIC_GLOB_SORT    # ordenar archivos numéricamente
+
+# Configuraciones de Brew
+export HOMEBREW_NO_ENV_HINTS=1
+# La actualización periódica corre sola vía LaunchAgent (ver
+# macos/Library/LaunchAgents/com.kobo.brew-autoupdate.plist), no en cada shell.
+
+# Password Store
+export PASSWORD_STORE_DIR=~/Github/personal/pass
 
 # Cargar configuraciones de desarrollo
 if [ -f "$HOME/.dotfiles/zsh/.aliases_general" ]; then
@@ -123,17 +140,24 @@ bindkey '^[[A' history-search-backward    # Flecha arriba
 bindkey '^[[B' history-search-forward     # Flecha abajo
 
 # opencode
-export PATH=/home/kobo/.opencode/bin:$PATH
+export PATH=$HOME/.opencode/bin:$PATH
 
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
-export LANG=C.UTF-8
+# Homebrew
+if [[ "$(uname)" == "Linux" ]] && [[ -f /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+    eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv zsh)"
+elif [[ "$(uname)" == "Darwin" ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+if [[ "$(uname)" == "Darwin" ]]; then
+    export LANG=en_US.UTF-8
+else
+    export LANG=C.UTF-8
+fi
 unset LC_ALL 2>/dev/null
 
-# The next line updates PATH for the Google Cloud SDK.
-if [ -f '/home/kobo/google-cloud-sdk/path.zsh.inc' ]; then . '/home/kobo/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-if [ -f '/home/kobo/google-cloud-sdk/completion.zsh.inc' ]; then . '/home/kobo/google-cloud-sdk/completion.zsh.inc'; fi
+# Google Cloud SDK
+if [ -f "$HOME/google-cloud-sdk/path.zsh.inc" ]; then . "$HOME/google-cloud-sdk/path.zsh.inc"; fi
+if [ -f "$HOME/google-cloud-sdk/completion.zsh.inc" ]; then . "$HOME/google-cloud-sdk/completion.zsh.inc"; fi
 
 export NVM_DIR="$HOME/.config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm

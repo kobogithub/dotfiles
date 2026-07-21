@@ -1,0 +1,82 @@
+#!/bin/bash
+
+# claude-speak - Lee en voz alta (macOS `say`) la ultima respuesta de Claude Code
+# Uso: pensado como hook "Stop" de Claude Code (recibe el JSON del hook por stdin).
+#
+# Extrae transcript_path del JSON de entrada, toma el ultimo mensaje "assistant"
+# del transcript JSONL, limpia el markdown y lo pasa a `say`.
+# Voz configurable con CLAUDE_SPEAK_VOICE (default: Paulina).
+#
+# Usa un lock (flock) compartido entre invocaciones para que si dos sesiones
+# de Claude Code terminan a la vez, la segunda espere a que la primera termine
+# de hablar en vez de superponerse.
+
+set -euo pipefail
+
+VOICE="${CLAUDE_SPEAK_VOICE:-Paulina}"
+LOCK_FILE="${CLAUDE_SPEAK_LOCK:-/tmp/claude-speak.lock}"
+MUTE_FILE="${CLAUDE_SPEAK_MUTE_FILE:-$HOME/.claude/claude-speak.mute}"
+
+[ -f "$MUTE_FILE" ] && exit 0
+
+command -v say >/dev/null 2>&1 || exit 0
+command -v jq >/dev/null 2>&1 || exit 0
+command -v python3 >/dev/null 2>&1 || exit 0
+
+hook_input="$(cat)"
+transcript_path="$(printf '%s' "$hook_input" | jq -r '.transcript_path // empty')"
+
+[ -n "$transcript_path" ] || exit 0
+[ -f "$transcript_path" ] || exit 0
+
+python3 - "$transcript_path" "$VOICE" "$LOCK_FILE" <<'PY'
+import fcntl
+import json
+import re
+import subprocess
+import sys
+
+path, voice, lock_file = sys.argv[1], sys.argv[2], sys.argv[3]
+last_text = None
+
+with open(path, encoding="utf-8") as f:
+    for line in f:
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            obj = json.loads(line)
+        except json.JSONDecodeError:
+            continue
+        if obj.get("type") != "assistant":
+            continue
+        content = obj.get("message", {}).get("content", [])
+        parts = [c.get("text", "") for c in content if c.get("type") == "text"]
+        if parts:
+            last_text = "\n".join(parts)
+
+if not last_text:
+    sys.exit(0)
+
+text = last_text
+bt = chr(96)
+text = re.sub(bt * 3 + r".*?" + bt * 3, " codigo omitido ", text, flags=re.DOTALL)
+text = re.sub(bt + r"([^" + bt + r"]*)" + bt, r"\1", text)
+text = re.sub(r"^#{1,6}\s*", "", text, flags=re.MULTILINE)
+text = re.sub(r"\*\*([^*]*)\*\*", r"\1", text)
+text = re.sub(r"[*_~]", "", text)
+text = re.sub(r"\[([^\]]*)\]\([^)]*\)", r"\1", text)
+text = text.strip()
+
+if not text:
+    sys.exit(0)
+
+# Lock exclusivo: si otra instancia esta hablando, esperamos a que suelte
+# el lock antes de arrancar la nuestra. Evita que se pisen dos voces.
+with open(lock_file, "a") as lock:
+    fcntl.flock(lock, fcntl.LOCK_EX)
+    try:
+        subprocess.run(["say", "-v", voice, "--", text])
+    finally:
+        fcntl.flock(lock, fcntl.LOCK_UN)
+PY

@@ -1,6 +1,5 @@
 [user]
 	name = Kevin Barroso
-	email = kobouharriet@gmail.com
 
 [init]
 	defaultBranch = dev
@@ -26,7 +25,25 @@
 	default = simple
 [credential "https://github.com"]
 	helper = 
-	helper = !/usr/bin/gh auth git-credential
+	helper = !gh auth git-credential
 [credential "https://gist.github.com"]
 	helper = 
-	helper = !/usr/bin/gh auth git-credential
+	helper = !gh auth git-credential
+
+
+[user]
+    name = Kevin Barroso
+# no pongas signingkey acá arriba, lo definimos por carpeta
+
+[commit]
+    gpgsign = true
+
+[includeIf "gitdir:~/Github/taligent/"]
+    path = ~/.gitconfig-work
+
+[includeIf "gitdir:~/Github/personal/"]
+    path = ~/.gitconfig-personal
+
+# El repo de dotfiles usa la identidad personal para firmar commits
+[includeIf "gitdir:~/.dotfiles/"]
+    path = ~/.gitconfig-personal

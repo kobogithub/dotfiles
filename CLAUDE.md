@@ -11,7 +11,7 @@ Each top-level directory is a **Stow package**. Stow symlinks the package's cont
 - `git/.gitconfig` → `~/.gitconfig`
 - `zsh/.zshrc` → `~/.zshrc`
 - `nvim/.config/nvim/` → `~/.config/nvim/`
-- `scripts/.local/bin/<x>` and `devscripts/.local/bin/<x>` → `~/.local/bin/<x>`
+- `scripts/.local/bin/<x>` → `~/.local/bin/<x>`
 
 Consequences for editing:
 - **Edit files here in the repo, never the symlinked copies in `~`.** Since they're symlinks, edits in `~` actually modify the repo files — but always work from the repo to stay oriented.
@@ -20,10 +20,10 @@ Consequences for editing:
 
 ## install.sh
 
-`install.sh` is the entry point; it drives Stow plus Arch-specific setup. Key behaviors:
+`install.sh` is the entry point; it drives Stow plus OS-specific setup. Key behaviors:
 - Backs up conflicting files to `~/.dotfiles-backup/TIMESTAMP/` before stowing (via `stow -n` dry-run parsing).
-- System-package install uses `pacman` and is **Arch-only** (gated by `check_arch`); Docker is handled separately to avoid conflicts.
-- Post-install steps (full install only): installs `nvm` + `pyenv`, sets up locale (`C.UTF-8`), adds user to `docker` group, sets `zsh` as default shell, inits `atuin`.
+- System-package install is OS-aware via `detect_os` (returns `arch`/`macos`/`other`): Arch uses `pacman` (`SYSTEM_PACKAGES`), macOS uses Homebrew (`BREW_PACKAGES` formulae + `BREW_CASKS`); other OSes skip system packages. Docker on Arch is handled separately to avoid conflicts; on macOS it's the Docker Desktop cask.
+- Post-install steps (full install only): installs `nvm` + `pyenv`, sets up locale (`C.UTF-8`, skipped on macOS), sets `zsh` as default shell, inits `atuin`. The Docker group/`systemctl` setup is Linux-only.
 
 ```bash
 ./install.sh                 # full: system packages + all dotfiles + setup
@@ -56,18 +56,12 @@ Secrets are **not stored in the repo**. `zsh/.env` (→ `~/.env`) populates env 
 bash -n install.sh           # syntax-check a shell script
 shellcheck <script>          # lint (if installed)
 source ~/.zshrc              # test shell config changes in current shell
+dotfiles-doctor              # health-check: stow links, tools, secrets (read-only)
 ```
 
 Test shell config in a subshell/new terminal before committing — a malformed `.zshrc` can break login. Default branch is `dev`; commit messages use imperative mood (see `AGENTS.md`).
 
-## Custom CLI tooling (`scripts/` and `devscripts/`)
-
-Both packages stow into `~/.local/bin/`. The repo-authored helpers are the user-facing entry points:
-
-- `devscripts/`: `dev-status` (environment health check), `dev-init` (scaffold new projects), `dev-clean` (clean temp files).
-- `scripts/`: `alias-manager`, `backup-files`, and the `opencode-config-*` / `opencode-*` helpers that drive the OpenCode setup.
-
-Note: `scripts/.local/bin/` also contains symlinks created by `pipx`/`uv` tool installs (e.g. `black`, `pip`, `gitingest`, `lycsa`, `specify`). Those are tool shims, not repo-authored scripts — don't treat them as source to edit.
+`dotfiles-doctor` (in the `scripts` package, → `~/.local/bin/`) is a read-only diagnostic: it verifies every `DOTFILE_PACKAGES` entry is correctly stowed, the key tools for the detected OS are installed, and the `pass` secrets referenced in `zsh/.env` resolve. It reports OK/WARN/FAIL per category and exits non-zero on any FAIL. See `scripts/README.md`.
 
 ## OpenCode package
 
