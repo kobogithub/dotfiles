@@ -68,6 +68,22 @@ command -v bat >/dev/null 2>&1 && alias cat='bat --paging=never'  # cat con synt
 alias lzg='lazygit'      # TUI de git (git lg sigue siendo el log graph)
 alias lzd='lazydocker'   # TUI de docker
 
+# als - buscador interactivo (fzf) de TODOS los aliases activos (incluye .zshrc
+# y los sourceados). Uso: als [patrón]. Enter copia el alias al portapapeles.
+als() {
+    command -v fzf >/dev/null 2>&1 || { alias | grep -i "${1:-}"; return; }
+    local sel
+    sel=$(alias | sort | fzf --query="${1:-}" --prompt='alias > ' \
+        --height=60% --reverse --no-sort --header='Enter: copiar  ·  Ctrl-C: salir') || return
+    [ -n "$sel" ] || return
+    print -r -- "$sel"
+    if command -v pbcopy >/dev/null 2>&1; then
+        print -rn -- "$sel" | pbcopy && print -- "  (copiado al portapapeles)"
+    elif command -v xclip >/dev/null 2>&1; then
+        print -rn -- "$sel" | xclip -selection clipboard && print -- "  (copiado al portapapeles)"
+    fi
+}
+
 # Git clone helpers — usan los hosts SSH definidos en ~/.ssh/config
 # Uso: clone-personal [owner/]repo   →  ~/Github/personal/<repo>
 #      clone-work     [owner/]repo   →  ~/Github/taligent/<repo>

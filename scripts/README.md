@@ -39,9 +39,10 @@ alias-manager list general      # Solo generales
 alias-manager list k8s          # Solo Kubernetes
 alias-manager list docker       # Solo Docker
 
-# Buscar aliases
+# Buscar aliases (busca en general/k8s/docker Y en .zshrc)
 alias-manager search git        # Busca "git" en nombre o comando
 alias-manager search docker
+# Para un buscador interactivo con fzf sobre TODOS los aliases activos: `als`
 
 # Editar archivos de aliases
 alias-manager edit              # Edita aliases generales

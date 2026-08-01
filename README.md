@@ -214,7 +214,8 @@ cmu / cun   # mutear / desmutear la lectura en voz alta (claude-speak)
 # Dotfiles
 cdot            # cd ~/.dotfiles
 dotfiles-doctor # health-check de la instalación
-alm             # alias-manager
+alm             # alias-manager (alm search <t> busca en todos, incl. .zshrc)
+als [patrón]    # buscador interactivo (fzf) de TODOS los aliases activos
 
 # CLI modernas
 rg patrón       # ripgrep: buscar en archivos (rapidísimo)

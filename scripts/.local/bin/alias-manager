@@ -15,6 +15,7 @@ fi
 ALIASES_FILE="$DOTFILES_DIR/zsh/.aliases_general"
 ALIASES_K8S="$DOTFILES_DIR/kubectl/.aliases_k8s"
 ALIASES_DOCKER="$DOTFILES_DIR/docker/.docker_aliases"
+ALIASES_ZSHRC="$DOTFILES_DIR/zsh/.zshrc"  # solo lectura (search/list); add/remove no lo tocan
 
 # Colores usando tput (más portable)
 if command -v tput >/dev/null 2>&1 && [ -t 1 ]; then
@@ -209,6 +210,15 @@ search_alias() {
         fi
     fi
     
+    if [ -f "$ALIASES_ZSHRC" ]; then
+        local results=$(grep -iE "^\s*alias .*$term" "$ALIASES_ZSHRC")
+        if [ -n "$results" ]; then
+            printf "${GREEN}.zshrc:${NC}\n"
+            echo "$results" | sed -E 's/^\s*alias /  /'
+            found=1
+        fi
+    fi
+
     if [ $found -eq 0 ]; then
         printf "${YELLOW}No se encontraron aliases${NC}\n"
     fi
