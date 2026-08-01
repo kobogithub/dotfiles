@@ -225,7 +225,8 @@ install_dotfile_package() {
         return
     fi
     
-    echo "📦 ${action^}ing dotfiles: $package..."
+    # Nota: se evita ${action^} (bash 4+) porque macOS trae bash 3.2
+    echo "📦 ${action}ing dotfiles: $package..."
     
     if [ "$action" = "stow" ]; then
         # Hacer backup de archivos conflictivos antes de instalar
