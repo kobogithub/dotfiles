@@ -1,0 +1,174 @@
+#!/bin/bash
+
+# claude-sessions - Buscador global de sesiones de Claude Code (fzf)
+# Uso: claude-sessions [-h] [PATRON]
+#
+# Lee todas las sesiones guardadas en ~/.claude/projects/*/*.jsonl (de TODOS
+# los repositorios), las muestra en un selector fzf ordenadas por reciente,
+# con preview de los ultimos prompts. Al elegir una, hace `cd` al proyecto
+# correcto y ejecuta `claude --resume <sessionId>`.
+#
+#   PATRON   consulta inicial opcional para filtrar en fzf.
+#
+# Requiere: python3, fzf. Alias sugerido en zsh/.aliases_general: `ccs`.
+
+set -euo pipefail
+
+PROJECTS_DIR="$HOME/.claude/projects"
+
+# ---------------------------------------------------------------------------
+# Ayuda
+# ---------------------------------------------------------------------------
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+    sed -n '3,14p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Modo preview (invocado por fzf): imprime los prompts del usuario del archivo
+# ---------------------------------------------------------------------------
+if [ "${1:-}" = "--preview" ]; then
+    python3 - "$2" <<'PYEOF'
+import json, sys
+path = sys.argv[1]
+prompts = []
+title = None
+cwd = None
+try:
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            try:
+                d = json.loads(line)
+            except Exception:
+                continue
+            if d.get("type") == "ai-title" and d.get("aiTitle"):
+                title = d["aiTitle"]
+            if d.get("cwd") and not cwd:
+                cwd = d["cwd"]
+            if d.get("type") == "user":
+                msg = d.get("message", {})
+                c = msg.get("content")
+                text = None
+                if isinstance(c, str):
+                    text = c
+                elif isinstance(c, list):
+                    for part in c:
+                        if isinstance(part, dict) and part.get("type") == "text":
+                            text = part.get("text"); break
+                if text and not text.lstrip().startswith("<"):
+                    prompts.append(" ".join(text.split()))
+except Exception as e:
+    print("(no se pudo leer:", e, ")"); sys.exit(0)
+
+if title:
+    print("\033[1;36m" + title + "\033[0m")
+if cwd:
+    print("\033[2m" + cwd + "\033[0m")
+print()
+for p in prompts[:15]:
+    print("\033[33m>\033[0m " + p[:200])
+PYEOF
+    exit 0
+fi
+
+# ---------------------------------------------------------------------------
+# Dependencias
+# ---------------------------------------------------------------------------
+command -v fzf >/dev/null 2>&1 || { echo "Falta fzf" >&2; exit 1; }
+command -v python3 >/dev/null 2>&1 || { echo "Falta python3" >&2; exit 1; }
+[ -d "$PROJECTS_DIR" ] || { echo "No existe $PROJECTS_DIR" >&2; exit 1; }
+
+# ---------------------------------------------------------------------------
+# Construccion del listado (una linea por sesion, ordenado por reciente)
+#   Formato interno separado por TAB: DISPLAY \t sessionId \t cwd \t file
+# ---------------------------------------------------------------------------
+LIST="$(python3 - "$PROJECTS_DIR" <<'PYEOF'
+import json, os, sys, glob, time
+
+projects_dir = sys.argv[1]
+rows = []
+
+for path in glob.glob(os.path.join(projects_dir, "*", "*.jsonl")):
+    try:
+        mtime = os.path.getmtime(path)
+    except OSError:
+        continue
+    sid = os.path.splitext(os.path.basename(path))[0]
+    title = None
+    cwd = None
+    first_user = None
+    try:
+        with open(path, encoding="utf-8") as fh:
+            for line in fh:
+                try:
+                    d = json.loads(line)
+                except Exception:
+                    continue
+                if d.get("type") == "ai-title" and d.get("aiTitle"):
+                    title = d["aiTitle"]
+                if d.get("cwd") and not cwd:
+                    cwd = d["cwd"]
+                if first_user is None and d.get("type") == "user":
+                    c = d.get("message", {}).get("content")
+                    t = None
+                    if isinstance(c, str):
+                        t = c
+                    elif isinstance(c, list):
+                        for part in c:
+                            if isinstance(part, dict) and part.get("type") == "text":
+                                t = part.get("text"); break
+                    if t and not t.lstrip().startswith("<"):
+                        first_user = " ".join(t.split())
+    except Exception:
+        continue
+
+    if not cwd:
+        continue  # sin cwd no podemos reanudar de forma fiable
+    label = title or first_user or "(sin titulo)"
+    rows.append((mtime, sid, cwd, path, label))
+
+rows.sort(key=lambda r: r[0], reverse=True)
+now = time.time()
+
+def rel(dt):
+    s = int(now - dt)
+    if s < 3600:   return f"{s//60}m"
+    if s < 86400:  return f"{s//3600}h"
+    if s < 604800: return f"{s//86400}d"
+    return f"{s//604800}sem"
+
+for mtime, sid, cwd, path, label in rows:
+    proj = os.path.basename(cwd.rstrip("/")) or cwd
+    when = rel(mtime)
+    display = f"{when:>5}  \033[1m{label[:60]:<60}\033[0m \033[2m{proj}\033[0m"
+    print(f"{display}\t{sid}\t{cwd}\t{path}")
+PYEOF
+)"
+
+[ -n "$LIST" ] || { echo "No hay sesiones de Claude Code todavia." >&2; exit 0; }
+
+# ---------------------------------------------------------------------------
+# Seleccion con fzf
+# ---------------------------------------------------------------------------
+SELECTED="$(printf '%s\n' "$LIST" | fzf \
+    --ansi \
+    --delimiter='\t' \
+    --with-nth=1 \
+    --query="${1:-}" \
+    --height=90% \
+    --border \
+    --prompt='claude session > ' \
+    --header='Enter: reanudar sesion en su proyecto  |  Ctrl-C: cancelar' \
+    --preview="$0 --preview {4}" \
+    --preview-window='right,55%,wrap')" || exit 0
+
+[ -n "$SELECTED" ] || exit 0
+
+SID="$(printf '%s' "$SELECTED" | cut -f2)"
+CWD="$(printf '%s' "$SELECTED" | cut -f3)"
+
+[ -d "$CWD" ] || { echo "El directorio del proyecto ya no existe: $CWD" >&2; exit 1; }
+
+echo "Reanudando sesion $SID en $CWD"
+cd "$CWD"
+exec claude --resume "$SID"

@@ -56,6 +56,9 @@ alias claude-mute='touch ~/.claude/claude-speak.mute; pkill -x say 2>/dev/null; 
 alias claude-unmute='rm -f ~/.claude/claude-speak.mute; echo "claude-speak: activo"'
 alias claude-mute-status='[ -f ~/.claude/claude-speak.mute ] && echo "claude-speak: muteado" || echo "claude-speak: activo"'
 
+# claude-sessions: buscador global de sesiones de Claude Code (fzf) de todos los repos
+alias ccs='claude-sessions'
+
 # Git clone helpers — usan los hosts SSH definidos en ~/.ssh/config
 # Uso: clone-personal [owner/]repo   →  ~/Github/personal/<repo>
 #      clone-work     [owner/]repo   →  ~/Github/taligent/<repo>

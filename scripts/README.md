@@ -152,3 +152,32 @@ dotfiles-doctor -h                 # ayuda
 | `0` | Sin `FAIL` (todo OK, o solo `WARN`) |
 | `1` | Al menos un `FAIL` |
 | `2` | Error de uso (opción/categoría inválida) |
+
+---
+
+# claude-sessions
+
+Buscador **global** de sesiones de Claude Code con `fzf`. Lee todas las
+sesiones guardadas en `~/.claude/projects/*/*.jsonl` (de **todos** los
+repositorios), las lista ordenadas por más reciente, y al elegir una hace
+`cd` al proyecto correcto y ejecuta `claude --resume <sessionId>`.
+
+Cada fila muestra: antigüedad relativa, título de la sesión (el `aiTitle`
+que genera Claude, o el primer prompt como fallback) y el nombre del
+proyecto. El panel de preview muestra los últimos prompts de esa sesión.
+
+Requiere `python3` y `fzf` (ambos ya en `BREW_PACKAGES`).
+
+## Uso
+
+```bash
+claude-sessions            # abre el selector con todas las sesiones
+claude-sessions bunge      # abre el selector con "bunge" como query inicial
+claude-sessions -h         # ayuda
+ccs                        # alias (zsh/.aliases_general)
+```
+
+Dentro de `fzf`: escribí para filtrar, `Enter` reanuda la sesión en su
+proyecto, `Ctrl-C` cancela. Diferencia con `claude --resume`: ese solo
+muestra las sesiones del directorio actual; `claude-sessions` las cruza
+todas sin importar en qué repo estés parado.
