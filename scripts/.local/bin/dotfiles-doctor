@@ -177,8 +177,26 @@ resolve_link() {
     esac
 }
 
+# Paquetes que se omiten a propósito en ESTA máquina. Un paquete por línea en
+# ~/.dotfiles-doctor-skip (admite comentarios con #). Útil para deviaciones
+# per-máquina intencionales (ej. no stowear atuin en un equipo puntual).
+STOW_SKIP_FILE="$HOME/.dotfiles-doctor-skip"
+package_skipped() {
+    [[ -f "$STOW_SKIP_FILE" ]] || return 1
+    while IFS= read -r line; do
+        line="${line%%#*}"                 # quitar comentarios
+        line="${line//[[:space:]]/}"       # quitar espacios
+        [[ -n "$line" && "$line" == "$1" ]] && return 0
+    done < "$STOW_SKIP_FILE"
+    return 1
+}
+
 check_stow_package() {
     local pkg="$1" pkgdir
+    if package_skipped "$pkg"; then
+        report_check stow OK "$pkg" "omitido a propósito en esta máquina (~/.dotfiles-doctor-skip)"
+        return 0
+    fi
     pkgdir="$(cd "$DOTFILES_DIR/$pkg" 2>/dev/null && pwd -P)" || {
         report_check stow FAIL "$pkg" "listado en DOTFILE_PACKAGES pero falta $pkg/ en el repo"
         return 0

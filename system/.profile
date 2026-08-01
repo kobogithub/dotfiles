@@ -30,6 +30,14 @@ export LESSCHARSET=utf-8
 
 # Configuración para aplicaciones
 export GNUPGHOME="$XDG_DATA_HOME/gnupg"
-export CARGO_HOME="$XDG_DATA_HOME/cargo"
-export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
-. "/home/kobo/.local/share/cargo/env"
+
+# Cargo/Rust — portable: si cargo vive en XDG (Arch) usar esa ubicación;
+# si está en el default ~/.cargo (macOS/rustup) usar esa. Guardado para no
+# romper en máquinas sin Rust.
+if [ -f "$XDG_DATA_HOME/cargo/env" ]; then
+    export CARGO_HOME="$XDG_DATA_HOME/cargo"
+    export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
+    . "$XDG_DATA_HOME/cargo/env"
+elif [ -f "$HOME/.cargo/env" ]; then
+    . "$HOME/.cargo/env"
+fi

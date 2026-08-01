@@ -145,6 +145,19 @@ dotfiles-doctor --only stow        # una sola categoría: stow|tools|secrets|doc
 dotfiles-doctor -h                 # ayuda
 ```
 
+## Omitir paquetes por máquina
+
+Para deviaciones intencionales en un equipo puntual (ej. no stowear `atuin` en
+una Mac porque su config apunta a otra db), listá los paquetes a omitir —uno por
+línea, con comentarios `#`— en `~/.dotfiles-doctor-skip` (archivo local, no
+trackeado). El check de `stow` los reporta como OK con la nota "omitido a
+propósito", sin marcar FAIL.
+
+```
+# ~/.dotfiles-doctor-skip
+atuin   # se usa la config default en esta máquina
+```
+
 ## Códigos de salida
 
 | Código | Significado |
