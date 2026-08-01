@@ -90,15 +90,37 @@ detect_os() {
     fi
 }
 
-# Verificar que Homebrew esté disponible (no lo instala, solo guía)
+# Asegurar Homebrew: si falta, lo instala (no interactivo) y lo agrega al PATH
 ensure_homebrew() {
     if command -v brew >/dev/null 2>&1; then
         return 0
     fi
-    echo "❌ Homebrew no está instalado y es necesario en macOS"
-    echo "💡 Instálalo con:"
-    echo '   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
-    return 1
+
+    echo "🍺 Homebrew no está instalado; instalándolo (script oficial, no interactivo)..."
+    if ! NONINTERACTIVE=1 /bin/bash -c \
+        "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+        echo "❌ Falló la instalación de Homebrew"
+        echo "💡 Instálalo a mano y volvé a correr ./install.sh:"
+        echo '   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+        return 1
+    fi
+
+    # Agregar brew al PATH de esta sesión (Apple Silicon: /opt/homebrew, Intel: /usr/local)
+    local brew_bin
+    for brew_bin in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+        if [[ -x "$brew_bin" ]]; then
+            eval "$("$brew_bin" shellenv)"
+            break
+        fi
+    done
+
+    if ! command -v brew >/dev/null 2>&1; then
+        echo "❌ Homebrew se instaló pero no quedó en el PATH de esta sesión"
+        echo '💡 Abrí una terminal nueva (o corré: eval "$(/opt/homebrew/bin/brew shellenv)") y reintentá'
+        return 1
+    fi
+    echo "✅ Homebrew instalado: $(brew --version | head -1)"
+    return 0
 }
 
 # Instalar paquetes del sistema en macOS con Homebrew
