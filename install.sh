@@ -30,8 +30,7 @@ SYSTEM_PACKAGES=(
     "nodejs"
     "npm"
     "yarn"
-    "code"  # VS Code
-    
+
     # Herramientas de desarrollo adicionales
     "base-devel"  # Herramientas de compilación
     "git"
@@ -65,7 +64,6 @@ DOTFILE_PACKAGES=(
     "docker"
     "python"
     "nodejs"
-    "vscode"
     "opencode"
     "ghostty"
     "herdr"
@@ -593,7 +591,6 @@ if [[ "$ACTION" == "stow" ]]; then
         echo "   dev-status  - Verificar estado del entorno"
         echo "   dev-init    - Crear nuevos proyectos"
         echo "   dev-clean   - Limpiar archivos temporales"
-        echo "   code-ext    - Instalar extensiones de VS Code"
         echo ""
         echo "🐚 Para aplicar completamente la configuración:"
         echo "   1. Cierra la terminal actual"

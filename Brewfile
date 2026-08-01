@@ -29,5 +29,4 @@ brew "tree"
 brew "htop"
 
 # --- GUI (casks) ---
-cask "visual-studio-code"   # 'code' en Arch
 cask "docker"               # Docker Desktop

@@ -50,7 +50,6 @@ dotfiles/
 ├── docker/                 # Docker + aliases y funciones
 ├── python/                 # Entorno Python (pyenv, aliases)
 ├── nodejs/                 # Entorno Node.js (nvm, aliases)
-├── vscode/                 # VS Code (settings + extensiones)
 ├── scripts/                # Scripts propios (~/.local/bin/)
 ├── opencode/               # OpenCode agents & skills (~/.config/opencode/)
 ├── herdr/                  # Config de herdr (~/.config/herdr/)
@@ -87,7 +86,7 @@ Si **Homebrew** no está instalado, `install.sh` lo instala automáticamente (sc
 
 **Fórmulas:** `neovim` · `tmux` · `gh` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` · `node` · `yarn` · `git` · `curl` · `wget` · `jq` · `fzf` · `tree` · `htop`
 
-**Casks (GUI):** `visual-studio-code` · `docker`
+**Casks (GUI):** `docker`
 
 ### 🐧 Arch Linux — pacman
 
@@ -172,9 +171,6 @@ Integración con **pyenv**, virtual envs, tools (`black`, `flake8`, `mypy`, `pyt
 
 ### 🟢 Node.js
 Integración con **nvm**, múltiples package managers (npm/yarn/pnpm) con auto-detección, plantillas (React, Next.js, Express, Vue) y tools (ESLint, Prettier, Jest).
-
-### 💻 VS Code
-Settings full-stack, instalador de extensiones, keybindings/themes, soporte para Python, JS/TS, Docker y K8s.
 
 ### 🤖 OpenCode AI Agents & Skills
 Agents y skills expertos (FastAPI, PostgreSQL, Supabase, Docker, Astro, docs, QA) enlazados a `~/.config/opencode/`. Ver [`opencode/README.md`](opencode/README.md).
