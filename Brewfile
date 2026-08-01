@@ -28,5 +28,19 @@ brew "fzf"            # usado por claude-sessions (ccs)
 brew "tree"
 brew "htop"
 
+# --- CLI modernas (mejoras de experiencia) ---
+brew "ripgrep"       # rg: grep rapidísimo
+brew "zoxide"        # cd inteligente (init en .zshrc)
+brew "lazygit"       # TUI de git
+brew "fd"            # find moderno; potencia fzf/rg
+brew "bat"           # cat con syntax highlight
+brew "git-delta"     # diffs de git hermosos (pager en .gitconfig)
+brew "yq"            # jq para YAML (k8s/dbt/compose)
+brew "lazydocker"    # TUI de docker (en Arch: AUR, no en SYSTEM_PACKAGES)
+brew "btop"          # monitor de sistema (mejor que htop)
+brew "tealdeer"      # tldr: ejemplos de comandos
+brew "dust"          # du visual
+brew "duf"           # df visual
+
 # --- GUI (casks) ---
 cask "docker"               # Docker Desktop

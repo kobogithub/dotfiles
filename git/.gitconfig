@@ -7,7 +7,17 @@
 [core]
 	editor = nvim
 	autocrlf = false
-  pager = cat
+	pager = delta
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true       # usar n/N para saltar entre archivos en el diff
+	line-numbers = true
+
+[merge]
+	conflictstyle = zdiff3
 
 [alias]
 	st = status

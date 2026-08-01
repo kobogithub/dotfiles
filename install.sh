@@ -42,6 +42,20 @@ SYSTEM_PACKAGES=(
     "htop"
     "unzip"
     "zip"
+
+    # CLI modernas (mejoras de experiencia). lazydocker no está en repos
+    # oficiales de Arch (solo AUR), por eso no se lista aquí; sí en el Brewfile.
+    "ripgrep"
+    "zoxide"
+    "lazygit"
+    "fd"
+    "bat"
+    "git-delta"
+    "go-yq"        # yq (mikefarah) en Arch se llama go-yq
+    "btop"
+    "tealdeer"     # tldr
+    "dust"
+    "duf"
 )
 
 # Paquetes de dotfiles disponibles

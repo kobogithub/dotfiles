@@ -84,13 +84,17 @@ El paso de paquetes de sistema es **OS-aware** (`detect_os` → `macos` / `arch`
 
 Si **Homebrew** no está instalado, `install.sh` lo instala automáticamente (script oficial, no interactivo) y lo agrega al PATH. Los paquetes viven en el [`Brewfile`](Brewfile) (fuente de verdad) y se instalan con `brew bundle` (idempotente). Instalación/actualización manual: `brew bundle --file="$HOME/.dotfiles/Brewfile"`.
 
-**Fórmulas:** `neovim` · `tmux` · `gh` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` · `node` · `yarn` · `git` · `curl` · `wget` · `jq` · `fzf` · `tree` · `htop`
+**Fórmulas base:** `neovim` · `tmux` · `gh` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` · `node` · `yarn` · `git` · `curl` · `wget` · `jq` · `fzf` · `tree` · `htop`
+
+**CLI modernas:** `ripgrep` · `zoxide` · `lazygit` · `fd` · `bat` · `git-delta` · `yq` · `lazydocker` · `btop` · `tealdeer` · `dust` · `duf`
 
 **Casks (GUI):** `docker`
 
 ### 🐧 Arch Linux — pacman
 
-`openssh` · `neovim` · `tmux` · `github-cli` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` (+ `pip`, `virtualenv`) · `nodejs` (+ `npm`, `yarn`) · `code` · `base-devel` · `git` · `curl` · `wget` · `jq` · `fzf` · `tree` · `htop` · `unzip` · `zip`
+**Base:** `openssh` · `neovim` · `tmux` · `github-cli` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` (+ `pip`, `virtualenv`) · `nodejs` (+ `npm`, `yarn`) · `base-devel` · `git` · `curl` · `wget` · `jq` · `fzf` · `tree` · `htop` · `unzip` · `zip`
+
+**CLI modernas:** `ripgrep` · `zoxide` · `lazygit` · `fd` · `bat` · `git-delta` · `go-yq` · `btop` · `tealdeer` · `dust` · `duf`  *(lazydocker solo en AUR)*
 
 > Docker en Arch se maneja aparte para evitar conflictos; en macOS es el cask de Docker Desktop.
 
@@ -211,6 +215,14 @@ cmu / cun   # mutear / desmutear la lectura en voz alta (claude-speak)
 cdot            # cd ~/.dotfiles
 dotfiles-doctor # health-check de la instalación
 alm             # alias-manager
+
+# CLI modernas
+rg patrón       # ripgrep: buscar en archivos (rapidísimo)
+fd nombre       # find moderno
+cat archivo     # = bat (syntax highlight); git diff usa delta
+lzg / lzd       # TUI de git / docker (lazygit / lazydocker)
+yq . f.yaml     # jq para YAML   ·   btop (monitor)   ·   dust/duf (disco)
+tldr comando    # ejemplos de uso de un comando
 ```
 
 ## 🔄 Gestión de dotfiles

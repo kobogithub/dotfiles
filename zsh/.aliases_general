@@ -63,6 +63,11 @@ alias ccs='claude-sessions'
 # claude-usage: analisis de tokens/costos de Claude Code (--html para dashboard)
 alias ccu='claude-usage'
 
+# CLI modernas (mejoras de experiencia)
+command -v bat >/dev/null 2>&1 && alias cat='bat --paging=never'  # cat con syntax highlight
+alias lzg='lazygit'      # TUI de git (git lg sigue siendo el log graph)
+alias lzd='lazydocker'   # TUI de docker
+
 # Git clone helpers — usan los hosts SSH definidos en ~/.ssh/config
 # Uso: clone-personal [owner/]repo   →  ~/Github/personal/<repo>
 #      clone-work     [owner/]repo   →  ~/Github/taligent/<repo>
