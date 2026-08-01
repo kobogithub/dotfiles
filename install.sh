@@ -38,6 +38,7 @@ SYSTEM_PACKAGES=(
     "curl"
     "wget"
     "jq"
+    "fzf"  # usado por claude-sessions (ccs)
     "tree"
     "htop"
     "unzip"
@@ -93,6 +94,7 @@ BREW_PACKAGES=(
     "curl"
     "wget"
     "jq"
+    "fzf"         # usado por claude-sessions (ccs)
     "tree"
     "htop"
 )

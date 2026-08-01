@@ -1,5 +1,7 @@
 # 🏠 Dotfiles de Kevin Barroso
 
+[![CI](https://github.com/kobogithub/dotfiles/actions/workflows/ci.yml/badge.svg?branch=dev)](https://github.com/kobogithub/dotfiles/actions/workflows/ci.yml)
+
 ![macOS](https://img.shields.io/badge/macOS-000000?style=flat&logo=apple&logoColor=white)
 ![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?style=flat&logo=arch-linux&logoColor=white)
 ![GNU Stow](https://img.shields.io/badge/GNU_Stow-EE6600?style=flat&logo=gnu&logoColor=white)
@@ -80,13 +82,13 @@ El paso de paquetes de sistema es **OS-aware** (`detect_os` → `macos` / `arch`
 
 ### 🍎 macOS — Homebrew
 
-**Fórmulas:** `neovim` · `tmux` · `gh` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` · `node` · `yarn` · `git` · `curl` · `wget` · `jq` · `tree` · `htop`
+**Fórmulas:** `neovim` · `tmux` · `gh` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` · `node` · `yarn` · `git` · `curl` · `wget` · `jq` · `fzf` · `tree` · `htop`
 
 **Casks (GUI):** `visual-studio-code` · `docker`
 
 ### 🐧 Arch Linux — pacman
 
-`openssh` · `neovim` · `tmux` · `github-cli` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` (+ `pip`, `virtualenv`) · `nodejs` (+ `npm`, `yarn`) · `code` · `base-devel` · `git` · `curl` · `wget` · `jq` · `tree` · `htop` · `unzip` · `zip`
+`openssh` · `neovim` · `tmux` · `github-cli` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` (+ `pip`, `virtualenv`) · `nodejs` (+ `npm`, `yarn`) · `code` · `base-devel` · `git` · `curl` · `wget` · `jq` · `fzf` · `tree` · `htop` · `unzip` · `zip`
 
 > Docker en Arch se maneja aparte para evitar conflictos; en macOS es el cask de Docker Desktop.
 
