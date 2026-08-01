@@ -57,6 +57,7 @@ dotfiles/
 ├── claude-code/            # Config global de Claude Code (~/.claude/settings.json)
 ├── macos/                  # Solo macOS: LaunchAgents (~/Library/LaunchAgents/)
 ├── system/                 # Configuraciones del sistema
+├── Brewfile                # Paquetes de Homebrew (macOS) — fuente de verdad
 ├── install.sh              # Instalador multiplataforma (macOS / Arch)
 └── README.md               # Este archivo
 ```
@@ -81,6 +82,8 @@ El instalador respalda cualquier archivo en conflicto en `~/.dotfiles-backup/TIM
 El paso de paquetes de sistema es **OS-aware** (`detect_os` → `macos` / `arch` / `other`). En *other* se omiten los paquetes de sistema y solo se enlazan los dotfiles.
 
 ### 🍎 macOS — Homebrew
+
+Los paquetes viven en el [`Brewfile`](Brewfile) (fuente de verdad) y se instalan con `brew bundle` (idempotente). Instalación/actualización manual: `brew bundle --file="$HOME/.dotfiles/Brewfile"`.
 
 **Fórmulas:** `neovim` · `tmux` · `gh` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` · `node` · `yarn` · `git` · `curl` · `wget` · `jq` · `fzf` · `tree` · `htop`
 

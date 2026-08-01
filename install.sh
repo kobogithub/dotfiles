@@ -72,38 +72,9 @@ DOTFILE_PACKAGES=(
     "claude-code"
 )
 
-# Paquetes de Homebrew para macOS (equivalen a SYSTEM_PACKAGES en Arch).
-# Omitidos por venir con el sistema o el propio node/python:
-# openssh, base-devel, python-pip, python-virtualenv, npm, zip, unzip.
-BREW_PACKAGES=(
-    "neovim"
-    "tmux"
-    "gh"          # github-cli
-    "zsh"
-    "lsd"
-    "starship"
-    "atuin"
-    "stow"
-    "kubectl"
-    "k9s"
-    "docker-compose"
-    "python"
-    "node"        # nodejs (incluye npm)
-    "yarn"
-    "git"
-    "curl"
-    "wget"
-    "jq"
-    "fzf"         # usado por claude-sessions (ccs)
-    "tree"
-    "htop"
-)
-
-# Aplicaciones GUI de macOS (Homebrew casks)
-BREW_CASKS=(
-    "visual-studio-code"  # 'code' en Arch
-    "docker"              # Docker Desktop
-)
+# Paquetes de Homebrew para macOS: la fuente de verdad es el Brewfile en la
+# raiz del repo (formulae + casks), consumido por `brew bundle`. Ver Brewfile.
+BREWFILE="$DOTFILES_DIR/Brewfile"
 
 echo "🏠 Instalando dotfiles de Kevin Barroso"
 echo "📂 Desde: $DOTFILES_DIR"
@@ -132,29 +103,20 @@ ensure_homebrew() {
 
 # Instalar paquetes del sistema en macOS con Homebrew
 install_system_packages_macos() {
-    echo "🍺 Instalando paquetes del sistema con Homebrew..."
+    echo "🍺 Instalando paquetes del sistema con Homebrew (brew bundle)..."
     ensure_homebrew || return 1
+
+    if [[ ! -f "$BREWFILE" ]]; then
+        echo "❌ No se encontró el Brewfile en $BREWFILE"
+        return 1
+    fi
 
     echo "⬆️  Actualizando Homebrew..."
     brew update
 
-    for pkg in "${BREW_PACKAGES[@]}"; do
-        if brew list --formula "$pkg" &>/dev/null; then
-            echo "✅ $pkg ya está instalado"
-        else
-            echo "📦 Instalando $pkg..."
-            brew install "$pkg"
-        fi
-    done
-
-    for cask in "${BREW_CASKS[@]}"; do
-        if brew list --cask "$cask" &>/dev/null; then
-            echo "✅ $cask ya está instalado"
-        else
-            echo "📦 Instalando $cask (cask)..."
-            brew install --cask "$cask"
-        fi
-    done
+    # brew bundle instala formulae y casks del Brewfile de forma idempotente
+    # (no elimina nada; solo agrega lo que falte).
+    brew bundle install --file="$BREWFILE"
 }
 
 # Función para instalar paquetes del sistema
@@ -441,10 +403,10 @@ show_help() {
     done
     echo ""
     if [[ "$(detect_os)" == "macos" ]]; then
-        echo "PAQUETES del sistema (Homebrew) que se instalan:"
-        for package in "${BREW_PACKAGES[@]}" "${BREW_CASKS[@]}"; do
-            echo "  $package"
-        done
+        echo "PAQUETES del sistema (Homebrew, desde Brewfile) que se instalan:"
+        if [[ -f "$BREWFILE" ]]; then
+            sed -nE 's/^(brew|cask) "([^"]+)".*/  \2/p' "$BREWFILE"
+        fi
     else
         echo "PAQUETES del sistema (pacman) que se instalan:"
         for package in "${SYSTEM_PACKAGES[@]}"; do

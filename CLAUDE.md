@@ -22,7 +22,7 @@ Consequences for editing:
 
 `install.sh` is the entry point; it drives Stow plus OS-specific setup. Key behaviors:
 - Backs up conflicting files to `~/.dotfiles-backup/TIMESTAMP/` before stowing (via `stow -n` dry-run parsing).
-- System-package install is OS-aware via `detect_os` (returns `arch`/`macos`/`other`): Arch uses `pacman` (`SYSTEM_PACKAGES`), macOS uses Homebrew (`BREW_PACKAGES` formulae + `BREW_CASKS`); other OSes skip system packages. Docker on Arch is handled separately to avoid conflicts; on macOS it's the Docker Desktop cask.
+- System-package install is OS-aware via `detect_os` (returns `arch`/`macos`/`other`): Arch uses `pacman` (`SYSTEM_PACKAGES` array in `install.sh`), macOS uses Homebrew via `brew bundle` reading the root `Brewfile` (formulae + casks — the single source of truth); other OSes skip system packages. When adding a macOS package, edit the `Brewfile`, not `install.sh`. Docker on Arch is handled separately to avoid conflicts; on macOS it's the Docker Desktop cask.
 - Post-install steps (full install only): installs `nvm` + `pyenv`, sets up locale (`C.UTF-8`, skipped on macOS), sets `zsh` as default shell, inits `atuin`. The Docker group/`systemctl` setup is Linux-only.
 
 ```bash
