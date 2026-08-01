@@ -122,7 +122,7 @@ Viven en el paquete `scripts/` y se enlazan a `~/.local/bin/`. Ver [`scripts/REA
 | **`alias-manager`** | `alm` | Gestiona aliases (agregar, quitar, listar, buscar, editar) en los archivos de aliases del repo. |
 | **`claude-sessions`** | `ccs` | Buscador **global** de sesiones de Claude Code con `fzf` (todos los repos); al elegir, hace `cd` al proyecto y reanuda la sesión. |
 | **`claude-usage`** | `ccu` | Análisis de **tokens y costos** de Claude Code por modelo/proyecto, con cache hit ratio; `--html` genera un dashboard. |
-| **`claude-speak`** | `claude-mute` / `claude-unmute` | Hook TTS que lee en voz alta (macOS `say`) la última respuesta de Claude Code. |
+| **`claude-speak`** | `cmu` / `cun` (mute / unmute) | Hook TTS que lee en voz alta (macOS `say`) la última respuesta de Claude Code. |
 | **`brew-autoupdate`** | — | Actualiza Homebrew en segundo plano (macOS; lo dispara el LaunchAgent del paquete `macos/`). |
 
 ## 🐚 Carga de la shell (Zsh)
@@ -203,6 +203,7 @@ k9s         # dashboard de k9s
 # Claude Code
 ccs         # buscar y reanudar sesiones de cualquier repo (fzf)
 ccu         # análisis de tokens/costos (ccu --html ~/uso.html para dashboard)
+cmu / cun   # mutear / desmutear la lectura en voz alta (claude-speak)
 
 # Dotfiles
 cdot            # cd ~/.dotfiles

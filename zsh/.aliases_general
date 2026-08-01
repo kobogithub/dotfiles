@@ -55,6 +55,8 @@ alias hr='herdr'
 alias claude-mute='touch ~/.claude/claude-speak.mute; pkill -x say 2>/dev/null; echo "claude-speak: muteado"'
 alias claude-unmute='rm -f ~/.claude/claude-speak.mute; echo "claude-speak: activo"'
 alias claude-mute-status='[ -f ~/.claude/claude-speak.mute ] && echo "claude-speak: muteado" || echo "claude-speak: activo"'
+alias cmu='claude-mute'     # atajo: mutear claude-speak
+alias cun='claude-unmute'   # atajo: desmutear claude-speak
 
 # claude-sessions: buscador global de sesiones de Claude Code (fzf) de todos los repos
 alias ccs='claude-sessions'
