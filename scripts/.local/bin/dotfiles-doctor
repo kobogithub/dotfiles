@@ -203,7 +203,16 @@ check_stow_package() {
                 conflict=$((conflict + 1)); [[ -z "$conflict_detail" ]] && conflict_detail="~/$rel apunta fuera del repo"
             fi
         elif [[ -e "$target" ]]; then
-            conflict=$((conflict + 1)); [[ -z "$conflict_detail" ]] && conflict_detail="~/$rel es un archivo real"
+            # El archivo no es symlink directo, pero puede estar enlazado via un
+            # directorio padre "folded" (stow enlaza la carpeta entera). En ese
+            # caso el target resuelve dentro del repo: canonicalizar y comparar.
+            local canon
+            canon="$(cd "$(dirname "$target")" 2>/dev/null && printf '%s/%s' "$(pwd -P)" "$(basename "$target")")" || canon=""
+            if [[ "$canon" == "$file" ]]; then
+                linked=$((linked + 1))
+            else
+                conflict=$((conflict + 1)); [[ -z "$conflict_detail" ]] && conflict_detail="~/$rel es un archivo real"
+            fi
         else
             missing=$((missing + 1)); [[ -z "$missing_detail" ]] && missing_detail="~/$rel"
         fi
