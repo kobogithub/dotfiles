@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# macos-defaults - Aplica preferencias de macOS via `defaults write`
+# Uso: macos-defaults [-h] [--no-restart]
+#
+# Baseline reproducible de ajustes del sistema (teclado, Finder, Dock,
+# screenshots, trackpad, UX). Todo a nivel de usuario (sin sudo) e idempotente:
+# se puede correr las veces que haga falta. Revisá y ajustá a gusto — son TUS
+# preferencias. Cada bloque está comentado para togglear fácil.
+#
+#   --no-restart   no reinicia Finder/Dock/SystemUIServer al terminar
+#
+# Solo corre en macOS; en otro SO sale sin hacer nada.
+
+set -euo pipefail
+
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+    sed -n '3,13p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+fi
+
+if [ "$(uname)" != "Darwin" ]; then
+    echo "macos-defaults: solo aplica en macOS; saliendo." >&2
+    exit 0
+fi
+
+RESTART=1
+[ "${1:-}" = "--no-restart" ] && RESTART=0
+
+echo "🍎 Aplicando preferencias de macOS..."
+
+# ---------------------------------------------------------------------------
+# ⌨️  Teclado — repetición rápida y repetir tecla al mantener (mejor para vim)
+# ---------------------------------------------------------------------------
+defaults write NSGlobalDomain KeyRepeat -int 2
+defaults write NSGlobalDomain InitialKeyRepeat -int 15
+defaults write NSGlobalDomain ApplePressAndHoldEnabled -bool false
+
+# ---------------------------------------------------------------------------
+# 🗂️  Finder — extensiones visibles, path/status bar, buscar en carpeta actual
+# ---------------------------------------------------------------------------
+defaults write NSGlobalDomain AppleShowAllExtensions -bool true
+defaults write com.apple.finder ShowPathbar -bool true
+defaults write com.apple.finder ShowStatusBar -bool true
+defaults write com.apple.finder _FXShowPosixPathInTitle -bool true
+defaults write com.apple.finder FXDefaultSearchScope -string "SCcf"        # carpeta actual
+defaults write com.apple.finder FXEnableExtensionChangeWarning -bool false
+# Evitar .DS_Store en volúmenes de red y USB
+defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+
+# ---------------------------------------------------------------------------
+# 📸 Screenshots — a ~/Screenshots, formato PNG, sin sombra
+# ---------------------------------------------------------------------------
+mkdir -p "$HOME/Screenshots"
+defaults write com.apple.screencapture location -string "$HOME/Screenshots"
+defaults write com.apple.screencapture type -string "png"
+defaults write com.apple.screencapture disable-shadow -bool true
+
+# ---------------------------------------------------------------------------
+# 🚢 Dock — autohide instantáneo, sin recientes, no reordenar espacios
+# ---------------------------------------------------------------------------
+defaults write com.apple.dock autohide -bool true
+defaults write com.apple.dock autohide-delay -float 0
+defaults write com.apple.dock autohide-time-modifier -float 0
+defaults write com.apple.dock show-recents -bool false
+defaults write com.apple.dock mru-spaces -bool false
+
+# ---------------------------------------------------------------------------
+# 🖱️  Trackpad — tap para click
+# ---------------------------------------------------------------------------
+defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
+defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
+
+# ---------------------------------------------------------------------------
+# ✨ UX general — paneles expandidos, guardar en disco (no iCloud) por defecto
+# ---------------------------------------------------------------------------
+defaults write NSGlobalDomain NSNavPanelExpandedStateForSaveMode -bool true
+defaults write NSGlobalDomain PMPrintingExpandedStateForPrint -bool true
+defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false
+
+echo "✅ Preferencias aplicadas."
+
+if [ "$RESTART" -eq 1 ]; then
+    echo "🔄 Reiniciando Finder, Dock y SystemUIServer para aplicar cambios..."
+    for app in Finder Dock SystemUIServer; do
+        killall "$app" >/dev/null 2>&1 || true
+    done
+    echo "💡 Algunos ajustes pueden requerir cerrar sesión o reiniciar."
+fi

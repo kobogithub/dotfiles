@@ -212,3 +212,27 @@ claude-usage --html ~/uso.html     # ademas genera el dashboard HTML
 claude-usage -h                    # ayuda
 ccu                                # alias (zsh/.aliases_general)
 ```
+
+---
+
+# macos-defaults
+
+Aplica un **baseline reproducible de preferencias de macOS** vía `defaults write`
+(nivel usuario, sin sudo, idempotente). Cubre: teclado (repetición rápida +
+repetir tecla al mantener), Finder (extensiones visibles, path/status bar,
+buscar en carpeta actual, sin `.DS_Store` en red/USB), screenshots (a
+`~/Screenshots`, PNG, sin sombra), Dock (autohide instantáneo, sin recientes),
+trackpad (tap para click) y varios ajustes de UX.
+
+Solo corre en **macOS** (en otro SO sale sin hacer nada). Lo ejecuta
+`install.sh` en la instalación completa; también se puede correr a mano. Cada
+bloque del script está comentado para togglear a gusto — **son tus preferencias,
+revisalas**.
+
+## Uso
+
+```bash
+macos-defaults              # aplica y reinicia Finder/Dock/SystemUIServer
+macos-defaults --no-restart # aplica sin reiniciar apps
+macos-defaults -h           # ayuda
+```

@@ -128,6 +128,7 @@ Viven en el paquete `scripts/` y se enlazan a `~/.local/bin/`. Ver [`scripts/REA
 | **`claude-sessions`** | `ccs` | Buscador **global** de sesiones de Claude Code con `fzf` (todos los repos); al elegir, hace `cd` al proyecto y reanuda la sesión. |
 | **`claude-usage`** | `ccu` | Análisis de **tokens y costos** de Claude Code por modelo/proyecto, con cache hit ratio; `--html` genera un dashboard. |
 | **`claude-speak`** | `cmu` / `cun` (mute / unmute) | Hook TTS que lee en voz alta (macOS `say`) la última respuesta de Claude Code. |
+| **`macos-defaults`** | — | Aplica un baseline de preferencias de macOS (`defaults write`): teclado, Finder, Dock, screenshots, trackpad. Idempotente, solo-macOS; lo corre `install.sh` en la instalación completa. |
 | **`brew-autoupdate`** | — | Actualiza Homebrew en segundo plano (macOS; lo dispara el LaunchAgent del paquete `macos/`). |
 
 ## 🐚 Carga de la shell (Zsh)

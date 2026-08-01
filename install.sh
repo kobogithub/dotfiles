@@ -558,6 +558,12 @@ if [[ "$INSTALL_SYSTEM" == true && "$ACTION" == "stow" ]]; then
     # Programar actualización periódica de Homebrew (macOS)
     setup_brew_autoupdate
 
+    # Aplicar preferencias de macOS (defaults write) — no fatal
+    if [[ "$(detect_os)" == "macos" ]]; then
+        "$DOTFILES_DIR/scripts/.local/bin/macos-defaults" \
+            || echo "⚠️  macos-defaults falló; podés correrlo a mano después"
+    fi
+
     # Inicializar atuin si es la primera vez
     if ! [[ -f "$HOME/.local/share/atuin/history.db" ]]; then
         echo "🔍 Inicializando base de datos de atuin..."
