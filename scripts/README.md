@@ -181,3 +181,34 @@ Dentro de `fzf`: escribí para filtrar, `Enter` reanuda la sesión en su
 proyecto, `Ctrl-C` cancela. Diferencia con `claude --resume`: ese solo
 muestra las sesiones del directorio actual; `claude-sessions` las cruza
 todas sin importar en qué repo estés parado.
+
+---
+
+# claude-usage
+
+Analisis de uso de **tokens y costos** de Claude Code. Recorre todas las
+sesiones de `~/.claude/projects/*/*.jsonl`, lee el campo `usage` de cada
+respuesta del asistente (input/output, cache read/write, modelo) y estima
+el costo para evaluar estrategias de optimizacion.
+
+Muestra: costo total estimado, **cache hit ratio**, desglose de costo por
+componente (output / cache_write / cache_read / input), costo por modelo,
+y top de proyectos por costo. Con `--html` genera un dashboard autocontenido
+(sin dependencias externas, tema claro/oscuro) que incluye la evolucion diaria.
+
+Precios embebidos (USD/millon de tokens): Opus 4.8 `$5/$25`, Sonnet 5 y 4.6
+`$3/$15`, Haiku 4.5 `$1/$5`. Cache: escritura 1h = 2x input, escritura 5m =
+1.25x input, lectura = 0.1x input. El costo es una **estimacion API
+pay-as-you-go** (valor consumido), no el gasto real si hay suscripcion.
+
+Requiere `python3` (ya en `BREW_PACKAGES`).
+
+## Uso
+
+```bash
+claude-usage                       # reporte en terminal (historico completo)
+claude-usage --days 30             # solo ultimos 30 dias
+claude-usage --html ~/uso.html     # ademas genera el dashboard HTML
+claude-usage -h                    # ayuda
+ccu                                # alias (zsh/.aliases_general)
+```

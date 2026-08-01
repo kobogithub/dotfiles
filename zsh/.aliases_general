@@ -58,6 +58,8 @@ alias claude-mute-status='[ -f ~/.claude/claude-speak.mute ] && echo "claude-spe
 
 # claude-sessions: buscador global de sesiones de Claude Code (fzf) de todos los repos
 alias ccs='claude-sessions'
+# claude-usage: analisis de tokens/costos de Claude Code (--html para dashboard)
+alias ccu='claude-usage'
 
 # Git clone helpers — usan los hosts SSH definidos en ~/.ssh/config
 # Uso: clone-personal [owner/]repo   →  ~/Github/personal/<repo>
