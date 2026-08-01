@@ -322,6 +322,11 @@ list_contains() {
     return 1
 }
 
+# Paquetes reales instalados por un paso dedicado (fuera de DOTFILE_PACKAGES),
+# tipicamente OS-gated. Se documentan en el README pero no viven en el array
+# generico. Ej: "macos" lo instala install_dotfile_package "macos" solo en macOS.
+OS_SPECIFIC_PACKAGES="macos"
+
 check_docs() {
     local readme_pkgs install_pkgs pkg mismatch=0
     if [[ ! -f "$DOTFILES_DIR/README.md" ]]; then
@@ -333,6 +338,7 @@ check_docs() {
 
     while IFS= read -r pkg; do
         [[ -z "$pkg" ]] && continue
+        list_contains "$OS_SPECIFIC_PACKAGES" "$pkg" && continue
         if ! list_contains "$install_pkgs" "$pkg"; then
             report_check docs WARN "$pkg" "en README.md pero no en DOTFILE_PACKAGES (install.sh) → revisa README.md"
             mismatch=$((mismatch + 1))

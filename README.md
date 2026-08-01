@@ -1,33 +1,61 @@
 # 🏠 Dotfiles de Kevin Barroso
 
-Repositorio centralizado para configuraciones personales optimizado para **Arch Linux** usando GNU Stow. Incluye instalación automática de herramientas esenciales y sus configuraciones.
+![macOS](https://img.shields.io/badge/macOS-000000?style=flat&logo=apple&logoColor=white)
+![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?style=flat&logo=arch-linux&logoColor=white)
+![GNU Stow](https://img.shields.io/badge/GNU_Stow-EE6600?style=flat&logo=gnu&logoColor=white)
+![Homebrew](https://img.shields.io/badge/Homebrew-FBB040?style=flat&logo=homebrew&logoColor=white)
+![Zsh](https://img.shields.io/badge/Zsh-F15A24?style=flat&logo=zsh&logoColor=white)
+![Neovim](https://img.shields.io/badge/Neovim-57A143?style=flat&logo=neovim&logoColor=white)
+![tmux](https://img.shields.io/badge/tmux-1BB91F?style=flat&logo=tmux&logoColor=white)
+![Starship](https://img.shields.io/badge/Starship-DD0B78?style=flat&logo=starship&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=flat&logo=kubernetes&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=flat&logo=node.js&logoColor=white)
+![Git](https://img.shields.io/badge/Git-F05032?style=flat&logo=git&logoColor=white)
+
+Repositorio centralizado de configuraciones personales, gestionado con **GNU Stow**. La instalación es **multiplataforma**: detecta el sistema operativo y usa **Homebrew** en macOS o **pacman** en Arch Linux, instalando las herramientas y enlazando todos los dotfiles.
+
+## 🧩 El modelo Stow
+
+Cada directorio de primer nivel es un **paquete Stow**. Stow enlaza el contenido del paquete dentro de `$HOME` replicando la estructura interna, así que **la ruta de un archivo dentro del paquete equivale a su destino bajo `~`**:
+
+| Archivo en el repo | Destino |
+|---|---|
+| `git/.gitconfig` | `~/.gitconfig` |
+| `zsh/.zshrc` | `~/.zshrc` |
+| `nvim/.config/nvim/` | `~/.config/nvim/` |
+| `scripts/.local/bin/<x>` | `~/.local/bin/<x>` |
+
+> ⚠️ **Editá siempre los archivos en el repo, nunca las copias enlazadas en `~`.** Como son symlinks, editar en `~` modifica el repo igual, pero conviene trabajar desde el repo para no perder el norte. Al agregar un archivo nuevo a un paquete existente, corré `stow -R <paquete>` para tomar los archivos nuevos.
 
 ## 📁 Estructura
 
 ```
 dotfiles/
-├── git/                    # Configuración de Git (~/.gitconfig)
-├── bash/                   # Configuración de Bash (~/.bashrc)
-├── zsh/                    # Configuración de Zsh (~/.zshrc) 
-├── vim/                    # Configuración de Vim (~/.vimrc, ~/.vim/)
-├── nvim/                   # Configuración de Neovim (~/.config/nvim/)
-├── tmux/                   # Configuración de tmux (~/.tmux.conf)
-├── starship/               # Configuración de Starship (~/.config/starship.toml)
-├── atuin/                  # Configuración de Atuin (~/.config/atuin/)
-├── ssh/                    # Configuración de SSH (~/.ssh/config)
-├── kubectl/                # Configuración de kubectl (~/.kube/)
-├── k9s/                    # Configuración de k9s (~/.config/k9s/)
-├── scripts/                # Scripts útiles (~/.local/bin/)
-├── docker/                 # Configuración de Docker y aliases
-├── python/                 # Entorno Python + pyenv + virtual envs
-├── nodejs/                 # Entorno Node.js + nvm + npm/yarn
-├── vscode/                 # Configuración de VS Code + extensiones
+├── git/                    # Git (~/.gitconfig)
+├── bash/                   # Bash (~/.bashrc)
+├── zsh/                    # Zsh (~/.zshrc + aliases/config sourceados por ruta)
+├── vim/                    # Vim (~/.vimrc, ~/.vim/)
+├── nvim/                   # Neovim (~/.config/nvim/)
+├── tmux/                   # tmux (~/.tmux.conf)
+├── starship/               # Starship (~/.config/starship.toml)
+├── atuin/                  # Atuin (~/.config/atuin/)
+├── ghostty/                # Ghostty (~/.config/ghostty/)
+├── ssh/                    # SSH (~/.ssh/config)
+├── kubectl/                # kubectl (~/.kube/) + aliases k8s
+├── k9s/                    # k9s (~/.config/k9s/)
+├── docker/                 # Docker + aliases y funciones
+├── python/                 # Entorno Python (pyenv, aliases)
+├── nodejs/                 # Entorno Node.js (nvm, aliases)
+├── vscode/                 # VS Code (settings + extensiones)
+├── scripts/                # Scripts propios (~/.local/bin/)
 ├── opencode/               # OpenCode agents & skills (~/.config/opencode/)
-├── ghostty/                # Configuración de Ghostty (~/.config/ghostty/)
-├── herdr/                  # Configuración de herdr (~/.config/herdr/)
+├── herdr/                  # Config de herdr (~/.config/herdr/)
 ├── claude-code/            # Config global de Claude Code (~/.claude/settings.json)
+├── macos/                  # Solo macOS: LaunchAgents (~/Library/LaunchAgents/)
 ├── system/                 # Configuraciones del sistema
-├── install.sh              # Script de instalación completa
+├── install.sh              # Instalador multiplataforma (macOS / Arch)
 └── README.md               # Este archivo
 ```
 
@@ -36,396 +64,213 @@ dotfiles/
 ```bash
 # Clonar el repositorio
 git clone https://github.com/kobogithub/dotfiles.git ~/.dotfiles
-
-# Instalación completa (recomendado)
 cd ~/.dotfiles
+
+# Instalación completa (detecta macOS o Arch automáticamente)
 ./install.sh
 
-# Reiniciar terminal para aplicar cambios
+# Reiniciar la terminal para aplicar los cambios
 ```
+
+El instalador respalda cualquier archivo en conflicto en `~/.dotfiles-backup/TIMESTAMP/` antes de enlazar (vía `stow -n` dry-run), así que es seguro correrlo sobre una máquina con configs previas.
 
 ## 📦 Herramientas instaladas automáticamente
 
-El script instala estos paquetes en **Arch Linux**:
+El paso de paquetes de sistema es **OS-aware** (`detect_os` → `macos` / `arch` / `other`). En *other* se omiten los paquetes de sistema y solo se enlazan los dotfiles.
 
-### 🔧 Herramientas del sistema
-- **openssh** - Cliente SSH para conexiones seguras
-- **neovim** - Editor moderno basado en Vim
-- **tmux** - Multiplexor de terminal  
-- **github-cli** - CLI oficial de GitHub
-- **zsh** - Shell avanzado (configurado como default)
-- **lsd** - Reemplazo moderno de `ls`
-- **starship** - Prompt personalizable
-- **atuin** - Historial de comandos inteligente
-- **stow** - Gestor de enlaces simbólicos
-- **kubectl** - CLI oficial de Kubernetes
-- **k9s** - Dashboard terminal para Kubernetes
+### 🍎 macOS — Homebrew
 
-### 🛠️ Herramientas de desarrollo
-- **docker** + **docker-compose** - Containerización
-- **python** + **python-pip** + **python-virtualenv** - Python development
-- **nodejs** + **npm** + **yarn** - JavaScript/TypeScript development
-- **code** - Visual Studio Code
-- **base-devel** - Herramientas de compilación
-- **git**, **curl**, **wget**, **jq** - Utilidades
-- **tree**, **htop**, **unzip**, **zip** - Herramientas del sistema
+**Fórmulas:** `neovim` · `tmux` · `gh` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` · `node` · `yarn` · `git` · `curl` · `wget` · `jq` · `tree` · `htop`
 
-### 🚀 Gestores de versiones (instalados automáticamente)
-- **nvm** - Node Version Manager
-- **pyenv** - Python Version Manager
+**Casks (GUI):** `visual-studio-code` · `docker`
 
-## 🔧 Opciones del script de instalación
+### 🐧 Arch Linux — pacman
+
+`openssh` · `neovim` · `tmux` · `github-cli` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` (+ `pip`, `virtualenv`) · `nodejs` (+ `npm`, `yarn`) · `code` · `base-devel` · `git` · `curl` · `wget` · `jq` · `tree` · `htop` · `unzip` · `zip`
+
+> Docker en Arch se maneja aparte para evitar conflictos; en macOS es el cask de Docker Desktop.
+
+### 🔧 Post-install (solo instalación completa)
+
+- **nvm** (Node Version Manager) + **pyenv** (Python Version Manager)
+- Locale `C.UTF-8` (se omite en macOS), `zsh` como shell por defecto, init de `atuin`
+- Grupo `docker` + `systemctl` (solo Linux)
+
+## 🔧 Opciones del instalador
 
 ```bash
-# Instalación completa (sistema + dotfiles)
-./install.sh                    # o ./install.sh -a
+./install.sh                 # completa: paquetes de sistema + dotfiles + setup
+./install.sh -s              # solo paquetes de sistema
+./install.sh -d git zsh nvim # enlazar solo estos paquetes (sin paquetes de sistema)
+./install.sh -u git zsh      # desinstalar (unstow) estos paquetes
+./install.sh -h              # ayuda; lista todos los paquetes disponibles
 
-# Solo paquetes del sistema
-./install.sh -s
-
-# Solo dotfiles específicos
-./install.sh -d git zsh nvim tmux
-
-# Solo dotfiles (sin paquetes del sistema)
-./install.sh -d
-
-# Desinstalar dotfiles
-./install.sh -u git zsh
-
-# Ver ayuda
-./install.sh -h
+# Operaciones Stow manuales (desde la raíz del repo):
+stow -n -d . -t $HOME <pkg>  # dry-run, chequear conflictos
+stow    -d . -t $HOME <pkg>  # instalar
+stow -R -d . -t $HOME <pkg>  # re-stow (tras agregar/quitar archivos en un paquete)
+stow -D -d . -t $HOME <pkg>  # desinstalar
 ```
 
-## 🛠️ Funciones de desarrollo
+## 📜 Scripts propios (`~/.local/bin/`)
 
-### 🐳 Docker
-- **Aliases completos** - `d`, `dc`, `dcu`, `dcd`, `dlogs`, etc.
-- **Funciones útiles** - `drun`, `denter`, `dcleanup`, `dusage`
-- **Docker Compose shortcuts** - para dev, prod, test
-- **Auto-configuración** - Usuario agregado al grupo docker
-- **Dockerfiles** - Plantillas para Node.js y Python
+Viven en el paquete `scripts/` y se enlazan a `~/.local/bin/`. Ver [`scripts/README.md`](scripts/README.md) para el detalle.
 
-### 🐍 Python
-- **pyenv integration** - Manejo de versiones Python
-- **Virtual environments** - Creación y manejo automático
-- **Development tools** - black, flake8, mypy, pytest
-- **Aliases útiles** - `py`, `pip`, `venv`, `venvact`, etc.
-- **Functions** - `pymkenv`, `pyquick`, `pyformat`, `pylint`
-- **Poetry support** - Si usas Poetry para dependencias
-- **Django/Flask shortcuts** - Comandos rápidos
+| Script | Alias | Qué hace |
+|---|---|---|
+| **`dotfiles-doctor`** | — | Health-check **solo lectura**: verifica que cada paquete esté bien enlazado, que las herramientas del SO estén instaladas y que los secretos de `pass` resuelvan. Reporta OK/WARN/FAIL. |
+| **`alias-manager`** | `alm` | Gestiona aliases (agregar, quitar, listar, buscar, editar) en los archivos de aliases del repo. |
+| **`claude-sessions`** | `ccs` | Buscador **global** de sesiones de Claude Code con `fzf` (todos los repos); al elegir, hace `cd` al proyecto y reanuda la sesión. |
+| **`claude-usage`** | `ccu` | Análisis de **tokens y costos** de Claude Code por modelo/proyecto, con cache hit ratio; `--html` genera un dashboard. |
+| **`claude-speak`** | `claude-mute` / `claude-unmute` | Hook TTS que lee en voz alta (macOS `say`) la última respuesta de Claude Code. |
+| **`brew-autoupdate`** | — | Actualiza Homebrew en segundo plano (macOS; lo dispara el LaunchAgent del paquete `macos/`). |
 
-### 🟢 Node.js
-- **nvm integration** - Manejo de versiones Node.js
-- **Multiple package managers** - npm, yarn, pnpm
-- **Auto-detection** - Detecta qué package manager usar
-- **Project templates** - React, Next.js, Express, Vue
-- **Development tools** - ESLint, Prettier, Jest
-- **Unified commands** - `install`, `start`, `build` automáticos
+## 🐚 Carga de la shell (Zsh)
 
-### 💻 VS Code
-- **Settings optimizados** - Para desarrollo full-stack
-- **Extensions installer** - Script automático
-- **Configuración completa** - Keybindings, themes, linting
-- **Language support** - Python, JS/TS, Docker, K8s
-- **Project templates** - .vscode settings incluidos
+`~/.zshrc` es el hub. Sourcea `~/.profile` primero y, cerca del final, sourcea configs específicas **directamente desde `~/.dotfiles/`** (no desde las rutas enlazadas): `zsh/.aliases_general`, `docker/.docker_aliases`, `kubectl/.aliases_k8s`, `python/.python_config`, `nodejs/.nodejs_config`. Finalmente sourcea `~/.env`.
 
-# Ver ayuda
-./install.sh -h
-```
+> Por eso los cambios a esos archivos de aliases/config toman efecto en una shell nueva **sin re-stow** (se sourcean por ruta absoluta); pero `.zshrc` en sí solo se actualiza en `~` si el paquete `zsh` está stoweado.
+
+## 🔒 Secretos
+
+Los secretos **no se guardan en el repo**. `zsh/.env` (→ `~/.env`) puebla variables de entorno al iniciar la shell llamando a `pass show <ruta>` (el gestor `pass`) — por ejemplo API keys de servidores MCP o credenciales OAuth. Para agregar un secreto: guardalo en `pass` y añadí una línea `export VAR="$(pass show <ruta>)"` en `zsh/.env`. `.gitignore` excluye `*.key`, `*.pem`, `secrets/`, `*.db` y el kube config.
 
 ## ✨ Características principales
 
 ### 🐚 Shell (Zsh)
-- **Starship prompt** - Prompt hermoso y funcional
-- **Atuin** - Historial inteligente y búsqueda fuzzy
-- **lsd** - Listado de archivos con colores e iconos
-- **Aliases útiles** - Para git, pacman y navegación
-- **Configurado automáticamente** como shell por defecto
+- **Starship** — prompt informativo con Git, duración de comandos e indicadores de Python/Node
+- **Atuin** — historial inteligente con búsqueda fuzzy
+- **lsd** — listados con colores e iconos (`ll`, `tree`)
+- Aliases OS-aware: `update` / `install` / `search` / `cleanup` mapean a **pacman** en Arch o **brew** en macOS
 
 ### ⚡ Editor (Neovim)
-- Configuración Lua moderna
-- Keybindings intuitivos
-- Navegación entre ventanas con Ctrl+hjkl
-- Leader key configurado como espacio
+- Configuración Lua moderna, leader key en espacio, navegación de ventanas con `Ctrl-hjkl`
 
 ### 🖥️ Terminal (tmux)
-- Prefix cambiado a `Ctrl-a`
-- Navegación con vim keys (hjkl)
-- División intuitiva de ventanas (`|` y `-`)
-- Mouse habilitado
-- **Tema Catppuccin Frappe** con personalización
-- Barra de estado posicionada arriba
-- Color de fondo personalizado (#303446)
-- Barra de estado personalizada con información esencial
-- Módulos de estado: directorio, sesión, host, fecha/hora
-
-### 🚀 Prompt (Starship)
-- Información de Git visible
-- Duración de comandos
-- Indicador de Python/Node.js
-- Diseño minimalista pero informativo
-
-### 🔍 Historial (Atuin)
-- Búsqueda fuzzy en historial
-- Filtros inteligentes
-- Estadísticas de uso
-- Configuración optimizada
+- Prefix `Ctrl-a`, navegación vim (`hjkl`), splits `|` y `-`, mouse habilitado
+- Tema **Catppuccin Frappe**, barra de estado arriba con directorio/sesión/host/fecha
 
 ### 🔒 SSH
-- Configuración optimizada para conexiones seguras
-- Control de conexiones persistentes (ControlMaster)
-- Compresión automática para conexiones lentas
-- Configuración preconfigurada para GitHub
-- Timeouts y keep-alive configurados
+- ControlMaster (conexiones persistentes), compresión, timeouts/keep-alive, hosts de GitHub preconfigurados
 
 ### ☸️ Kubernetes
-- **kubectl** configurado con aliases útiles
-- **k9s** dashboard terminal con configuración optimizada
-- Autocompletado inteligente para kubectl
-- Aliases comunes para operaciones frecuentes
-- Configuración base para múltiples clusters
+- `kubectl` + `k9s` con aliases (`k`, `kgp`, `kgs`, `kl`, `klf`, `ke`…) y autocompletado
 
 ## 🛠️ Herramientas de desarrollo
 
 ### 🐳 Docker
-- **Aliases completos** - `d`, `dc`, `dcu`, `dcd`, `dlogs`, etc.
-- **Funciones útiles** - `drun`, `denter`, `dcleanup`, `dusage`
-- **Docker Compose shortcuts** - para dev, prod, test
-- **Auto-configuración** - Usuario agregado al grupo docker
-- **Dockerfiles** - Plantillas para Node.js y Python
+Aliases (`d`, `dc`, `dcu`, `dcd`, `dlogs`) y funciones (`drun`, `denter`, `dcleanup`, `dusage`); plantillas de Dockerfile para Node y Python.
 
 ### 🐍 Python
-- **pyenv integration** - Manejo de versiones Python
-- **Virtual environments** - Creación y manejo automático
-- **Development tools** - black, flake8, mypy, pytest
-- **Aliases útiles** - `py`, `pip`, `venv`, `venvact`, etc.
-- **Functions** - `pymkenv`, `pyquick`, `pyformat`, `pylint`
-- **Poetry support** - Si usas Poetry para dependencias
-- **Django/Flask shortcuts** - Comandos rápidos
+Integración con **pyenv**, virtual envs, tools (`black`, `flake8`, `mypy`, `pytest`), aliases (`py`, `venv`, `venvact`) y funciones (`pymkenv`, `pyquick`, `pyformat`).
 
 ### 🟢 Node.js
-- **nvm integration** - Manejo de versiones Node.js
-- **Multiple package managers** - npm, yarn, pnpm
-- **Auto-detection** - Detecta qué package manager usar
-- **Project templates** - React, Next.js, Express, Vue
-- **Development tools** - ESLint, Prettier, Jest
-- **Unified commands** - `install`, `start`, `build` automáticos
+Integración con **nvm**, múltiples package managers (npm/yarn/pnpm) con auto-detección, plantillas (React, Next.js, Express, Vue) y tools (ESLint, Prettier, Jest).
 
 ### 💻 VS Code
-- **Settings optimizados** - Para desarrollo full-stack
-- **Extensions installer** - Script automático
-- **Configuración completa** - Keybindings, themes, linting
-- **Language support** - Python, JS/TS, Docker, K8s
-- **Project templates** - .vscode settings incluidos
-
-### 📜 Scripts de desarrollo
-- **`dev-status`** - Verificar estado del entorno
-- **`dev-init`** - Crear proyectos (Python, Node, React, etc.)
-- **`dev-clean`** - Limpiar artifacts (node_modules, cache, etc.)
-- **`code-ext`** - Instalar extensiones VS Code
+Settings full-stack, instalador de extensiones, keybindings/themes, soporte para Python, JS/TS, Docker y K8s.
 
 ### 🤖 OpenCode AI Agents & Skills
-- **7 Custom Agents** - Expertos en FastAPI, PostgreSQL, Supabase, Docker, Astro, Documentation, QA
-- **6 Skills** - Guías completas de best practices, patterns, testing, y documentation
-- **7,000+ líneas** - De expertise técnico en código y configuraciones
-- **Project-ready** - Configuraciones reutilizables para tus proyectos
-- **Invoke with @** - `@fastapi-dev`, `@postgres-admin`, `@docker-expert`, `@docs-writer`, `@qa-engineer`
-- **[Ver documentación completa](opencode/README.md)**
+Agents y skills expertos (FastAPI, PostgreSQL, Supabase, Docker, Astro, docs, QA) enlazados a `~/.config/opencode/`. Ver [`opencode/README.md`](opencode/README.md).
 
 ## 📋 Uso diario
 
-### Comandos esenciales
 ```bash
-# Git (aliases incluidos)
+# Git (aliases en zsh/.zshrc)
 gs          # git status
 ga .        # git add .
 gc "msg"    # git commit -m "msg"
 gp          # git push
 
-# Sistema (Arch Linux)
-update      # sudo pacman -Syu
-install pkg # sudo pacman -S pkg
-search pkg  # pacman -Ss pkg
-cleanup     # limpiar paquetes huérfanos
+# Sistema (OS-aware: pacman en Arch, brew en macOS)
+update      # actualizar el sistema/paquetes
+install pkg # instalar paquete
+search pkg  # buscar paquete
+cleanup     # limpiar
 
 # Navegación
-ll          # lsd -alF (listado detallado)
-tree        # lsd --tree (vista de árbol)
+ll          # lsd -alF
+tree        # lsd --tree
 ..          # cd ..
 ...         # cd ../..
 
-# Kubernetes (aliases incluidos)
+# Kubernetes
 k           # kubectl
 kgp         # kubectl get pods
-kgs         # kubectl get services
-kgd         # kubectl get deployments
-kl          # kubectl logs
 klf         # kubectl logs -f
-ke          # kubectl exec -it
-k9s         # abrir dashboard de k9s
+k9s         # dashboard de k9s
 
-# Desarrollo
-dev-status  # verificar entorno
-dev-init python my-api     # crear proyecto Python
-dev-init react my-app      # crear proyecto React  
-dev-clean node            # limpiar artifacts Node.js
-code-ext essential        # instalar extensiones VS Code
+# Claude Code
+ccs         # buscar y reanudar sesiones de cualquier repo (fzf)
+ccu         # análisis de tokens/costos (ccu --html ~/uso.html para dashboard)
 
-# Docker
-d ps        # docker ps
-dc up       # docker compose up
-dc logs     # docker compose logs
-dcleanup    # limpiar sistema Docker
-
-# Python
-py --version           # python version
-pymkenv myproject      # crear virtual env
-pyquick                # crear env con tools
-pyformat .             # formatear código
-
-# Node.js
-nodeversions           # ver versiones disponibles
-nodeinit express api   # crear proyecto Express
-nodedev                # ejecutar en development
-nodeclean              # limpiar node_modules
-```
-
-### Tmux workflow
-```bash
-# Crear sesión
-tmux new -s trabajo
-
-# Dividir ventanas
-Ctrl-a |    # División vertical
-Ctrl-a -    # División horizontal
-
-# Navegación
-Ctrl-a h/j/k/l    # Cambiar paneles
-Ctrl-a c          # Nueva ventana
-
-# Utilidades
-Ctrl-a r          # Recargar configuración
-Ctrl-a S          # Sincronizar paneles
-Ctrl-a a          # Alternar último panel
-```
-
-### Neovim basics
-```bash
-# Abrir neovim
-nvim archivo.txt
-
-# Comandos básicos (modo normal)
-Space w     # Guardar
-Space q     # Cerrar
-Space h     # Limpiar búsqueda
-Ctrl-hjkl   # Navegar ventanas
+# Dotfiles
+cdot            # cd ~/.dotfiles
+dotfiles-doctor # health-check de la instalación
+alm             # alias-manager
 ```
 
 ## 🔄 Gestión de dotfiles
 
-### Agregar nueva configuración
+### Agregar una nueva configuración a un paquete existente
 
 ```bash
-# Crear nuevo paquete
-mkdir nueva-app
+# Colocar el archivo en la ruta que replica su destino bajo ~
+cp ~/.config/app/config app/.config/app/config
+stow -R -d . -t $HOME app     # re-stow para tomar el archivo nuevo
+git add app/ && git commit -m "Agregar config de app" && git push origin dev
+```
+
+### Agregar un paquete nuevo
+
+```bash
 mkdir -p nueva-app/.config/nueva-app
-
-# Copiar configuración
 cp ~/.config/nueva-app/config nueva-app/.config/nueva-app/
-
-# Instalar con stow
-stow nueva-app
-
-# Commit
-git add nueva-app/
-git commit -m "Add nueva-app configuration"
-git push origin dev
+# Agregarlo al array DOTFILE_PACKAGES en install.sh para incluirlo en instalaciones completas
+stow -d . -t $HOME nueva-app
+git add nueva-app/ install.sh && git commit -m "Agregar paquete nueva-app" && git push origin dev
 ```
 
-### Actualizar configuraciones
+### Actualizar desde el repositorio
 
 ```bash
 cd ~/.dotfiles
-
-# Actualizar desde repositorio
 git pull origin dev
-
-# Reinstalar si hay cambios
-./install.sh -d
+./install.sh -d          # re-enlazar dotfiles si hubo cambios
 ```
 
-### Backup antes de cambios
+## ✅ Validación antes de commitear
 
 ```bash
-# Usar script incluido
-~/.local/bin/backup-files
-
-# O backup manual
-cp ~/.zshrc ~/.zshrc.backup
-cp ~/.tmux.conf ~/.tmux.conf.backup
+bash -n install.sh       # chequeo de sintaxis de un script
+shellcheck <script>      # lint (si está instalado)
+dotfiles-doctor          # health-check: links, herramientas, secretos
+source ~/.zshrc          # probar cambios de shell en la sesión actual
 ```
 
-## 🖥️ Instalación en nueva máquina
+> Probá la config de shell en una subshell/terminal nueva antes de commitear — un `.zshrc` malformado puede romper el login. La rama por defecto es `dev`; los mensajes de commit usan modo imperativo (ver `AGENTS.md`).
 
-### Setup completo
+## 🖥️ Instalación en una nueva máquina
+
 ```bash
-# En Arch Linux
 git clone https://github.com/kobogithub/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
-./install.sh
-# Reiniciar terminal
-```
 
-### Setup mínimo (solo dotfiles)
-```bash
-# Si ya tienes las herramientas instaladas
-git clone https://github.com/kobogithub/dotfiles.git ~/.dotfiles
-cd ~/.dotfiles
-./install.sh -d git zsh nvim tmux
-```
-
-## 🛠️ Personalización
-
-### Modificar prompt (Starship)
-```bash
-nvim ~/.config/starship.toml
-# Reiniciar terminal para aplicar
-```
-
-### Agregar aliases (Zsh)
-```bash
-nvim ~/.dotfiles/zsh/.zshrc
-# Agregar alias, luego:
-stow zsh
-source ~/.zshrc
-```
-
-### Configurar tmux
-```bash
-nvim ~/.dotfiles/tmux/.tmux.conf
-# Recargar: Ctrl-a r
+./install.sh                       # completa (macOS o Arch)
+# — o, si ya tenés las herramientas —
+./install.sh -d git zsh nvim tmux  # solo dotfiles
 ```
 
 ## 🐧 Compatibilidad
 
-- **Optimizado para**: Arch Linux
-- **Compatible con**: Otras distribuciones Linux (requiere instalación manual de paquetes)
-- **Shell principal**: Zsh
-- **Editor principal**: Neovim
-- **Terminal**: Compatible con cualquier terminal moderno
-
-## 🤝 Contribuir
-
-1. Fork del repositorio
-2. Crear branch: `git checkout -b feature/mejora`
-3. Seguir estructura de stow para nuevos paquetes
-4. Commit: `git commit -m 'Add mejora'`
-5. Push: `git push origin feature/mejora`
-6. Pull Request
+- **macOS** — vía Homebrew (formulae + casks)
+- **Arch Linux** — vía pacman
+- **Otras distros** — se enlazan los dotfiles; los paquetes de sistema se instalan a mano
+- **Shell:** Zsh · **Editor:** Neovim · **Terminal:** cualquiera moderna
 
 ## 📄 Licencia
 
-Repositorio personal de Kevin Barroso. Libre uso de configuraciones.
+Repositorio personal de Kevin Barroso. Libre uso de las configuraciones.
 
 ---
 
