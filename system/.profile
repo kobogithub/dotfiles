@@ -28,8 +28,9 @@ export HISTFILESIZE=20000
 export LESSHISTFILE=-
 export LESSCHARSET=utf-8
 
-# Configuración para aplicaciones
-export GNUPGHOME="$XDG_DATA_HOME/gnupg"
+# GnuPG no respeta XDG: su default es ~/.gnupg en Arch y macOS. No seteamos
+# GNUPGHOME — apuntarlo a $XDG_DATA_HOME/gnupg rompe la firma de commits
+# porque el keyring real nunca vive ahí.
 
 # Cargo/Rust — portable: si cargo vive en XDG (Arch) usar esa ubicación;
 # si está en el default ~/.cargo (macOS/rustup) usar esa. Guardado para no
