@@ -298,7 +298,10 @@ check_tools() {
 # parse_secret_refs - extrae las rutas `pass show <ruta>` de zsh/.env (sin ejecutar el archivo)
 parse_secret_refs() {
     [[ -f "$DOTFILES_DIR/zsh/.env" ]] || return 0
-    grep -oE 'pass show [^")]+' "$DOTFILES_DIR/zsh/.env" 2>/dev/null \
+    # El patron corta en el primer espacio: la llamada puede llevar cosas
+    # detras de la ruta (p.ej. `pass show mcps/context7 2>/dev/null`) y sin
+    # eso se colaban en la ruta, dando un falso FAIL.
+    grep -oE 'pass show [^[:space:]")]+' "$DOTFILES_DIR/zsh/.env" 2>/dev/null \
         | sed 's/^pass show //; s/[[:space:]]*$//' \
         | grep -v '^[[:space:]]*$' || true
 }
