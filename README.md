@@ -55,6 +55,7 @@ dotfiles/
 ├── herdr/                  # Config de herdr (~/.config/herdr/)
 ├── claude-code/            # Config global de Claude Code (~/.claude/settings.json)
 ├── aerospace/              # Solo macOS: AeroSpace WM (~/.aerospace.toml)
+├── sketchybar/             # Solo macOS: barra Frostmourne (~/.config/sketchybar/)
 ├── macos/                  # Solo macOS: LaunchAgents (~/Library/LaunchAgents/)
 ├── system/                 # Configuraciones del sistema
 ├── Brewfile                # Paquetes de Homebrew (macOS) — fuente de verdad

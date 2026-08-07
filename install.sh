@@ -83,6 +83,7 @@ DOTFILE_PACKAGES=(
     "herdr"
     "claude-code"
     "aerospace"    # solo util en macOS (AeroSpace es macOS-only)
+    "sketchybar"   # solo util en macOS, acompaña a aerospace
 )
 
 # Paquetes de Homebrew para macOS: la fuente de verdad es el Brewfile en la
