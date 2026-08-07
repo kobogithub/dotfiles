@@ -69,13 +69,20 @@
   "enabledPlugins": {
     "rust-analyzer-lsp@claude-plugins-official": true,
     "engram@engram": true,
-    "figma@claude-plugins-official": true
+    "figma@claude-plugins-official": true,
+    "wiki@llm-wiki": true
   },
   "extraKnownMarketplaces": {
     "engram": {
       "source": {
         "source": "github",
         "repo": "Gentleman-Programming/engram"
+      }
+    },
+    "llm-wiki": {
+      "source": {
+        "source": "github",
+        "repo": "nvk/llm-wiki"
       }
     }
   },
