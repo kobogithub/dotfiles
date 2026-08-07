@@ -11,6 +11,15 @@ if command -v pyenv >/dev/null 2>&1; then
     eval "$(pyenv virtualenv-init -)"
 fi
 
+# Warm up the python3 binary in the background on macOS. Homebrew's python is
+# adhoc-signed and not notarized, so its first run after a boot makes Gatekeeper
+# scan the whole Python.framework, which can take seconds. Paying that here in
+# parallel keeps starship's python module from timing out on the first prompt
+# inside a Python project.
+if [[ "$(uname)" == "Darwin" ]]; then
+    (command python3 --version >/dev/null 2>&1 &)
+fi
+
 # Python aliases
 alias py='python'
 alias py3='python3'
