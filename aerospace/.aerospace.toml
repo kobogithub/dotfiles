@@ -8,7 +8,14 @@ config-version = 2
 
 # You can use it to add commands that run after AeroSpace startup.
 # Available commands : https://nikitabobko.github.io/AeroSpace/commands
-after-startup-command = []
+# Arranca sketchybar junto a AeroSpace para que la barra siempre exista.
+after-startup-command = ['exec-and-forget sketchybar']
+
+# Avisa a sketchybar de cada cambio de workspace. Sin esto el indicador de
+# workspaces de la barra se queda congelado: sketchybar no tiene forma de
+# enterarse por su cuenta.
+exec-on-workspace-change = ['/bin/bash', '-c',
+    'sketchybar --trigger aerospace_workspace_change FOCUSED_WORKSPACE=$AEROSPACE_FOCUSED_WORKSPACE']
 
 # Start AeroSpace at login
 start-at-login = true
@@ -77,7 +84,9 @@ gaps.inner.horizontal = 0
 gaps.inner.vertical =   0
 gaps.outer.left =       0
 gaps.outer.bottom =     0
-gaps.outer.top =        0
+# Reserva la altura de sketchybar (BAR_HEIGHT en sketchybar/sketchybarrc).
+# Si los dos números no coinciden, las ventanas quedan por debajo de la barra.
+gaps.outer.top =        32
 gaps.outer.right =      0
 
 # 'main' binding mode declaration
