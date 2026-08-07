@@ -135,6 +135,10 @@ alias dev-init='dev-init'
 alias dev-clean='dev-clean'
 alias code-ext='~/.dotfiles/vscode/install-extensions.sh'
 
+# Sync seguro (rclone bisync) del vault Taligent <-> Drive (taligent:coe)
+alias tsync='(cd /Users/kobo/taligent && ./scripts/sync/taligent-sync.sh sync)'
+alias tsync-dry='(cd /Users/kobo/taligent && ./scripts/sync/taligent-sync.sh sync --dry-run)'
+
 # Keybindings útiles
 bindkey '^[[A' history-search-backward    # Flecha arriba
 bindkey '^[[B' history-search-forward     # Flecha abajo
