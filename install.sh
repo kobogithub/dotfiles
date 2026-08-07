@@ -82,6 +82,7 @@ DOTFILE_PACKAGES=(
     "ghostty"
     "herdr"
     "claude-code"
+    "aerospace"    # solo util en macOS (AeroSpace es macOS-only)
 )
 
 # Paquetes de Homebrew para macOS: la fuente de verdad es el Brewfile en la

@@ -42,5 +42,9 @@ brew "tealdeer"      # tldr: ejemplos de comandos
 brew "dust"          # du visual
 brew "duf"           # df visual
 
+# --- Fonts (casks) ---
+cask "font-iosevka-nerd-font"   # usada por ghostty (Iosevka Nerd Font Mono)
+
 # --- GUI (casks) ---
 cask "docker"               # Docker Desktop
+cask "aerospace"            # tiling window manager (config: ~/.aerospace.toml)

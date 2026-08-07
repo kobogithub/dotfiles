@@ -54,6 +54,7 @@ dotfiles/
 ├── opencode/               # OpenCode agents & skills (~/.config/opencode/)
 ├── herdr/                  # Config de herdr (~/.config/herdr/)
 ├── claude-code/            # Config global de Claude Code (~/.claude/settings.json)
+├── aerospace/              # Solo macOS: AeroSpace WM (~/.aerospace.toml)
 ├── macos/                  # Solo macOS: LaunchAgents (~/Library/LaunchAgents/)
 ├── system/                 # Configuraciones del sistema
 ├── Brewfile                # Paquetes de Homebrew (macOS) — fuente de verdad
@@ -88,7 +89,7 @@ Si **Homebrew** no está instalado, `install.sh` lo instala automáticamente (sc
 
 **CLI modernas:** `ripgrep` · `zoxide` · `lazygit` · `fd` · `bat` · `git-delta` · `yq` · `lazydocker` · `btop` · `tealdeer` · `dust` · `duf`
 
-**Casks (GUI):** `docker`
+**Casks (GUI):** `docker` · `aerospace` · `font-iosevka-nerd-font`
 
 ### 🐧 Arch Linux — pacman
 
