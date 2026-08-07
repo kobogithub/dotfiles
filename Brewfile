@@ -5,6 +5,12 @@
 # o con node/python: openssh, base-devel, python-pip, python-virtualenv, npm,
 # zip, unzip.
 
+# --- Taps de terceros ---
+# Homebrew pide confirmar los taps que no son oficiales. En una maquina nueva,
+# antes del `brew bundle`, correr:
+#   brew trust --formula FelixKratz/formulae/sketchybar
+tap "FelixKratz/formulae"
+
 # --- CLI (formulae) ---
 brew "neovim"
 brew "tmux"
@@ -48,3 +54,6 @@ cask "font-iosevka-nerd-font"   # usada por ghostty (Iosevka Nerd Font Mono)
 # --- GUI (casks) ---
 cask "docker"               # Docker Desktop
 cask "aerospace"            # tiling window manager (config: ~/.aerospace.toml)
+
+# --- Barra de estado (macOS) ---
+brew "FelixKratz/formulae/sketchybar"   # barra custom, acompaña a aerospace
