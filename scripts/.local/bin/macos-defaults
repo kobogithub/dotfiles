@@ -67,6 +67,13 @@ defaults write com.apple.dock show-recents -bool false
 defaults write com.apple.dock mru-spaces -bool false
 
 # ---------------------------------------------------------------------------
+# 📊 Menu bar — oculta la de macOS para dejar sketchybar como única barra
+# ---------------------------------------------------------------------------
+# Sin esto se ven dos barras apiladas. La de macOS sigue accesible: reaparece
+# al llevar el ratón al borde superior de la pantalla.
+defaults write NSGlobalDomain _HIHideMenuBar -bool true
+
+# ---------------------------------------------------------------------------
 # 🖱️  Trackpad — tap para click
 # ---------------------------------------------------------------------------
 defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool true
