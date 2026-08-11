@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 # Configuración de sketchybar — tema Frostmourne, pensada para AeroSpace.
 #
-# La altura de la barra debe coincidir con gaps.outer.top en
-# aerospace/.aerospace.toml, o las ventanas quedan por debajo y la tapan.
+# Barra flotante: no toca los bordes de la pantalla. El hueco que hay que
+# reservar en gaps.outer.top de aerospace/.aerospace.toml es
+# BAR_MARGIN + BAR_HEIGHT + BAR_MARGIN (8 + 32 + 8 = 48). Si no coincide,
+# las ventanas quedan por debajo de la barra y la tapan.
 
 export CONFIG_DIR="$HOME/.config/sketchybar"
 export PLUGIN_DIR="$CONFIG_DIR/plugins"
 export FONT="Iosevka Nerd Font"
 export BAR_HEIGHT=32
+export BAR_MARGIN=8
 
 source "$CONFIG_DIR/colors.sh"
 
@@ -17,7 +20,13 @@ sketchybar --bar \
     position=top \
     sticky=on \
     topmost=off \
-    shadow=off \
+    shadow=on \
+    margin="$BAR_MARGIN" \
+    y_offset="$BAR_MARGIN" \
+    corner_radius=10 \
+    border_width=2 \
+    border_color="$BAR_BORDER" \
+    blur_radius=20 \
     padding_left=6 \
     padding_right=6 \
     color="$BAR_BG"
