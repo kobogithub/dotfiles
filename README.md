@@ -167,6 +167,30 @@ Los secretos **no se guardan en el repo**. `zsh/.env` (→ `~/.env`) puebla vari
 ### ☸️ Kubernetes
 - `kubectl` + `k9s` con aliases (`k`, `kgp`, `kgs`, `kl`, `klf`, `ke`…) y autocompletado
 
+### 🪟 Ventanas y barra (solo macOS)
+
+**AeroSpace** — tiling WM (`aerospace/.aerospace.toml`), con 8px de separación entre ventanas y contra los bordes de la pantalla:
+
+| Atajo | Acción |
+|---|---|
+| `alt-hjkl` | Mover el foco |
+| `alt-shift-hjkl` | Mover la ventana |
+| `alt-ctrl-hjkl` | Agrupar con la vecina (`join-with`) — es lo que arma layouts master-stack |
+| `alt-slash` / `alt-comma` | Alternar tiles / accordion **del contenedor enfocado**, no del workspace entero |
+| `alt-minus` / `alt-equal` | Achicar / agrandar |
+| `alt-1..9`, `alt-a..z` | Ir al workspace (con `shift`, mover la ventana ahí) |
+| `alt-shift-;` | Modo service (`r` resetea el árbol, `f` alterna flotante) |
+
+**sketchybar** — barra Frostmourne flotante (`sketchybar/.config/sketchybar/`). `items/` declara cada elemento y `plugins/` lo pinta; `colors.sh` centraliza la paleta, espejo de la de Ghostty.
+
+- **Izquierda:** workspaces de AeroSpace (solo los ocupados) · app en foco
+- **Derecha:** clima (wttr.in) · CPU · RAM · red · volumen · batería · reloj
+- **Volumen interactivo:** click izquierdo abre un popup con slider, click derecho silencia, la rueda sube y baja el nivel
+
+> ⚠️ Al tocar la barra hay dos números que deben cuadrar: `gaps.outer.top` de AeroSpace = `2 × BAR_MARGIN + BAR_HEIGHT` de `sketchybarrc` (hoy 8 + 32 + 8 = 48). Si no coinciden, las ventanas quedan tapadas por la barra.
+
+> ⚠️ Los iconos son glifos **Nerd Font** del área de uso privado (U+E000–U+F8FF) y no sobreviven a cualquier editor ni al portapapeles. Si al editar un plugin te queda un `icon=""` vacío, se perdieron por el camino: reinsertalos por punto de código —`python3 -c 'print(chr(0xf4bc))'`— y verificá que el glifo exista en la fuente antes de usarlo, o vas a cambiar un hueco por un cuadrado vacío.
+
 ## 🛠️ Herramientas de desarrollo
 
 ### 🐳 Docker
