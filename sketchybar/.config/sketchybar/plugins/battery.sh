@@ -13,22 +13,22 @@ if [ -z "$pct" ]; then
 fi
 
 if [ "$charging" -ne 0 ]; then
-    icon=""
+    icon=""
     color="$GREEN"
 elif [ "$pct" -ge 80 ]; then
-    icon=""
+    icon=""
     color="$GREEN"
 elif [ "$pct" -ge 60 ]; then
-    icon=""
+    icon=""
     color="$GREEN"
 elif [ "$pct" -ge 40 ]; then
-    icon=""
+    icon=""
     color="$LIGHT"
 elif [ "$pct" -ge 20 ]; then
-    icon=""
+    icon=""
     color="$LIGHT"
 else
-    icon=""
+    icon=""
     color="$RED"
 fi
 

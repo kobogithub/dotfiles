@@ -3,6 +3,6 @@
 
 sketchybar --add item memory right \
            --set memory \
-                 icon="󰍛" \
+                 icon="" \
                  update_freq=5 \
                  script="$PLUGIN_DIR/memory.sh"

@@ -3,7 +3,7 @@
 
 sketchybar --add item front_app left \
            --set front_app \
-                 icon="" \
+                 icon="" \
                  icon.color="$PURPLE" \
                  icon.padding_left=14 \
                  label.color="$PURPLE" \

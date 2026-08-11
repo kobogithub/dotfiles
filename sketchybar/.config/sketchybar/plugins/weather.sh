@@ -15,7 +15,7 @@ source "$CONFIG_DIR/colors.sh"
 data="$(curl -sf --max-time 8 "https://wttr.in/${WEATHER_LOCATION:-}?format=%C|%t&m" 2>/dev/null)"
 
 if [ -z "$data" ] || [ "${data#*|}" = "$data" ]; then
-    sketchybar --set "$NAME" icon="" icon.color="$FG_DIM" \
+    sketchybar --set "$NAME" icon="" icon.color="$FG_DIM" \
                              label="--" label.color="$FG_DIM"
     exit 0
 fi
@@ -26,21 +26,21 @@ temp="$(echo "${data#*|}" | tr -d ' +')"
 
 hour="$(date +%-H)"
 if [ "$hour" -ge 20 ] || [ "$hour" -lt 6 ]; then
-    clear_icon=""   # luna
+    clear_icon=""   # luna
 else
-    clear_icon=""   # sol
+    clear_icon=""   # sol
 fi
 
 case "$condition" in
-    *thunder*)                     icon="" ; color="$YELLOW" ;;
+    *thunder*)                     icon="" ; color="$YELLOW" ;;
     *snow* | *sleet* | *blizzard* | *ice*)
-                                   icon="" ; color="$LIGHT" ;;
-    *rain* | *drizzle* | *shower*) icon="" ; color="$BLUE" ;;
-    *mist* | *fog* | *haze*)       icon="" ; color="$FG_DIM" ;;
-    *partly*)                      icon="" ; color="$LIGHT" ;;
-    *cloud* | *overcast*)          icon="" ; color="$LIGHT" ;;
+                                   icon="" ; color="$LIGHT" ;;
+    *rain* | *drizzle* | *shower*) icon="" ; color="$BLUE" ;;
+    *mist* | *fog* | *haze*)       icon="" ; color="$FG_DIM" ;;
+    *partly*)                      icon="" ; color="$LIGHT" ;;
+    *cloud* | *overcast*)          icon="" ; color="$LIGHT" ;;
     *sunny* | *clear*)             icon="$clear_icon" ; color="$ACCENT" ;;
-    *)                             icon="" ; color="$LIGHT" ;;
+    *)                             icon="" ; color="$LIGHT" ;;
 esac
 
 sketchybar --set "$NAME" icon="$icon" icon.color="$color" \

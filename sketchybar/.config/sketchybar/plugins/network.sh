@@ -6,7 +6,7 @@ source "$CONFIG_DIR/colors.sh"
 iface="$(route get default 2>/dev/null | awk '/interface:/{print $2}')"
 
 if [ -z "$iface" ]; then
-    sketchybar --set "$NAME" icon="" icon.color="$RED" label="offline"
+    sketchybar --set "$NAME" icon="" icon.color="$RED" label="offline"
     exit 0
 fi
 
@@ -18,8 +18,8 @@ if [ "$iface" = "$wifi_dev" ]; then
     # nos quedamos con el nombre de la interfaz.
     ssid="$(networksetup -getairportnetwork "$iface" 2>/dev/null \
             | sed -n 's/^Current Wi-Fi Network: //p')"
-    sketchybar --set "$NAME" icon="" icon.color="$ACCENT" \
+    sketchybar --set "$NAME" icon="" icon.color="$ACCENT" \
                              label="${ssid:-wifi}"
 else
-    sketchybar --set "$NAME" icon="" icon.color="$GREEN" label="eth"
+    sketchybar --set "$NAME" icon="" icon.color="$GREEN" label="eth"
 fi

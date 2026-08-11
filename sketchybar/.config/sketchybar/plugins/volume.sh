@@ -66,15 +66,15 @@ muted="$(osascript -e 'output muted of (get volume settings)' 2>/dev/null)"
 [ -n "$vol" ] || exit 0
 
 if [ "$muted" = "true" ] || [ "$vol" -eq 0 ]; then
-    icon=""
+    icon=""
     color="$FG_DIM"
     mute_label="Activar sonido"
 elif [ "$vol" -ge 50 ]; then
-    icon=""
+    icon=""
     color="$ACCENT"
     mute_label="Silenciar"
 else
-    icon=""
+    icon=""
     color="$ACCENT"
     mute_label="Silenciar"
 fi

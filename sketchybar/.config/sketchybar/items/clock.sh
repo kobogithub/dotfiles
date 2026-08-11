@@ -3,7 +3,7 @@
 
 sketchybar --add item clock right \
            --set clock \
-                 icon="" \
+                 icon="" \
                  icon.color="$ACCENT" \
                  label.color="$FG" \
                  update_freq=10 \

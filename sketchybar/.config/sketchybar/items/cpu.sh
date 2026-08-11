@@ -4,6 +4,6 @@
 
 sketchybar --add item cpu right \
            --set cpu \
-                 icon="" \
+                 icon="" \
                  update_freq=10 \
                  script="$PLUGIN_DIR/cpu.sh"

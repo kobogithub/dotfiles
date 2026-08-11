@@ -40,7 +40,7 @@ sketchybar --add slider volume_slider popup.volume 140 \
 # Fila de silencio dentro del popup.
 sketchybar --add item volume.mute popup.volume \
            --set volume.mute \
-                 icon="" \
+                 icon="" \
                  icon.color="$LIGHT" \
                  label="Silenciar" \
                  label.color="$LIGHT" \
