@@ -6,6 +6,7 @@
 export BAR_BG=0xf0070b14      # fondo de la barra   (#070B14, ~94% opaco)
 export BAR_BORDER=0xff1c2b45  # borde de la barra flotante (#1C2B45)
 export ITEM_BG=0xff0b0f1a     # fondo de los items  (#0B0F1A)
+export POPUP_BG=0xf00b0f1a    # fondo de los popups (#0B0F1A, ~94% opaco)
 
 # Texto
 export FG=0xffd6e4f0          # normal    (#D6E4F0)
