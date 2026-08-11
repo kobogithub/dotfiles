@@ -17,6 +17,7 @@ export ACCENT=0xff3fe0e0      # cyan, igual que el prompt de starship (#3FE0E0)
 export BLUE=0xff6fc5f0        # workspace enfocado  (#6FC5F0)
 export PURPLE=0xff9d7cd8      # app en foco         (#9D7CD8)
 export GREEN=0xff5fd9b0       # ok / cargando       (#5FD9B0)
+export YELLOW=0xffe3b341      # aviso, carga media  (#E3B341)
 export RED=0xffc75450         # alerta              (#C75450)
 export LIGHT=0xffa9d4e8       # secundario          (#A9D4E8)
 

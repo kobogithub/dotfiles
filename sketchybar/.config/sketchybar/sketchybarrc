@@ -11,6 +11,8 @@ export PLUGIN_DIR="$CONFIG_DIR/plugins"
 export FONT="Iosevka Nerd Font"
 export BAR_HEIGHT=32
 export BAR_MARGIN=8
+# Ciudad para el clima. Vacío = la deduce wttr.in de la IP pública.
+export WEATHER_LOCATION=""
 
 source "$CONFIG_DIR/colors.sh"
 
@@ -54,6 +56,9 @@ source "$CONFIG_DIR/items/clock.sh"
 source "$CONFIG_DIR/items/battery.sh"
 source "$CONFIG_DIR/items/volume.sh"
 source "$CONFIG_DIR/items/network.sh"
+source "$CONFIG_DIR/items/weather.sh"
+source "$CONFIG_DIR/items/cpu.sh"
+source "$CONFIG_DIR/items/memory.sh"
 
 ##### Aplicar #####
 sketchybar --update
