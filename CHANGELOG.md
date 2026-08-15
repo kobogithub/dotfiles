@@ -54,7 +54,9 @@ alguien instale por número de versión. Cada bloque es un mes.
 - Falsos positivos de `dotfiles-doctor` con directorios *folded* y al parsear
   rutas de `pass`.
 - `GNUPGHOME` en `.profile` rompía la firma GPG.
-- Timeout de starship en macOS: se pre-calienta `python3`.
+- Timeout de starship en macOS: se pre-calienta `python3`, y el WARN de
+  `node --version` en frío se corta con `command_timeout = 3000` +
+  `STARSHIP_LOG=error`.
 - Opción mal escrita de Ghostty (`font-thickening` → `font-thicken`).
 - El sourcing de cargo no era portable; el doctor acepta skips por máquina.
 - Iconos vacíos en toda la barra de sketchybar (glifos Nerd Font perdidos).

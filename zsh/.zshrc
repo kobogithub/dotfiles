@@ -72,6 +72,9 @@ compinit
 
 # Configuraciones de herramientas
 # Starship prompt (se carga al final)
+# STARSHIP_LOG=error silencia los WARN de timeout de comandos externos
+# (ej. `node --version` en frío) sin ocultar errores reales de config.
+export STARSHIP_LOG="error"
 eval "$(starship init zsh)"
 
 # Atuin (reemplazo de history)

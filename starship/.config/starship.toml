@@ -1,9 +1,10 @@
 # ~/.config/starship.toml - Configuración personalizada de Starship
 
 # Tiempo máximo (ms) que Starship espera por comandos externos como
-# `python --version`. El shim de pyenv es lento, así que subimos el
-# default (500) para evitar el timeout.
-command_timeout = 1000
+# `python --version` o `node --version`. El shim de pyenv es lento y el
+# primer `node` tras abrir la terminal arranca en frío, así que subimos
+# bastante el default (500) para evitar los WARN de timeout.
+command_timeout = 3000
 
 # Configuración general del prompt
 format = """
