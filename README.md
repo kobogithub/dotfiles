@@ -312,6 +312,10 @@ source ~/.zshrc          # probar cambios de shell en la sesión actual
 
 > Probá la config de shell en una subshell/terminal nueva antes de commitear — un `.zshrc` malformado puede romper el login. La rama por defecto es `dev`; los mensajes de commit usan modo imperativo (ver `AGENTS.md`).
 
+## 📓 Historial de cambios
+
+Resumen curado por mes en [`CHANGELOG.md`](CHANGELOG.md). El detalle fino está en el historial de git (`git log --oneline`).
+
 ## 🖥️ Instalación en una nueva máquina
 
 ```bash
