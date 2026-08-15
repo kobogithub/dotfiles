@@ -48,6 +48,13 @@ brew "tealdeer"      # tldr: ejemplos de comandos
 brew "dust"          # du visual
 brew "duf"           # df visual
 
+# --- Gestor de archivos en terminal (reemplazo de Finder) ---
+brew "yazi"                # TUI de archivos; config en el paquete stow yazi/
+brew "poppler"             # yazi: preview de PDF
+brew "ffmpegthumbnailer"   # yazi: miniaturas de video
+brew "sevenzip"            # yazi: preview/extraccion de comprimidos
+brew "imagemagick"         # yazi: preview de HEIC/AVIF/SVG
+
 # --- Fonts (casks) ---
 cask "font-iosevka-nerd-font"   # usada por ghostty (Iosevka Nerd Font Mono)
 

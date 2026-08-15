@@ -1,0 +1,115 @@
+#:schema https://yazi-rs.github.io/schemas/theme.json
+# Tema de Yazi — paleta Lich King / Frostmourne (la misma de ghostty).
+#   cian runa   #3FE0E0    azul glaciar #4FA8D8    purpura Plaga #9D7CD8
+#   verde almas #5FD9B0    rojo necro   #C75450    hielo profundo #1A2740
+# Solo overrides: los iconos y todo lo no listado vienen del preset de Yazi.
+
+[mgr]
+cwd = { fg = "#3FE0E0", bold = true }
+
+# Busqueda (find)
+find_keyword  = { fg = "#C6E8F5", bold = true, italic = true, underline = true }
+find_position = { fg = "#9D7CD8", bg = "reset", bold = true, italic = true }
+
+# Symlinks
+symlink_target = { fg = "#6FC5F0", italic = true }
+
+# Marcadores de seleccion / copiar / cortar
+marker_copied   = { fg = "#5FD9B0", bg = "#5FD9B0" }
+marker_cut      = { fg = "#C75450", bg = "#C75450" }
+marker_marked   = { fg = "#3FE0E0", bg = "#3FE0E0" }
+marker_selected = { fg = "#6FC5F0", bg = "#6FC5F0" }
+
+count_copied   = { fg = "#070B14", bg = "#5FD9B0" }
+count_cut      = { fg = "#E8F1FA", bg = "#C75450" }
+count_selected = { fg = "#070B14", bg = "#6FC5F0" }
+
+# Bordes
+border_symbol = "│"
+border_style  = { fg = "#3A4A63" }
+
+[tabs]
+active   = { fg = "#070B14", bg = "#3FE0E0", bold = true }
+inactive = { fg = "#B8C9DD", bg = "#1A2740" }
+
+[mode]
+normal_main = { fg = "#070B14", bg = "#3FE0E0", bold = true }
+normal_alt  = { fg = "#3FE0E0", bg = "#1A2740" }
+select_main = { fg = "#070B14", bg = "#9D7CD8", bold = true }
+select_alt  = { fg = "#9D7CD8", bg = "#1A2740" }
+unset_main  = { fg = "#070B14", bg = "#C75450", bold = true }
+unset_alt   = { fg = "#C75450", bg = "#1A2740" }
+
+[status]
+perm_sep   = { fg = "#3A4A63" }
+perm_type  = { fg = "#5FD9B0" }
+perm_read  = { fg = "#C6E8F5" }
+perm_write = { fg = "#C75450" }
+perm_exec  = { fg = "#3FE0E0" }
+
+progress_label  = { fg = "#E8F1FA", bold = true }
+progress_normal = { fg = "#3FE0E0", bg = "#1A2740" }
+progress_error  = { fg = "#C75450", bg = "#1A2740" }
+
+[which]
+mask            = { bg = "#0B0F1A" }
+cand            = { fg = "#3FE0E0" }
+rest            = { fg = "#3A4A63" }
+desc            = { fg = "#9D7CD8" }
+separator_style = { fg = "#3A4A63" }
+
+[confirm]
+border  = { fg = "#3FE0E0" }
+title   = { fg = "#3FE0E0" }
+btn_yes = { fg = "#070B14", bg = "#3FE0E0", bold = true }
+btn_no  = { fg = "#B8C9DD" }
+
+[spot]
+border   = { fg = "#3FE0E0" }
+title    = { fg = "#3FE0E0" }
+tbl_col  = { fg = "#4FA8D8" }
+tbl_cell = { fg = "#3FE0E0", reversed = true }
+
+[notify]
+title_info  = { fg = "#5FD9B0" }
+title_warn  = { fg = "#C6E8F5" }
+title_error = { fg = "#C75450" }
+
+[pick]
+border   = { fg = "#3FE0E0" }
+active   = { fg = "#9D7CD8", bold = true }
+inactive = { fg = "#B8C9DD" }
+
+[input]
+border = { fg = "#3FE0E0" }
+value  = { fg = "#E8F1FA" }
+
+[cmp]
+border = { fg = "#3FE0E0" }
+active = { fg = "#070B14", bg = "#3FE0E0" }
+
+[tasks]
+border  = { fg = "#3FE0E0" }
+hovered = { fg = "#9D7CD8", bold = true }
+
+[help]
+on      = { fg = "#3FE0E0" }
+run     = { fg = "#9D7CD8" }
+hovered = { fg = "#070B14", bg = "#6FC5F0", bold = true }
+footer  = { fg = "#B8C9DD", bg = "#1A2740" }
+
+# Colores por tipo de archivo
+[filetype]
+rules = [
+	{ mime = "image/*",                fg = "#C6E8F5" },
+	{ mime = "{audio,video}/*",        fg = "#9D7CD8" },
+	{ mime = "application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}", fg = "#C75450" },
+	{ mime = "application/{pdf,doc,rtf}", fg = "#3FE0E0" },
+	{ url = "*.{md,mdx,markdown}",     fg = "#5FD9B0" },
+	{ mime = "vfs/{absent,stale}",     fg = "#3A4A63" },
+	{ url = "*", is = "orphan",        bg = "#C75450" },
+	{ url = "*", is = "exec",          fg = "#5FD9B0" },
+	{ url = "*", is = "dummy",         bg = "#C75450" },
+	{ url = "*/", is = "dummy",        bg = "#C75450" },
+	{ url = "*/",                      fg = "#6FC5F0" },
+]

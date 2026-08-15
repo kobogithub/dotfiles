@@ -250,3 +250,37 @@ macos-defaults              # aplica y reinicia Finder/Dock/SystemUIServer
 macos-defaults --no-restart # aplica sin reiniciar apps
 macos-defaults -h           # ayuda
 ```
+
+---
+
+# clip-file
+
+Copia archivos al **portapapeles del sistema** en el formato que necesites, para
+pegarlos después en una app gráfica (Google Chat, Slack, Gmail, Finder). Nació
+para usarse desde `yazi` con las teclas `C t` / `C i` / `C f` / `C p`, pero sirve
+igual desde la terminal.
+
+En macOS usa `pbcopy` y `osascript`; en Linux, `wl-copy` o `xclip`. Para el modo
+`image` convierte a PNG con `sips` (nativo) o `magick` si el archivo no lo es.
+
+| Modo | Qué deja en el portapapeles | Para qué sirve |
+|---|---|---|
+| `text` | El **contenido** del archivo como texto plano | Pegar un `.md` en un chat |
+| `image` | La imagen (PNG) | Que se pegue **inline** en el chat |
+| `file` | El **archivo en sí** (referencia) | Adjuntarlo pegando, o pegar en Finder |
+| `path` | La ruta absoluta | Mandar una ruta por mensaje |
+| `auto` | Según el tipo MIME: imagen→`image`, texto→`text`, resto→`file` | Es el modo por defecto |
+
+## Uso
+
+```bash
+clip-file notas.md            # auto -> copia el texto
+clip-file text README.md      # fuerza el contenido como texto
+clip-file image captura.jpg   # la convierte a PNG y la deja pegable inline
+clip-file file informe.pdf    # para adjuntarlo en un chat
+clip-file path *.md           # las rutas, una por línea
+clip-file -h                  # ayuda
+```
+
+Con varios archivos: `text` los concatena poniendo `--- nombre ---` como
+separador; `file` y `path` los copian todos.

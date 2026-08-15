@@ -68,6 +68,21 @@ command -v bat >/dev/null 2>&1 && alias cat='bat --paging=never'  # cat con synt
 alias lzg='lazygit'      # TUI de git (git lg sigue siendo el log graph)
 alias lzd='lazydocker'   # TUI de docker
 
+# yz - yazi (gestor de archivos en terminal, reemplaza a Finder). El wrapper
+# existe para que al salir con `q` el shell quede en el directorio donde
+# estabas navegando; `Q` sale sin cambiar de directorio.
+# Se llama `yz` y no `y` porque `y` ya es alias de yarn (.nodejs_config).
+yz() {
+    command -v yazi >/dev/null 2>&1 || { echo "❌ yazi no está instalado (brew install yazi)"; return 1; }
+    local tmp cwd
+    tmp="$(mktemp -t yazi-cwd.XXXXXX)"
+    yazi "$@" --cwd-file="$tmp"
+    if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+        builtin cd -- "$cwd" || return
+    fi
+    rm -f -- "$tmp"
+}
+
 # als - buscador interactivo (fzf) de TODOS los aliases activos (incluye .zshrc
 # y los sourceados). Uso: als [patrón]. Enter copia el alias al portapapeles.
 als() {

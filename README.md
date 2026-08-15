@@ -44,6 +44,7 @@ dotfiles/
 ├── starship/               # Starship (~/.config/starship.toml)
 ├── atuin/                  # Atuin (~/.config/atuin/)
 ├── ghostty/                # Ghostty (~/.config/ghostty/)
+├── yazi/                   # Gestor de archivos en terminal (~/.config/yazi/)
 ├── ssh/                    # SSH (~/.ssh/config)
 ├── kubectl/                # kubectl (~/.kube/) + aliases k8s
 ├── k9s/                    # k9s (~/.config/k9s/)
@@ -90,6 +91,8 @@ Si **Homebrew** no está instalado, `install.sh` lo instala automáticamente (sc
 
 **CLI modernas:** `ripgrep` · `zoxide` · `lazygit` · `fd` · `bat` · `git-delta` · `yq` · `lazydocker` · `btop` · `tealdeer` · `dust` · `duf`
 
+**Archivos:** `yazi` + deps de preview (`poppler`, `ffmpegthumbnailer`, `sevenzip`, `imagemagick`)
+
 **Casks (GUI):** `docker` · `aerospace` · `font-iosevka-nerd-font`
 
 ### 🐧 Arch Linux — pacman
@@ -97,6 +100,8 @@ Si **Homebrew** no está instalado, `install.sh` lo instala automáticamente (sc
 **Base:** `openssh` · `neovim` · `tmux` · `github-cli` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` (+ `pip`, `virtualenv`) · `nodejs` (+ `npm`, `yarn`) · `base-devel` · `git` · `curl` · `wget` · `jq` · `fzf` · `tree` · `htop` · `unzip` · `zip`
 
 **CLI modernas:** `ripgrep` · `zoxide` · `lazygit` · `fd` · `bat` · `git-delta` · `go-yq` · `btop` · `tealdeer` · `dust` · `duf`  *(lazydocker solo en AUR)*
+
+**Archivos:** `yazi` + deps de preview (`poppler`, `ffmpegthumbnailer`, `7zip`, `imagemagick`)
 
 > Docker en Arch se maneja aparte para evitar conflictos; en macOS es el cask de Docker Desktop.
 
@@ -133,6 +138,7 @@ Viven en el paquete `scripts/` y se enlazan a `~/.local/bin/`. Ver [`scripts/REA
 | **`claude-sessions`** | `ccs` | Buscador **global** de sesiones de Claude Code con `fzf` (todos los repos); al elegir, hace `cd` al proyecto y reanuda la sesión. |
 | **`claude-usage`** | `ccu` | Análisis de **tokens y costos** de Claude Code por modelo/proyecto, con cache hit ratio; `--html` genera un dashboard. |
 | **`claude-speak`** | `cmu` / `cun` (mute / unmute) | Hook TTS que lee en voz alta (macOS `say`) la última respuesta de Claude Code. |
+| **`clip-file`** | — | Copia archivos al portapapeles del sistema como **texto**, **imagen**, **archivo** (adjunto) o **ruta**, para pegarlos en Google Chat/Slack/Finder. Lo usan las teclas `C t/i/f/p` de yazi. |
 | **`macos-defaults`** | — | Aplica un baseline de preferencias de macOS (`defaults write`): teclado, Finder, Dock, screenshots, trackpad. Idempotente, solo-macOS; lo corre `install.sh` en la instalación completa. |
 | **`brew-autoupdate`** | — | Actualiza Homebrew en segundo plano (macOS; lo dispara el LaunchAgent del paquete `macos/`). |
 
@@ -166,6 +172,18 @@ Los secretos **no se guardan en el repo**. `zsh/.env` (→ `~/.env`) puebla vari
 
 ### ☸️ Kubernetes
 - `kubectl` + `k9s` con aliases (`k`, `kgp`, `kgs`, `kl`, `klf`, `ke`…) y autocompletado
+
+### 📂 Archivos (yazi)
+
+Reemplazo de Finder en la terminal (`yazi/.config/yazi/`, tema Frostmourne). Se abre con `yz` — al salir con `q` el shell queda en el directorio donde estabas navegando; con `Q` sale sin moverse.
+
+- **Abrir:** `.md` y código → `nvim` (LazyVim) · `.pdf` y `.html` → Chrome · imágenes/media → app por defecto · `O` para elegir con qué
+- **Buscar:** `s` por nombre (fd) · `S` por contenido (rg) · `z` fzf · `Z` zoxide · `f` filtrar
+- **Saltos propios:** `g.` `~/.dotfiles` · `gG` `~/Github` · `gp` personal · `gw` taligent · `gl` `~/.claude` · `gt` `/tmp`
+- **Copiar al portapapeles** (para pegar en Google Chat y cía., vía `clip-file`): `C t` contenido como texto · `C i` como imagen inline · `C f` el archivo para adjuntar · `C p` la ruta
+- **Preview** de PDF, video, comprimidos e imágenes dentro de la terminal (`~` muestra todas las teclas)
+
+Detalle completo en [`yazi/README.md`](yazi/README.md).
 
 ### 🪟 Ventanas y barra (solo macOS)
 
@@ -248,6 +266,8 @@ rg patrón       # ripgrep: buscar en archivos (rapidísimo)
 fd nombre       # find moderno
 cat archivo     # = bat (syntax highlight); git diff usa delta
 lzg / lzd       # TUI de git / docker (lazygit / lazydocker)
+yz [ruta]       # yazi: navegar archivos; al salir con q el shell te sigue
+clip-file f.md  # copiar al portapapeles (texto/imagen/archivo/ruta) y pegar en un chat
 yq . f.yaml     # jq para YAML   ·   btop (monitor)   ·   dust/duf (disco)
 tldr comando    # ejemplos de uso de un comando
 ```

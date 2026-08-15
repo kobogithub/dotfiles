@@ -56,6 +56,13 @@ SYSTEM_PACKAGES=(
     "tealdeer"     # tldr
     "dust"
     "duf"
+
+    # Gestor de archivos en terminal (reemplazo de Finder) + deps de preview
+    "yazi"
+    "poppler"            # preview de PDF
+    "ffmpegthumbnailer"  # miniaturas de video
+    "7zip"               # preview/extraccion de archivos comprimidos
+    "imagemagick"        # preview de HEIC/AVIF/SVG
 )
 
 # Paquetes de dotfiles disponibles
@@ -82,6 +89,7 @@ DOTFILE_PACKAGES=(
     "ghostty"
     "herdr"
     "claude-code"
+    "yazi"         # gestor de archivos en terminal (reemplazo de Finder)
     "aerospace"    # solo util en macOS (AeroSpace es macOS-only)
     "sketchybar"   # solo util en macOS, acompaña a aerospace
 )

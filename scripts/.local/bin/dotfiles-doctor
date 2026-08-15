@@ -52,7 +52,7 @@ CAT_DOCS="OK"
 
 # Herramientas esperadas. Criticas = FAIL si faltan; opcionales = WARN.
 CRITICAL_TOOLS="stow git zsh nvim tmux starship atuin jq"
-OPTIONAL_TOOLS="lsd kubectl k9s docker docker-compose node yarn htop tree gh rg zoxide lazygit fd bat delta yq btop tldr dust duf lazydocker"
+OPTIONAL_TOOLS="lsd kubectl k9s docker docker-compose node yarn htop tree gh rg zoxide lazygit fd bat delta yq btop tldr dust duf lazydocker yazi"
 
 # ---------------------------------------------------------------------------
 # Ayuda
