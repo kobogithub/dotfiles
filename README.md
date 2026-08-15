@@ -223,6 +223,17 @@ Integración con **nvm**, múltiples package managers (npm/yarn/pnpm) con auto-d
 ### 🤖 OpenCode AI Agents & Skills
 Agents y skills expertos (FastAPI, PostgreSQL, Supabase, Docker, Astro, docs, QA) enlazados a `~/.config/opencode/`. Ver [`opencode/README.md`](opencode/README.md).
 
+### 🧠 Agentes y skills de Claude Code (`.claude/`)
+
+Viven en el repo (versionados) y aplican **solo a este proyecto**:
+
+| | Qué hace |
+|---|---|
+| **`nuevo-paquete`** *(skill)* | Checklist completo para dar de alta una herramienta: los 7+ archivos que hay que tocar, las dos ramas de SO y las validaciones. Invocala con `/nuevo-paquete`. |
+| **`dotfiles-planner`** | Planifica cambios que cruzan paquetes o `install.sh` sin ejecutarlos. |
+| **`dotfiles-explorer`** | Búsquedas read-only: qué paquete tiene tal archivo, quién sourcea qué. |
+| **`shell-style-reviewer`** | Revisa el diff de un script contra las convenciones de `AGENTS.md`. Pasale todo script antes de commitear. |
+
 ## 📋 Uso diario
 
 ```bash

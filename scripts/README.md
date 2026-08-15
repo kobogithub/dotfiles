@@ -180,7 +180,7 @@ Cada fila muestra: antigüedad relativa, título de la sesión (el `aiTitle`
 que genera Claude, o el primer prompt como fallback) y el nombre del
 proyecto. El panel de preview muestra los últimos prompts de esa sesión.
 
-Requiere `python3` y `fzf` (ambos ya en `BREW_PACKAGES`).
+Requiere `python3` y `fzf` (ambos ya en el `Brewfile`).
 
 ## Uso
 
@@ -215,7 +215,7 @@ Precios embebidos (USD/millon de tokens): Opus 4.8 `$5/$25`, Sonnet 5 y 4.6
 1.25x input, lectura = 0.1x input. El costo es una **estimacion API
 pay-as-you-go** (valor consumido), no el gasto real si hay suscripcion.
 
-Requiere `python3` (ya en `BREW_PACKAGES`).
+Requiere `python3` (ya en el `Brewfile`).
 
 ## Uso
 

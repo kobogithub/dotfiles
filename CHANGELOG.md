@@ -37,6 +37,9 @@ alguien instale por número de versión. Cada bloque es un mes.
 - **`als`**: buscador interactivo (fzf) de todos los aliases activos.
 - **`macos-defaults`**: baseline de preferencias de macOS, idempotente.
 - **CI de shell** en GitHub Actions.
+- **Este `CHANGELOG.md`**, reconstruido desde el historial de git.
+- **Skill `nuevo-paquete`** (`.claude/skills/`): el checklist real para dar de
+  alta una herramienta, que toca 7+ archivos y dos ramas de SO.
 - Aliases `cmu`/`cun` (mute/unmute del TTS) y `tsync`/`tsync-dry` (vault Taligent).
 - `lazyvim.json` para fijar el estado de los extras de LazyVim.
 
