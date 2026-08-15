@@ -57,3 +57,8 @@
 # El repo de dotfiles usa la identidad personal para firmar commits
 [includeIf "gitdir:~/.dotfiles/"]
     path = ~/.gitconfig-personal
+
+# ~/kobo — sistema personal de agenda. Vive fuera de ~/Github porque es global,
+# pero el repo es kevintali/kobo: identidad de trabajo.
+[includeIf "gitdir:~/kobo/"]
+    path = ~/.gitconfig-work
