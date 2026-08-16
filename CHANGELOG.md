@@ -25,8 +25,9 @@ alguien instale por número de versión. Cada bloque es un mes.
   deps de preview (poppler, ffmpegthumbnailer, 7zip/sevenzip, imagemagick).
 - **`clip-file`**: copia archivos al portapapeles como texto, imagen, adjunto o
   ruta — para pegar en Google Chat, Slack o Finder desde la terminal.
-- **sketchybar**: barra Frostmourne para AeroSpace, con items de clima, CPU y
-  memoria, y control de volumen (click, rueda y popup con slider).
+- **sketchybar**: barra Frostmourne para AeroSpace, con items de clima, CPU,
+  memoria y Docker (estado del daemon + contenedores corriendo), y control de
+  volumen (click, rueda y popup con slider).
 - **AeroSpace**: paquete propio con la config del home, gaps de 8px entre
   ventanas, integración con sketchybar (gap superior + hook de workspace) y la
   menu bar de macOS oculta para dejar una sola barra.

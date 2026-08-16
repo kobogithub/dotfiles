@@ -202,8 +202,9 @@ Detalle completo en [`yazi/README.md`](yazi/README.md).
 **sketchybar** — barra Frostmourne flotante (`sketchybar/.config/sketchybar/`). `items/` declara cada elemento y `plugins/` lo pinta; `colors.sh` centraliza la paleta, espejo de la de Ghostty.
 
 - **Izquierda:** workspaces de AeroSpace (solo los ocupados) · app en foco
-- **Derecha:** clima (wttr.in) · CPU · RAM · red · volumen · batería · reloj
+- **Derecha:** clima (wttr.in) · CPU · RAM · Docker · red · volumen · batería · reloj
 - **Volumen interactivo:** click izquierdo abre un popup con slider, click derecho silencia, la rueda sube y baja el nivel
+- **Docker:** la ballena solo aparece si el daemon responde — cyan sin nada corriendo, verde con el número de contenedores activos; con Docker apagado el item se saca de la barra. Click izquierdo abre Docker Desktop (lo arranca si hacía falta); no lo apaga, para no llevarse puestos los contenedores
 
 > ⚠️ Al tocar la barra hay dos números que deben cuadrar: `gaps.outer.top` de AeroSpace = `2 × BAR_MARGIN + BAR_HEIGHT` de `sketchybarrc` (hoy 8 + 32 + 8 = 48). Si no coinciden, las ventanas quedan tapadas por la barra.
 

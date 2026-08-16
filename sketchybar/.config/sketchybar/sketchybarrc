@@ -59,6 +59,7 @@ source "$CONFIG_DIR/items/network.sh"
 source "$CONFIG_DIR/items/weather.sh"
 source "$CONFIG_DIR/items/cpu.sh"
 source "$CONFIG_DIR/items/memory.sh"
+source "$CONFIG_DIR/items/docker.sh"
 
 ##### Aplicar #####
 sketchybar --update
