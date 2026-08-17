@@ -138,6 +138,7 @@ herdr plugin install nicosuave/memex                        # prefix+m
 herdr plugin install thanhdat77/herdr-navigator             # prefix+f
 herdr plugin install den-tanui/herdr-zoxide                 # prefix+d
 herdr plugin install paulbkim-dev/vim-herdr-navigation      # ctrl+hjkl
+herdr plugin install persiyanov/herdr-reviewr               # prefix+v
 herdr plugin install AltanS/collie                          # UI del celular
 ```
 
@@ -188,6 +189,7 @@ keybindings, en `herdr/.config/herdr/config.toml`.
 | `prefix+m` | [`nicosuave/memex`](https://github.com/nicosuave/memex) | Paleta de sesiones de **todos** los agentes, con búsqueda full-text |
 | `prefix+f` | [`thanhdat77/herdr-navigator`](https://github.com/thanhdat77/herdr-navigator) | Navegador difuso: workspace, agente, proyecto, sesión, directorio |
 | `prefix+d` | [`den-tanui/herdr-zoxide`](https://github.com/den-tanui/herdr-zoxide) | Abrir un directorio de `zoxide` como workspace, pestaña o split |
+| `prefix+v` | [`persiyanov/herdr-reviewr`](https://github.com/persiyanov/herdr-reviewr) | Code review del diff del agente al lado del chat, más el PR con sus checks. Se abre solo al crear un worktree |
 | `ctrl+hjkl` | [`paulbkim-dev/vim-herdr-navigation`](https://github.com/paulbkim-dev/vim-herdr-navigation) | Mover entre splits de Neovim y panes de herdr sin pensar |
 | — | [`AltanS/collie`](https://github.com/AltanS/collie) | UI web para el celular, servida por Tailscale |
 

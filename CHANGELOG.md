@@ -23,9 +23,9 @@ alguien instale por número de versión. Cada bloque es un mes.
 - **Plugins de herdr de terceros** con sus teclas versionadas: `memex`
   (`prefix+m`, busca sesiones de todos los agentes), `herdr-navigator`
   (`prefix+f`), `herdr-zoxide` (`prefix+d`), `vim-herdr-navigation`
-  (`ctrl+hjkl`, con su lado de Neovim en `after/plugin/`) y `collie` (UI del
-  celular por Tailscale). Se suman `bun` y el cask `tailscale-app` como
-  dependencias.
+  (`ctrl+hjkl`, con su lado de Neovim en `after/plugin/`), `reviewr`
+  (`prefix+v`, code review del diff del agente) y `collie` (UI del celular por
+  Tailscale). Se suman `bun` y el cask `tailscale-app` como dependencias.
 - **Plugin de herdr `claude-sessions`**: con `prefix+shift+s` abre un popup con
   todas las sesiones de Claude Code y reanuda la elegida en su propio workspace,
   sin comerse el pane actual. Envuelve al script `claude-sessions`, que suma un

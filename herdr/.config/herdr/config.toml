@@ -74,6 +74,15 @@ type = "plugin_action"
 command = "herdr-zoxide.browse"
 description = "Directorios de zoxide"
 
+# Code review del diff del agente al lado del chat, con vista del PR y sus
+# checks. prefix+v quedo libre al mover split_vertical a prefix+\ mas arriba.
+# Ademas se abre solo al crear un worktree (evento worktree.created del plugin).
+[[keys.command]]
+key = "prefix+v"
+type = "plugin_action"
+command = "persiyanov.reviewr.toggle"
+description = "reviewr: revisar el diff"
+
 # Navegacion vim <-> herdr: ctrl+hjkl mueve entre splits de Neovim y, al llegar
 # al borde, cruza al pane vecino. El lado de Neovim esta en
 # nvim/.config/nvim/after/plugin/herdr_nav.lua.
