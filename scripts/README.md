@@ -187,9 +187,16 @@ Requiere `python3` y `fzf` (ambos ya en el `Brewfile`).
 ```bash
 claude-sessions            # abre el selector con todas las sesiones
 claude-sessions bunge      # abre el selector con "bunge" como query inicial
+claude-sessions --print    # imprime "<sessionId>TAB<cwd>" en vez de reanudar
 claude-sessions -h         # ayuda
 ccs                        # alias (zsh/.aliases_general)
 ```
+
+`--print` existe para que otros programas puedan usar este mismo buscador sin
+heredar el `cd` + `exec` final. Lo usa el **plugin de herdr**
+(`herdr/.config/herdr/plugins/claude-sessions/`), que abre la sesión elegida en
+un workspace propio en vez de comerse el pane actual — el listado y el preview
+siguen viviendo acá, para no terminar con dos implementaciones.
 
 Dentro de `fzf`: escribí para filtrar, `Enter` reanuda la sesión en su
 proyecto, `Ctrl-C` cancela. Diferencia con `claude --resume`: ese solo
