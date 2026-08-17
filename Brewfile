@@ -70,10 +70,11 @@ brew "uv"                  # instalador/resolver de Python, reemplazo de pip-too
 brew "supabase"            # CLI de Supabase (arrastra node)
 brew "railway"             # CLI de Railway
 brew "playwright-mcp"      # servidor MCP de Playwright (arrastra node)
-# OJO: pyenv-virtualenv depende del pyenv de Homebrew, y el post-install de
-# install.sh instala otro pyenv con `curl pyenv.run | bash` en ~/.pyenv. Hoy
-# conviven porque el binario que gana en el PATH es el de brew y ~/.pyenv queda
-# como PYENV_ROOT, pero son dos instalaciones de la misma herramienta.
+# Arrastra el pyenv de Homebrew como dependencia: en macOS ese es EL pyenv, y
+# ~/.pyenv queda solo como PYENV_ROOT (shims + versions). Por eso el
+# post-install de install.sh chequea el comando `pyenv` y no ese directorio —
+# si no, se instalaria un segundo pyenv por pyenv.run que ademas ganaria el
+# PATH. En Arch no hay pyenv por pacman y el que vale es el de pyenv.run.
 brew "pyenv-virtualenv"
 
 # --- Terminal y multiplexor de agentes ---

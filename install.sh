@@ -407,7 +407,15 @@ setup_development_tools() {
     fi
     
     # Instalar pyenv (Python Version Manager)
-    if [[ ! -d "$HOME/.pyenv" ]]; then
+    #
+    # Se chequea el COMANDO, no el directorio ~/.pyenv. Ese directorio es
+    # PYENV_ROOT — shims y versions — y lo crea cualquier pyenv, incluido el de
+    # Homebrew, que en macOS ya entra como dependencia de pyenv-virtualenv.
+    # Con el chequeo por directorio, una Mac nueva se instalaba un SEGUNDO
+    # pyenv por pyenv.run, y encima ganaba en el PATH: python/.python_config
+    # antepone $PYENV_ROOT/bin. En Arch pyenv no viene por pacman, asi que ahi
+    # el comando no existe y la instalacion por script sigue pasando igual.
+    if ! command -v pyenv >/dev/null 2>&1; then
         echo "📦 Instalando pyenv..."
         curl https://pyenv.run | bash >/dev/null 2>&1
         export PYENV_ROOT="$HOME/.pyenv"
@@ -416,7 +424,7 @@ setup_development_tools() {
             echo "✅ pyenv instalado correctamente"
         fi
     else
-        echo "✅ pyenv ya está instalado"
+        echo "✅ pyenv ya está instalado ($(command -v pyenv))"
     fi
     
     # Configurar Docker para usuario actual (grupo docker + systemd son solo Linux;

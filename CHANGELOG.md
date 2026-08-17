@@ -78,6 +78,9 @@ alguien instale por número de versión. Cada bloque es un mes.
   absoluta `/Users/kobo` y tolera que el archivo no exista.
 
 ### 🐛 Arreglado
+- En una Mac nueva `install.sh` instalaba un **segundo pyenv**: chequeaba el
+  directorio `~/.pyenv` (que es el `PYENV_ROOT` de cualquier pyenv, incluido el
+  de Homebrew) en vez del comando. El de `pyenv.run` encima ganaba el PATH.
 - `install.sh` usaba una feature de bash 4 y se rompía con el bash 3.2 de macOS.
 - Falsos positivos de `dotfiles-doctor` con directorios *folded* y al parsear
   rutas de `pass`.
