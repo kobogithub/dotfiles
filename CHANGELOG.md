@@ -49,6 +49,9 @@ alguien instale por número de versión. Cada bloque es un mes.
   de verdad; `install.sh` instala Homebrew solo si falta.
 - README rehecho como multiplataforma (macOS/Arch), con los scripts reales.
 - Se eliminó VS Code de los dotfiles (no se usa).
+- **herdr**: el estado "working" del agente pasa a ámbar (`[theme.custom]`). Con
+  el tema `terminal` salía del ANSI 3 de Frostmourne, que es celeste, y no se
+  distinguía de "done", "idle" ni del texto normal.
 
 ### 🐛 Arreglado
 - `install.sh` usaba una feature de bash 4 y se rompía con el bash 3.2 de macOS.

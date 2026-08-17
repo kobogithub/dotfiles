@@ -6,5 +6,19 @@ onboarding = false
 name = "terminal"
 auto_switch = false
 
+# El estado del agente en el sidebar se pinta con estos tokens:
+#   blocked -> red · working -> yellow · done -> teal · idle -> green
+#
+# Con name = "terminal" cada token sale de la paleta ANSI de Ghostty, y en
+# Frostmourne el amarillo (ANSI 3) no es amarillo: es #A9D4E8, un celeste
+# pálido. Así "working" quedaba a un paso del cyan de "done" (#3FE0E0), del
+# verde de "idle" (#5FD9B0) y hasta del texto normal (#D6E4F0) — los cuatro
+# fríos, imposible distinguirlos de reojo.
+#
+# El ámbar es el único token que se pisa: `yellow` fuera de este estado solo
+# aparece en el popup de settings. Es el mismo YELLOW que usa sketchybar.
+[theme.custom]
+yellow = "#E3B341"
+
 [keys]
 split_vertical = "prefix+\\"
