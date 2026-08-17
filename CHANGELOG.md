@@ -20,6 +20,10 @@ alguien instale por número de versión. Cada bloque es un mes.
 ## 2026-08
 
 ### ✨ Agregado
+- **Plugin de herdr `claude-sessions`**: con `prefix+shift+s` abre un popup con
+  todas las sesiones de Claude Code y reanuda la elegida en su propio workspace,
+  sin comerse el pane actual. Envuelve al script `claude-sessions`, que suma un
+  modo `--print` para no duplicar el buscador.
 - **`logo`**: busca en los 15k+ SVG de [logos.lndev.me](https://logos.lndev.me)
   con `fzf` y arma una biblioteca local en `~/Pictures/logos`. Deja el SVG en el
   portapapeles para pegar en Excalidraw e imprime la ruta para LikeC4.

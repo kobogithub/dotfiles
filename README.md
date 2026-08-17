@@ -130,6 +130,7 @@ Si **Homebrew** no está instalado, `install.sh` lo instala automáticamente (sc
 ```bash
 brew trust --formula FelixKratz/formulae/sketchybar  # antes del primer brew bundle
 herdr integration install claude                     # crea ~/.claude/hooks/herdr-agent-state.sh
+herdr plugin link ~/.config/herdr/plugins/claude-sessions   # buscador de sesiones (prefix+shift+s)
 ```
 
 El hook de herdr lo genera esa integración y **no vive en el repo**: es un archivo
@@ -137,8 +138,35 @@ que herdr sobrescribe al actualizarse. `claude-code/.claude/settings.json` lo
 invoca en cada `SessionStart`, pero tolera que falte (`|| true`), así que sin el
 paso la sesión arranca igual — solo que herdr no marca el estado del agente.
 
+Los plugins de herdr son **globales por usuario** y se registran una sola vez;
+`plugin link` no copia nada, apunta al directorio del repo. Sin ese paso la
+tecla del buscador de sesiones no hace nada.
+
 Aparte hay que restaurar el store de `pass` (no está en el repo, por razones
 obvias) y la clave GPG que lo abre.
+
+### 🐑 Plugin de herdr: buscador de sesiones de Claude Code
+
+`herdr/.config/herdr/plugins/claude-sessions/` — con **`prefix+shift+s`** se abre
+un popup con todas las sesiones de Claude Code de todos los repos, y la elegida
+se reanuda **en su propio workspace**, sin tocar el pane donde estabas.
+
+El buscador es el mismo `claude-sessions` (`ccs`) del paquete `scripts/`,
+llamado con `--print`: el plugin solo traduce la elección a comandos de herdr,
+así no hay dos implementaciones del mismo listado.
+
+Qué hace según el caso:
+
+| Situación | Qué hace |
+|---|---|
+| Esa sesión ya está abierta en un pane | La enfoca (no la reanuda dos veces) |
+| El proyecto está abierto, otra sesión | Pestaña nueva en ese workspace |
+| El proyecto no está abierto | Workspace nuevo con el `cwd` del proyecto |
+
+> ⚠️ Dos cosas que hacen falta sí o sí y que solo aparecen al probarlo: el pane
+> recién creado tarda unos segundos en tener la shell lista (`agent_pane_busy`,
+> se reintenta), y los nombres de agente son únicos, así que la segunda sesión
+> del mismo proyecto se registra como `<proyecto>-<sessionId corto>`.
 
 ## 🔧 Opciones del instalador
 

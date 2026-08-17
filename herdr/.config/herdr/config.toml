@@ -22,3 +22,13 @@ yellow = "#E3B341"
 
 [keys]
 split_vertical = "prefix+\\"
+
+# Buscador de sesiones de Claude Code (plugin local, ver plugins/claude-sessions).
+# prefix+s ya es settings, asi que va con shift. El plugin hay que linkearlo una
+# vez por maquina — sin eso, la tecla no hace nada:
+#   herdr plugin link ~/.config/herdr/plugins/claude-sessions
+[[keys.command]]
+key = "prefix+shift+s"
+type = "plugin_action"
+command = "dotfiles.claude-sessions.open"
+description = "Buscar sesiones de Claude Code"

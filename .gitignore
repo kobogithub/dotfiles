@@ -40,3 +40,10 @@ atuin/data/
 *.db
 *.db-shm
 *.db-wal
+
+# herdr - config y estado de los plugins.
+# En una maquina nueva stow puede plegar plugins/ y dejarlo como symlink al
+# repo; ahi todo lo que herdr escriba en tiempo de ejecucion cae adentro del
+# working tree. El plugin en si (plugins/<nombre>/) si se versiona.
+herdr/.config/herdr/plugins/config/
+herdr/.config/herdr/plugins/state/

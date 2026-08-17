@@ -1,0 +1,24 @@
+id = "dotfiles.claude-sessions"
+name = "Claude Sessions"
+version = "0.1.0"
+min_herdr_version = "0.8.0"
+description = "Reanuda una sesion de Claude Code en su propio workspace de herdr"
+platforms = ["macos", "linux"]
+
+# La accion es lo unico bindeable a una tecla, pero corre sin terminal: no
+# puede abrir un fzf. Por eso solo pide el pane, y el buscador vive abajo.
+[[actions]]
+id = "open"
+title = "Buscar sesiones de Claude Code"
+contexts = ["workspace"]
+command = ["bash", "claude-sessions-herdr.sh", "open"]
+
+# placement = "popup" es modal y no toca el layout de tiles: se abre encima,
+# se elige y se cierra sola sin dejar un pane de mas dando vueltas.
+[[panes]]
+id = "picker"
+title = "Sesiones de Claude Code"
+placement = "popup"
+width = "80%"
+height = "70%"
+command = ["bash", "claude-sessions-herdr.sh", "pick"]
