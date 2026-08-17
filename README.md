@@ -183,6 +183,11 @@ Los plugins **no viven en el repo** (herdr maneja su propio checkout en
 `~/.config/herdr/plugins/github/`); lo que sí está versionado son sus
 keybindings, en `herdr/.config/herdr/config.toml`.
 
+> Además de los plugins, ese archivo activa `switch_workspace = "prefix+shift+1..9"`
+> — salto directo al workspace N, espejo del `prefix+1..9` que herdr ya trae para
+> pestañas. Viene sin asignar de fábrica, igual que `previous_workspace` y
+> `next_workspace`, que siguen libres.
+
 | Tecla | Plugin | Qué hace |
 |---|---|---|
 | `prefix+shift+s` | *(propio)* `claude-sessions` | Sesiones de Claude Code → workspace propio |

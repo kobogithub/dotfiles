@@ -20,6 +20,8 @@ alguien instale por número de versión. Cada bloque es un mes.
 ## 2026-08
 
 ### ✨ Agregado
+- **herdr**: `prefix+shift+1..9` salta directo al workspace N (`switch_workspace`,
+  que viene sin asignar de fábrica), espejando el `prefix+1..9` de pestañas.
 - **Plugins de herdr de terceros** con sus teclas versionadas: `memex`
   (`prefix+m`, busca sesiones de todos los agentes), `herdr-navigator`
   (`prefix+f`), `herdr-zoxide` (`prefix+d`), `vim-herdr-navigation`

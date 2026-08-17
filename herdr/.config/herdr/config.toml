@@ -38,6 +38,12 @@ yellow = "#E3B341"
 [keys]
 split_vertical = "prefix+\\"
 
+# Salto directo al workspace N. herdr trae este binding pero lo deja sin
+# asignar; queda espejado con el de pestañas, que ya es prefix+1..9 por
+# defecto. El ciclado prev/next (previous_workspace / next_workspace) tambien
+# existe y sigue libre, por si algun dia hace falta.
+switch_workspace = "prefix+shift+1..9"
+
 # Buscador de sesiones de Claude Code (plugin local, ver plugins/claude-sessions).
 # prefix+s ya es settings, asi que va con shift. El plugin hay que linkearlo una
 # vez por maquina — sin eso, la tecla no hace nada:
