@@ -20,6 +20,21 @@ auto_switch = false
 [theme.custom]
 yellow = "#E3B341"
 
+# PENDIENTE — descomentar cuando herdr pase de 0.8.0 en el canal stable.
+#
+# Con "dots" (el default) blocked, working y done comparten el MISMO glifo ●:
+# lo unico que los separa es el color. "symbols" les da forma propia —
+# × bloqueado · ◐ trabajando · ✓ terminado · ○ inactivo — asi el estado se lee
+# de reojo, sin depender de distinguir cyan de verde.
+#
+# En 0.8.0 la clave todavia no existe: herdr responde "unknown config key
+# ui.status_indicators; ignoring key" y `herdr config check` deja de dar limpio.
+# La feature esta en el changelog de la proxima version (#2260), o sea solo en
+# builds del canal preview.
+#
+# [ui]
+# status_indicators = "symbols"
+
 [keys]
 split_vertical = "prefix+\\"
 
