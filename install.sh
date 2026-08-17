@@ -19,7 +19,8 @@ SYSTEM_PACKAGES=(
     "starship"
     "atuin"
     "stow"
-    "kubectl"
+    # kubectl queda opcional: hoy no hay cluster en uso. Descomentar si vuelve.
+    # "kubectl"
     "k9s"
     
     # Herramientas de desarrollo (docker se verifica por separado)
@@ -38,6 +39,7 @@ SYSTEM_PACKAGES=(
     "wget"
     "jq"
     "fzf"  # usado por claude-sessions (ccs)
+    "pass" # zsh/.env lo llama en cada arranque de shell; arrastra gnupg
     "tree"
     "htop"
     "unzip"
@@ -56,6 +58,18 @@ SYSTEM_PACKAGES=(
     "tealdeer"     # tldr
     "dust"
     "duf"
+
+    # Terminal. herdr no está en repos oficiales de Arch (solo AUR), por eso no
+    # se lista acá; sí en el Brewfile. Los dos tienen paquete stow, así que en
+    # Arch hay que instalar herdr a mano o la config queda huérfana.
+    "ghostty"
+
+    # Las CLIs de nube y de dev (awscli, azure-cli, gcloud, cloudflared,
+    # wireguard-tools, rclone, uv, supabase, railway, playwright-mcp) por ahora
+    # solo están declaradas en el Brewfile: varias viven en AUR y los nombres de
+    # pacman no se verificaron en una Arch de verdad. No se listan a propósito —
+    # este script corre con `set -e` y un nombre inexistente aborta la
+    # instalación entera.
 
     # Gestor de archivos en terminal (reemplazo de Finder) + deps de preview
     "yazi"

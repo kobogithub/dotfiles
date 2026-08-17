@@ -20,6 +20,17 @@ alguien instale por número de versión. Cada bloque es un mes.
 ## 2026-08
 
 ### ✨ Agregado
+- **Declaradas herramientas que ya se usaban sin declarar**: `pass` +
+  `pinentry-mac` (los llama `zsh/.env` en cada arranque de shell), `herdr` y
+  `ghostty` (tenían paquete stow pero no se instalaban). `dotfiles-doctor` ahora
+  los chequea, con una lista aparte para lo que es solo de macOS (`aerospace`,
+  `sketchybar`, `herdr`).
+- **Sección de pasos manuales** en el README para una máquina nueva: `brew trust`
+  de sketchybar, `herdr integration install claude` y el store de `pass`.
+- **CLIs de trabajo al Brewfile**: nubes y redes (`awscli`, `azure-cli`,
+  `gcloud-cli`, `cloudflared`, `wireguard-tools`, `rclone`) y dev/agentes (`uv`,
+  `supabase`, `railway`, `playwright-mcp`, `pyenv-virtualenv`). Solo macOS: en
+  Arch varias son de AUR y los nombres de pacman están sin verificar.
 - **yazi** como gestor de archivos en la terminal (paquete stow nuevo, tema
   Frostmourne), con `yz` para que el shell herede el directorio al salir, y sus
   deps de preview (poppler, ffmpegthumbnailer, 7zip/sevenzip, imagemagick).
@@ -52,6 +63,10 @@ alguien instale por número de versión. Cada bloque es un mes.
 - **herdr**: el estado "working" del agente pasa a ámbar (`[theme.custom]`). Con
   el tema `terminal` salía del ANSI 3 de Frostmourne, que es celeste, y no se
   distinguía de "done", "idle" ni del texto normal.
+- El cask `docker` pasa a llamarse `docker-desktop`, su nombre actual en
+  Homebrew.
+- `kubectl` queda comentado en el Brewfile y en `SYSTEM_PACKAGES`: no hay cluster
+  en uso y Docker Desktop ya deja uno en `~/.docker/bin`.
 - El hook de herdr en `claude-code/.claude/settings.json` deja de usar una ruta
   absoluta `/Users/kobo` y tolera que el archivo no exista.
 

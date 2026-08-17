@@ -52,7 +52,10 @@ CAT_DOCS="OK"
 
 # Herramientas esperadas. Criticas = FAIL si faltan; opcionales = WARN.
 CRITICAL_TOOLS="stow git zsh nvim tmux starship atuin jq"
-OPTIONAL_TOOLS="lsd kubectl k9s docker docker-compose node yarn htop tree gh rg zoxide lazygit fd bat delta yq btop tldr dust duf lazydocker yazi"
+OPTIONAL_TOOLS="lsd kubectl k9s docker docker-compose node yarn htop tree gh rg zoxide lazygit fd bat delta yq btop tldr dust duf lazydocker yazi pass ghostty"
+# Solo macOS: aerospace y sketchybar no existen en Linux, y herdr en Arch esta
+# solo en AUR. Chequearlas en la lista general daria WARN falso en Arch.
+MACOS_TOOLS="aerospace sketchybar herdr"
 
 # ---------------------------------------------------------------------------
 # Ayuda
@@ -287,6 +290,14 @@ check_tools() {
             report_check tools OK "$t" "instalado"
         else
             report_check tools WARN "$t" "no encontrado (opcional)"
+        fi
+    done
+    [[ "$os" == "macos" ]] || return 0
+    for t in $MACOS_TOOLS; do
+        if command -v "$t" >/dev/null 2>&1; then
+            report_check tools OK "$t" "instalado"
+        else
+            report_check tools WARN "$t" "no encontrado (opcional, solo macOS)"
         fi
     done
 }

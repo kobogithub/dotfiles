@@ -20,7 +20,9 @@ brew "lsd"
 brew "starship"
 brew "atuin"
 brew "stow"
-brew "kubectl"
+# kubectl queda opcional: hoy no hay cluster en uso y Docker Desktop ya deja uno
+# en ~/.docker/bin. Descomentar cuando vuelva a hacer falta uno propio.
+# brew "kubectl"
 brew "k9s"
 brew "docker-compose"
 brew "python"
@@ -33,6 +35,14 @@ brew "jq"
 brew "fzf"            # usado por claude-sessions (ccs)
 brew "tree"
 brew "htop"
+
+# --- Secretos ---
+# zsh/.env llama a `pass show` en CADA arranque de shell para poblar las API
+# keys de los MCP. Sin esto, una maquina nueva abre cada terminal con errores y
+# las variables vacias. pinentry-mac es lo que hace que gpg pida el passphrase
+# en una ventana de macOS en vez de fallar sin TTY.
+brew "pass"
+brew "pinentry-mac"
 
 # --- CLI modernas (mejoras de experiencia) ---
 brew "ripgrep"       # rg: grep rapidísimo
@@ -48,6 +58,30 @@ brew "tealdeer"      # tldr: ejemplos de comandos
 brew "dust"          # du visual
 brew "duf"           # df visual
 
+# --- Nubes y redes ---
+brew "awscli"
+brew "azure-cli"
+brew "cloudflared"
+brew "wireguard-tools"
+brew "rclone"
+
+# --- Dev y agentes ---
+brew "uv"                  # instalador/resolver de Python, reemplazo de pip-tools
+brew "supabase"            # CLI de Supabase (arrastra node)
+brew "railway"             # CLI de Railway
+brew "playwright-mcp"      # servidor MCP de Playwright (arrastra node)
+# OJO: pyenv-virtualenv depende del pyenv de Homebrew, y el post-install de
+# install.sh instala otro pyenv con `curl pyenv.run | bash` en ~/.pyenv. Hoy
+# conviven porque el binario que gana en el PATH es el de brew y ~/.pyenv queda
+# como PYENV_ROOT, pero son dos instalaciones de la misma herramienta.
+brew "pyenv-virtualenv"
+
+# --- Terminal y multiplexor de agentes ---
+# Los dos tienen paquete stow en DOTFILE_PACKAGES (ghostty/, herdr/): si no se
+# declaran aca, una maquina nueva termina con la config de un programa que no
+# esta instalado.
+brew "herdr"               # workspace de terminal para agentes; config en herdr/
+
 # --- Gestor de archivos en terminal (reemplazo de Finder) ---
 brew "yazi"                # TUI de archivos; config en el paquete stow yazi/
 brew "poppler"             # yazi: preview de PDF
@@ -59,7 +93,11 @@ brew "imagemagick"         # yazi: preview de HEIC/AVIF/SVG
 cask "font-iosevka-nerd-font"   # usada por ghostty (Iosevka Nerd Font Mono)
 
 # --- GUI (casks) ---
-cask "docker"               # Docker Desktop
+# El cask se llamaba "docker"; Homebrew lo renombro a "docker-desktop" y el
+# nombre viejo hoy sigue andando solo como alias.
+cask "docker-desktop"       # Docker Desktop
+cask "ghostty"              # terminal; config en el paquete stow ghostty/
+cask "gcloud-cli"           # ex google-cloud-sdk; hoy es cask, no formula
 cask "aerospace"            # tiling window manager (config: ~/.aerospace.toml)
 
 # --- Barra de estado (macOS) ---

@@ -87,19 +87,31 @@ El paso de paquetes de sistema es **OS-aware** (`detect_os` → `macos` / `arch`
 
 Si **Homebrew** no está instalado, `install.sh` lo instala automáticamente (script oficial, no interactivo) y lo agrega al PATH. Los paquetes viven en el [`Brewfile`](Brewfile) (fuente de verdad) y se instalan con `brew bundle` (idempotente). Instalación/actualización manual: `brew bundle --file="$HOME/.dotfiles/Brewfile"`.
 
-**Fórmulas base:** `neovim` · `tmux` · `gh` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` · `node` · `yarn` · `git` · `curl` · `wget` · `jq` · `fzf` · `tree` · `htop`
+**Fórmulas base:** `neovim` · `tmux` · `gh` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `k9s` · `docker-compose` · `python` · `node` · `yarn` · `git` · `curl` · `wget` · `jq` · `fzf` · `tree` · `htop`  *(`kubectl` está comentado: no hay cluster en uso y Docker Desktop ya trae uno)*
+
+**Nubes y redes:** `awscli` · `azure-cli` · `cloudflared` · `wireguard-tools` · `rclone`
+
+**Dev y agentes:** `uv` · `supabase` · `railway` · `playwright-mcp` · `pyenv-virtualenv`
+
+**Secretos:** `pass` · `pinentry-mac` — `zsh/.env` llama a `pass show` en cada arranque de shell; sin esto la terminal arranca con errores y las variables quedan vacías
 
 **CLI modernas:** `ripgrep` · `zoxide` · `lazygit` · `fd` · `bat` · `git-delta` · `yq` · `lazydocker` · `btop` · `tealdeer` · `dust` · `duf`
 
+**Terminal:** `herdr` (workspace de terminal para agentes)
+
 **Archivos:** `yazi` + deps de preview (`poppler`, `ffmpegthumbnailer`, `sevenzip`, `imagemagick`)
 
-**Casks (GUI):** `docker` · `aerospace` · `font-iosevka-nerd-font`
+**Casks (GUI):** `docker-desktop` · `ghostty` · `gcloud-cli` · `aerospace` · `font-iosevka-nerd-font`
 
 ### 🐧 Arch Linux — pacman
 
-**Base:** `openssh` · `neovim` · `tmux` · `github-cli` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `kubectl` · `k9s` · `docker-compose` · `python` (+ `pip`, `virtualenv`) · `nodejs` (+ `npm`, `yarn`) · `base-devel` · `git` · `curl` · `wget` · `jq` · `fzf` · `tree` · `htop` · `unzip` · `zip`
+**Base:** `openssh` · `neovim` · `tmux` · `github-cli` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `k9s` · `docker-compose` · `python` (+ `pip`, `virtualenv`) · `nodejs` (+ `npm`, `yarn`) · `base-devel` · `git` · `curl` · `wget` · `jq` · `fzf` · `pass` · `tree` · `htop` · `unzip` · `zip`
 
 **CLI modernas:** `ripgrep` · `zoxide` · `lazygit` · `fd` · `bat` · `git-delta` · `go-yq` · `btop` · `tealdeer` · `dust` · `duf`  *(lazydocker solo en AUR)*
+
+**Terminal:** `ghostty`  *(herdr solo en AUR: instalalo a mano o el paquete `herdr/` queda huérfano)*
+
+> Las CLIs de nube y de dev (`awscli`, `gcloud`, `uv`, `supabase`, `railway`…) hoy solo están declaradas para macOS: varias viven en AUR y sus nombres de pacman no se verificaron en una Arch real. `install.sh` corre con `set -e`, así que un nombre inexistente abortaría toda la instalación.
 
 **Archivos:** `yazi` + deps de preview (`poppler`, `ffmpegthumbnailer`, `7zip`, `imagemagick`)
 
