@@ -168,6 +168,7 @@ Viven en el paquete `scripts/` y se enlazan a `~/.local/bin/`. Ver [`scripts/REA
 | **`claude-usage`** | `ccu` | Análisis de **tokens y costos** de Claude Code por modelo/proyecto, con cache hit ratio; `--html` genera un dashboard. |
 | **`claude-speak`** | `cmu` / `cun` (mute / unmute) | Hook TTS que lee en voz alta (macOS `say`) la última respuesta de Claude Code. |
 | **`clip-file`** | — | Copia archivos al portapapeles del sistema como **texto**, **imagen**, **archivo** (adjunto) o **ruta**, para pegarlos en Google Chat/Slack/Finder. Lo usan las teclas `C t/i/f/p` de yazi. |
+| **`logo`** | — | Busca con `fzf` en los 15k+ logos de [logos.lndev.me](https://logos.lndev.me) y arma una biblioteca local (`~/Pictures/logos`). Deja el SVG en el portapapeles para pegar en **Excalidraw** e imprime la ruta para **LikeC4**. `-p` genera además un PNG. |
 | **`macos-defaults`** | — | Aplica un baseline de preferencias de macOS (`defaults write`): teclado, Finder, Dock, screenshots, trackpad. Idempotente, solo-macOS; lo corre `install.sh` en la instalación completa. |
 | **`brew-autoupdate`** | — | Actualiza Homebrew en segundo plano (macOS; lo dispara el LaunchAgent del paquete `macos/`). |
 

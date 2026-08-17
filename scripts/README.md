@@ -284,3 +284,51 @@ clip-file -h                  # ayuda
 
 Con varios archivos: `text` los concatena poniendo `--- nombre ---` como
 separador; `file` y `path` los copian todos.
+
+---
+
+# logo
+
+Biblioteca local de logos de tecnologías, para diagramas.
+
+Fuente: **[logos.lndev.me](https://logos.lndev.me)** — colección abierta de 15k+
+SVG limpios de marcas, apps y herramientas (repo
+[`ln-dev7/logos-apps`](https://github.com/ln-dev7/logos-apps), licencia abierta;
+los logos siguen siendo marcas registradas de cada empresa).
+
+El catálogo son 15k nombres, así que se cachea en
+`~/.cache/logo-index.txt` (se refresca solo cada 7 días) y se filtra con `fzf`,
+igual que `als` o `ccs`. Cada logo elegido se guarda **una sola vez** en la
+biblioteca.
+
+## Uso
+
+```bash
+logo docker           # busca "docker", baja el que elijas
+logo                  # catálogo completo, a filtrar en fzf
+logo -p postgres      # además del SVG, un PNG de 512px con fondo transparente
+logo -l               # qué hay ya en la biblioteca
+logo -u               # refrescar el catálogo a mano
+logo -o               # abrir la biblioteca en Finder
+```
+
+Con `Tab` se marcan varios de una.
+
+## Por qué copia el SVG como texto
+
+Excalidraw convierte a formas cualquier SVG que le pegues, así que pegar la
+fuente es un paso menos que arrastrar el archivo. La **ruta absoluta se imprime
+igual**, que es lo que pide LikeC4 en su DSL para un icono propio.
+
+El PNG (`-p`) es para cuando hace falta un raster: usa `rsvg-convert` si está, y
+si no `magick` (ya es dep de yazi).
+
+## Dónde viven
+
+| Qué | Dónde | Se cambia con |
+|---|---|---|
+| Biblioteca | `~/Pictures/logos/` | `LOGO_LIB` |
+| Cache del catálogo | `~/.cache/logo-index.txt` | `XDG_CACHE_HOME` |
+
+> El repo de origen usa la rama `master`, no `main` — está fijado en el script.
+> Si algún día migran, hay que tocar `BRANCH`.

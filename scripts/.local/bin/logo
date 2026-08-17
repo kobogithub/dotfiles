@@ -1,0 +1,248 @@
+#!/bin/bash
+
+# logo - Descarga logos de tecnologias y arma una biblioteca local
+# Uso: logo [opciones] [busqueda]
+#
+# Fuente: https://logos.lndev.me (repo ln-dev7/logos-apps, 15k+ SVG libres).
+# Pensado para tener a mano los iconos que se usan en diagramas — Excalidraw
+# y LikeC4 — sin ir a buscarlos al navegador de a uno.
+#
+# El catalogo son 15k nombres: se cachea y se filtra con fzf, igual que `als`
+# o `ccs`. Cada logo elegido se guarda en la biblioteca (una sola vez) y su
+# fuente SVG queda en el portapapeles.
+#
+# Por que el SVG como texto y no el archivo: Excalidraw convierte a formas
+# cualquier SVG que le pegues, asi que pegar la fuente es un paso menos que
+# arrastrar el archivo. La ruta absoluta se imprime igual, que es lo que pide
+# LikeC4 en su DSL.
+
+set -e
+set -o pipefail
+
+# Biblioteca y cache. Se pueden pisar por entorno.
+LOGO_LIB="${LOGO_LIB:-$HOME/Pictures/logos}"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}"
+INDEX_FILE="$CACHE_DIR/logo-index.txt"
+INDEX_MAX_DAYS=7
+
+BASE_URL="https://logos.lndev.me/logos"
+REPO="ln-dev7/logos-apps"
+BRANCH="master"   # ojo: el repo NO usa main
+
+# ---------------------------------------------------------------------------
+# Ayuda
+# ---------------------------------------------------------------------------
+usage() {
+    cat <<'EOF'
+logo - Descarga logos de tecnologias y arma una biblioteca local
+
+Uso: logo [opciones] [busqueda]
+
+Sin opciones abre el buscador (fzf) sobre el catalogo de logos.lndev.me.
+Se pueden marcar varios con Tab. Cada elegido se guarda en la biblioteca
+y el ultimo queda en el portapapeles listo para pegar en Excalidraw.
+
+Opciones:
+  -p, --png       Ademas del SVG genera un PNG de 512px (fondo transparente)
+  -l, --list      Lista los logos que ya estan en la biblioteca
+  -u, --update    Refresca el catalogo cacheado y sale
+  -o, --open      Abre la biblioteca en el gestor de archivos
+  -h, --help      Esta ayuda
+
+Ejemplos:
+  logo docker              # busca "docker" y baja el que elijas
+  logo -p postgres         # baja el SVG y ademas un PNG
+  logo                     # catalogo completo, a filtrar en fzf
+  logo -l                  # que tengo ya bajado
+
+Entorno:
+  LOGO_LIB   Directorio de la biblioteca (por defecto ~/Pictures/logos)
+EOF
+}
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+# Corta con un mensaje si falta una herramienta obligatoria
+require() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        echo "❌ falta $1 — instalalo con: brew install $1" >&2
+        exit 1
+    fi
+}
+
+# Baja el catalogo de nombres. Sale del arbol de git del repo en una sola
+# request; `gh` usa el token del usuario y esquiva el limite de 60/hora que
+# tiene la API publica sin autenticar.
+fetch_index() {
+    local url="https://api.github.com/repos/$REPO/git/trees/$BRANCH?recursive=1"
+    local tmp
+    tmp="$(mktemp "${TMPDIR:-/tmp}/logo-index.XXXXXX")"
+
+    echo "⬇️  actualizando catalogo de logos..." >&2
+    if command -v gh >/dev/null 2>&1; then
+        gh api "repos/$REPO/git/trees/$BRANCH?recursive=1" \
+           --jq '.tree[].path' 2>/dev/null > "$tmp" || true
+    fi
+    if [[ ! -s "$tmp" ]]; then
+        curl -fsSL "$url" 2>/dev/null \
+            | grep -oE '"path": *"logos/[^"]+"' \
+            | sed 's/.*"logos\//logos\//; s/"$//' > "$tmp" || true
+    fi
+
+    # Solo los .svg de logos/, y sin el prefijo ni la extension: lo que se
+    # filtra en fzf y lo que se le pega a la URL de descarga.
+    grep -E '^logos/.+\.svg$' "$tmp" \
+        | sed 's|^logos/||; s|\.svg$||' \
+        | sort -u > "$tmp.clean" || true
+
+    if [[ ! -s "$tmp.clean" ]]; then
+        rm -f "$tmp" "$tmp.clean"
+        echo "❌ no se pudo bajar el catalogo (¿sin red, o limite de la API?)" >&2
+        return 1
+    fi
+
+    mkdir -p "$CACHE_DIR"
+    mv "$tmp.clean" "$INDEX_FILE"
+    rm -f "$tmp"
+    echo "✅ catalogo listo: $(wc -l < "$INDEX_FILE" | tr -d ' ') logos" >&2
+}
+
+# Asegura un catalogo fresco. -mtime +N es dias enteros, suficiente para algo
+# que crece de a poco.
+ensure_index() {
+    if [[ ! -s "$INDEX_FILE" ]]; then
+        fetch_index
+    elif [[ -n "$(find "$INDEX_FILE" -mtime +"$INDEX_MAX_DAYS" 2>/dev/null)" ]]; then
+        fetch_index || echo "⚠️  sigo con el catalogo viejo" >&2
+    fi
+}
+
+# Descarga un logo a la biblioteca. Si ya esta, no lo vuelve a pedir.
+download_logo() {
+    local name="$1" dest="$LOGO_LIB/$1.svg"
+
+    if [[ -s "$dest" ]]; then
+        echo "♻️  $name.svg ya estaba en la biblioteca" >&2
+        printf '%s\n' "$dest"
+        return 0
+    fi
+
+    mkdir -p "$LOGO_LIB"
+    if ! curl -fsSL "$BASE_URL/$name.svg" -o "$dest"; then
+        rm -f "$dest"
+        echo "❌ no se pudo bajar $name" >&2
+        return 1
+    fi
+
+    # El sitio devuelve 200 con una pagina de error para nombres invalidos;
+    # si no empieza con <svg, no sirve.
+    if ! head -c 200 "$dest" | grep -qi '<svg'; then
+        rm -f "$dest"
+        echo "❌ $name no devolvio un SVG" >&2
+        return 1
+    fi
+
+    echo "✅ $name.svg" >&2
+    printf '%s\n' "$dest"
+}
+
+# PNG para cuando hace falta un raster. magick ya es dep de yazi.
+to_png() {
+    local svg="$1" png="${1%.svg}.png"
+
+    if command -v rsvg-convert >/dev/null 2>&1; then
+        rsvg-convert -w 512 -h 512 -a -o "$png" "$svg"
+    elif command -v magick >/dev/null 2>&1; then
+        magick -background none "$svg" -resize 512x512 "$png"
+    else
+        echo "⚠️  sin rsvg-convert ni magick: no genero el PNG" >&2
+        return 0
+    fi
+    echo "✅ $(basename "$png")" >&2
+}
+
+# Deja el SVG en el portapapeles. clip-file es del mismo repo; si no esta,
+# se cae a pbcopy.
+copy_svg() {
+    local svg="$1"
+    if command -v clip-file >/dev/null 2>&1; then
+        clip-file text "$svg" >/dev/null 2>&1 && return 0
+    fi
+    if command -v pbcopy >/dev/null 2>&1; then
+        pbcopy < "$svg" && return 0
+    fi
+    return 1
+}
+
+list_library() {
+    if [[ ! -d "$LOGO_LIB" ]]; then
+        echo "biblioteca vacia — todavia no bajaste ningun logo ($LOGO_LIB)"
+        return 0
+    fi
+    local count
+    count="$(find "$LOGO_LIB" -maxdepth 1 -name '*.svg' | wc -l | tr -d ' ')"
+    echo "📁 $LOGO_LIB — $count logos"
+    find "$LOGO_LIB" -maxdepth 1 -name '*.svg' -exec basename {} .svg \; | sort
+}
+
+# ---------------------------------------------------------------------------
+# Argumentos
+# ---------------------------------------------------------------------------
+want_png=false
+query=""
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)   usage; exit 0 ;;
+        -l|--list)   list_library; exit 0 ;;
+        -u|--update) fetch_index; exit 0 ;;
+        -p|--png)    want_png=true; shift ;;
+        -o|--open)
+            mkdir -p "$LOGO_LIB"
+            if command -v open >/dev/null 2>&1; then open "$LOGO_LIB"
+            else echo "$LOGO_LIB"; fi
+            exit 0 ;;
+        -*)
+            echo "❌ opcion desconocida: $1" >&2
+            echo "   probá: logo --help" >&2
+            exit 1 ;;
+        *)  query="$1"; shift ;;
+    esac
+done
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+require curl
+require fzf
+
+ensure_index
+
+selected="$(fzf --multi \
+                --query="$query" \
+                --prompt='logo> ' \
+                --height=60% \
+                --border \
+                --header='Tab marca varios · Enter baja · Esc cancela' \
+                < "$INDEX_FILE")" || exit 0
+
+[[ -n "$selected" ]] || exit 0
+
+last_svg=""
+while IFS= read -r name; do
+    [[ -z "$name" ]] && continue
+    if path="$(download_logo "$name")"; then
+        last_svg="$path"
+        printf '%s\n' "$path"
+        [[ "$want_png" == true ]] && to_png "$path"
+    fi
+done <<< "$selected"
+
+# Solo tiene sentido dejar uno en el portapapeles: el ultimo elegido.
+if [[ -n "$last_svg" ]]; then
+    if copy_svg "$last_svg"; then
+        echo "📋 $(basename "$last_svg") copiado — pegalo en Excalidraw" >&2
+    fi
+fi

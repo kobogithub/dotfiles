@@ -20,6 +20,9 @@ alguien instale por número de versión. Cada bloque es un mes.
 ## 2026-08
 
 ### ✨ Agregado
+- **`logo`**: busca en los 15k+ SVG de [logos.lndev.me](https://logos.lndev.me)
+  con `fzf` y arma una biblioteca local en `~/Pictures/logos`. Deja el SVG en el
+  portapapeles para pegar en Excalidraw e imprime la ruta para LikeC4.
 - **Declaradas herramientas que ya se usaban sin declarar**: `pass` +
   `pinentry-mac` (los llama `zsh/.env` en cada arranque de shell), `herdr` y
   `ghostty` (tenían paquete stow pero no se instalaban). `dotfiles-doctor` ahora
