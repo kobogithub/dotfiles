@@ -52,6 +52,8 @@ alguien instale por número de versión. Cada bloque es un mes.
 - **herdr**: el estado "working" del agente pasa a ámbar (`[theme.custom]`). Con
   el tema `terminal` salía del ANSI 3 de Frostmourne, que es celeste, y no se
   distinguía de "done", "idle" ni del texto normal.
+- El hook de herdr en `claude-code/.claude/settings.json` deja de usar una ruta
+  absoluta `/Users/kobo` y tolera que el archivo no exista.
 
 ### 🐛 Arreglado
 - `install.sh` usaba una feature de bash 4 y se rompía con el bash 3.2 de macOS.

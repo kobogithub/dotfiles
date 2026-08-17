@@ -111,6 +111,23 @@ Si **Homebrew** no está instalado, `install.sh` lo instala automáticamente (sc
 - Locale `C.UTF-8` (se omite en macOS), `zsh` como shell por defecto, init de `atuin`
 - Grupo `docker` + `systemctl` (solo Linux)
 
+### ✋ Pasos manuales en una máquina nueva
+
+`install.sh` no los cubre y sin ellos algo queda a medias:
+
+```bash
+brew trust --formula FelixKratz/formulae/sketchybar  # antes del primer brew bundle
+herdr integration install claude                     # crea ~/.claude/hooks/herdr-agent-state.sh
+```
+
+El hook de herdr lo genera esa integración y **no vive en el repo**: es un archivo
+que herdr sobrescribe al actualizarse. `claude-code/.claude/settings.json` lo
+invoca en cada `SessionStart`, pero tolera que falte (`|| true`), así que sin el
+paso la sesión arranca igual — solo que herdr no marca el estado del agente.
+
+Aparte hay que restaurar el store de `pass` (no está en el repo, por razones
+obvias) y la clave GPG que lo abre.
+
 ## 🔧 Opciones del instalador
 
 ```bash
