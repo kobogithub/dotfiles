@@ -77,6 +77,12 @@ brew "playwright-mcp"      # servidor MCP de Playwright (arrastra node)
 # PATH. En Arch no hay pyenv por pacman y el que vale es el de pyenv.run.
 brew "pyenv-virtualenv"
 
+# --- Dependencias de plugins de herdr ---
+# bun: lo necesita el plugin collie (la UI del celular) para buildear su bridge.
+# Ninguno de los dos se usa a mano; estan declarados para que una maquina nueva
+# pueda instalar los plugins sin averiguar sus dependencias.
+brew "bun"
+
 # --- Terminal y multiplexor de agentes ---
 # Los dos tienen paquete stow en DOTFILE_PACKAGES (ghostty/, herdr/): si no se
 # declaran aca, una maquina nueva termina con la config de un programa que no
@@ -99,6 +105,9 @@ cask "font-iosevka-nerd-font"   # usada por ghostty (Iosevka Nerd Font Mono)
 cask "docker-desktop"       # Docker Desktop
 cask "ghostty"              # terminal; config en el paquete stow ghostty/
 cask "gcloud-cli"           # ex google-cloud-sdk; hoy es cask, no formula
+# El cask instala un .pkg y pide sudo, asi que en una maquina nueva este no se
+# instala solo: hay que correr `brew install --cask tailscale-app` a mano.
+cask "tailscale-app"        # tailnet; por ahi entra collie desde el celular
 cask "aerospace"            # tiling window manager (config: ~/.aerospace.toml)
 
 # --- Barra de estado (macOS) ---

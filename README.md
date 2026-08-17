@@ -129,8 +129,16 @@ Si **Homebrew** no está instalado, `install.sh` lo instala automáticamente (sc
 
 ```bash
 brew trust --formula FelixKratz/formulae/sketchybar  # antes del primer brew bundle
+brew install --cask tailscale-app                    # pide sudo, no entra por brew bundle
 herdr integration install claude                     # crea ~/.claude/hooks/herdr-agent-state.sh
-herdr plugin link ~/.config/herdr/plugins/claude-sessions   # buscador de sesiones (prefix+shift+s)
+
+# Plugins de herdr — son globales por usuario, uno por maquina
+herdr plugin link ~/.config/herdr/plugins/claude-sessions   # el propio (prefix+shift+s)
+herdr plugin install nicosuave/memex                        # prefix+m
+herdr plugin install thanhdat77/herdr-navigator             # prefix+f
+herdr plugin install den-tanui/herdr-zoxide                 # prefix+d
+herdr plugin install paulbkim-dev/vim-herdr-navigation      # ctrl+hjkl
+herdr plugin install AltanS/collie                          # UI del celular
 ```
 
 El hook de herdr lo genera esa integración y **no vive en el repo**: es un archivo
@@ -167,6 +175,33 @@ Qué hace según el caso:
 > recién creado tarda unos segundos en tener la shell lista (`agent_pane_busy`,
 > se reintenta), y los nombres de agente son únicos, así que la segunda sesión
 > del mismo proyecto se registra como `<proyecto>-<sessionId corto>`.
+
+### 🐑 Plugins de herdr instalados
+
+Los plugins **no viven en el repo** (herdr maneja su propio checkout en
+`~/.config/herdr/plugins/github/`); lo que sí está versionado son sus
+keybindings, en `herdr/.config/herdr/config.toml`.
+
+| Tecla | Plugin | Qué hace |
+|---|---|---|
+| `prefix+shift+s` | *(propio)* `claude-sessions` | Sesiones de Claude Code → workspace propio |
+| `prefix+m` | [`nicosuave/memex`](https://github.com/nicosuave/memex) | Paleta de sesiones de **todos** los agentes, con búsqueda full-text |
+| `prefix+f` | [`thanhdat77/herdr-navigator`](https://github.com/thanhdat77/herdr-navigator) | Navegador difuso: workspace, agente, proyecto, sesión, directorio |
+| `prefix+d` | [`den-tanui/herdr-zoxide`](https://github.com/den-tanui/herdr-zoxide) | Abrir un directorio de `zoxide` como workspace, pestaña o split |
+| `ctrl+hjkl` | [`paulbkim-dev/vim-herdr-navigation`](https://github.com/paulbkim-dev/vim-herdr-navigation) | Mover entre splits de Neovim y panes de herdr sin pensar |
+| — | [`AltanS/collie`](https://github.com/AltanS/collie) | UI web para el celular, servida por Tailscale |
+
+> ⚠️ `ctrl+hjkl` son bindings **directos**, sin prefijo: se los sacás a todas las
+> apps. `ctrl+l` deja de limpiar la pantalla en una shell y `ctrl+j` deja de ser
+> newline. Si molesta hay dos salidas: `HERDR_NAV_PASSTHROUGH_RE` para dejar que
+> ciertas apps reciban la tecla, o mover todo a `alt+hjkl`. El lado de Neovim es
+> `nvim/.config/nvim/after/plugin/herdr_nav.lua`, copia vendorizada del plugin.
+
+**collie** necesita, en este orden: Tailscale instalado y logueado (`tailscale
+up`), el iPhone en el mismo tailnet, y recién ahí
+`herdr plugin action invoke herdr.collie.start` + `...collie.url` para la
+dirección. Es acceso a **nivel de dispositivo, no de persona**: quien tenga el
+teléfono desbloqueado tiene una shell. Su propio README lo dice sin vueltas.
 
 ## 🔧 Opciones del instalador
 
