@@ -2,8 +2,19 @@
     email = kobouharriet@gmail.com
     signingkey = 3003FA9BF6962F6A
 
-# Reescribe cualquier URL de github.com al alias SSH 'me' (~/.ssh/kobogithub),
-# así push/fetch usan la cuenta personal sin depender de la cuenta activa de gh.
-[url "git@me:"]
-    insteadOf = https://github.com/
-    insteadOf = git@github.com:
+# Fija la clave SSH personal sin tocar la URL del remote.
+#
+# Antes esto era un [url "git@me:"] con insteadOf, que reescribia github.com al
+# alias de ~/.ssh/config. Funcionaba para push/fetch, pero dejaba el host en
+# 'me', y las herramientas que leen el remote con `git remote get-url` (reviewr
+# entre ellas, que matchea el host exacto) no reconocian a GitHub. Con
+# sshCommand la URL queda canonica y la clave sigue siendo la correcta, sin
+# depender de la cuenta activa de gh.
+[core]
+    sshCommand = ssh -i ~/.ssh/kobogithub -o IdentitiesOnly=yes -o ControlPath=~/.ssh/sockets/personal-%r@%h-%p
+
+# El ControlPath propio no es decorativo. "Host *" en ~/.ssh/config multiplexa
+# con %n-%r@%h-%p; mientras los remotes usaban los alias 'me' y 'work', %n los
+# separaba solo. Ahora las dos identidades apuntan al mismo github.com, asi que
+# compartirian socket y la primera conexion en abrirlo le prestaria su cuenta a
+# la otra por los 600s de ControlPersist. Un slug por identidad los separa.

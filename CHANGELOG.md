@@ -86,6 +86,17 @@ alguien instale por número de versión. Cada bloque es un mes.
   absoluta `/Users/kobo` y tolera que el archivo no exista.
 
 ### 🐛 Arreglado
+- La pestaña **PR de `reviewr` quedaba vacía** en todos los repos: los remotes
+  usaban los alias SSH `me`/`work` y el plugin matchea el host exacto contra
+  `github.com`. `github_host` no sirve de arreglo — reviewr le pasa ese valor a
+  `gh api --hostname`, que no conoce el alias. Los `[url ...] insteadOf` de
+  `.gitconfig-personal` y `.gitconfig-work` se reemplazan por `core.sshCommand`:
+  la URL queda canónica y la clave se sigue fijando por carpeta. Cada identidad
+  lleva además su propio `ControlPath`, porque el `Host *` de `~/.ssh/config`
+  multiplexa por `%n` y con las dos identidades en `github.com` compartirían
+  socket y cuenta durante los 600s de `ControlPersist`.
+- `~/kobo` firmaba con la identidad de trabajo pero empujaba a `kobogithub/kobo`
+  con la clave personal. Su `includeIf` pasa a `.gitconfig-personal`.
 - En una Mac nueva `install.sh` instalaba un **segundo pyenv**: chequeaba el
   directorio `~/.pyenv` (que es el `PYENV_ROOT` de cualquier pyenv, incluido el
   de Homebrew) en vez del comando. El de `pyenv.run` encima ganaba el PATH.
