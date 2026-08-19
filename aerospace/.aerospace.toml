@@ -236,3 +236,15 @@ gaps.outer.right =      8
     alt-shift-j = ['join-with down', 'mode main']
     alt-shift-k = ['join-with up', 'mode main']
     alt-shift-l = ['join-with right', 'mode main']
+
+# La ventana de kobo (clic derecho en el item de la barra) flota: es una
+# consulta de veinte segundos, no una ventana de trabajo. Embaldosarla partiría
+# el layout del workspace para leer cuatro líneas y cerrarla.
+#
+# Va por título y no solo por app-id: el app-id matchearía todas las terminales.
+# El título lo fija Ghostty con --title=kobo-alarma, ver
+# ~/.config/sketchybar/plugins/kobo.sh
+[[on-window-detected]]
+if.app-id = 'com.mitchellh.ghostty'
+if.window-title-regex-substring = 'kobo-alarma'
+run = ['layout floating']

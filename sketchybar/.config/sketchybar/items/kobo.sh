@@ -25,5 +25,5 @@ sketchybar --add item kobo right \
                  icon="󰀪" \
                  update_freq=120 \
                  script="$PLUGIN_DIR/kobo.sh" \
-                 click_script="$PLUGIN_DIR/kobo.sh popup" \
+                 click_script="$PLUGIN_DIR/kobo.sh click" \
            --subscribe kobo system_woke

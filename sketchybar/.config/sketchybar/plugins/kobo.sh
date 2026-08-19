@@ -56,6 +56,39 @@ sketchybar --set "$NAME" \
            icon.color="$COLOR" \
            label.color="$COLOR"
 
+# `$BUTTON` lo pone sketchybar recién al hacer clic, así que la decisión va acá
+# y no en el click_script del item: ahí se evaluaría al registrar el item, con
+# la variable todavía vacía, y quedaría fija para siempre.
+if [ "$1" = "click" ]; then
+    [ "${BUTTON:-left}" = "right" ] && set -- ventana || set -- popup
+fi
+
+# --- la ventana, con el detalle completo -------------------------------------
+# Ghostty en macOS no se lanza desde el CLI —`+new-window` responde "not
+# supported on this platform"— así que hay que ir por `open -na`.
+#
+# Va con `--command=` y NO con `-e`: medido el 2026-08-19, `-e` abre DOS
+# ventanas, la inicial de Ghostty más la del comando. Con `--initial-window=false`
+# para tapar eso no abre ninguna, porque la del comando ES la inicial.
+# `--command=` hace que la ventana inicial corra el script: una sola.
+#
+# El título fijo es lo que le da a AeroSpace con qué reconocerla para flotarla:
+# el app-id solo matchearía todas las terminales.
+if [ "$1" = "ventana" ]; then
+    # Esquina superior derecha, justo debajo de la barra flotante (8 de margen
+    # + 32 de alto + 8 = 48). Fija y no donde la deje macOS: una ventana de
+    # consulta que aparece cada vez en otro lado obliga a buscarla.
+    # 104 columnas porque kobo renderiza a 100 fijas — ver lib/ui.py.
+    open -na Ghostty.app --args \
+        --title=kobo-alarma \
+        --window-width=104 \
+        --window-height=32 \
+        --window-position-x=1640 \
+        --window-position-y=56 \
+        --command="$PLUGIN_DIR/kobo-ventana.sh"
+    exit 0
+fi
+
 # --- el popup, solo al hacer clic -------------------------------------------
 if [ "$1" = "popup" ]; then
     ESTADO=$(sketchybar --query "$NAME" | /usr/bin/python3 -c "
