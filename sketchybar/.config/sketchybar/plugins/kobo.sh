@@ -14,7 +14,19 @@
 KOBO="$HOME/.local/bin/kobo"
 [ -x "$KOBO" ] || exit 0
 
-source "$CONFIG_DIR/colors.sh"
+# Las rutas salen de dónde está ESTE archivo, no de $PLUGIN_DIR. El `export` de
+# sketchybarrc no llega al demonio —sketchybarrc corre como hijo suyo, así que
+# lo que exporta muere ahí— y en el clic real la variable viene vacía. Se vio
+# el 2026-08-19: la ventana intentó abrir `--command=/kobo-ventana.sh` y Ghostty
+# devolvió "No such file or directory". En mis pruebas andaba porque yo tenía la
+# variable exportada a mano, que es la forma más fácil de probar algo que no
+# funciona.
+AQUI="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$AQUI/../colors.sh"
+
+# Monoespaciada y declarada acá: `$FONT` lo exporta sketchybarrc y por lo mismo
+# que $PLUGIN_DIR no llega hasta este proceso.
+FONT_MONO="Iosevka Nerd Font:Semibold:12.0"
 
 DATOS=$("$KOBO" alarma --json 2>/dev/null) || DATOS=""
 
@@ -60,7 +72,10 @@ sketchybar --set "$NAME" \
 # y no en el click_script del item: ahí se evaluaría al registrar el item, con
 # la variable todavía vacía, y quedaría fija para siempre.
 if [ "$1" = "click" ]; then
-    [ "${BUTTON:-left}" = "right" ] && set -- ventana || set -- popup
+    # Izquierdo abre la ventana: es el gesto natural y es lo que se quiere ver.
+    # El popup de la barra queda en el derecho, para el vistazo de dos segundos
+    # sin sacar una ventana encima de lo que estabas haciendo.
+    [ "${BUTTON:-left}" = "right" ] && set -- popup || set -- ventana
 fi
 
 # --- la ventana, con el detalle completo -------------------------------------
@@ -78,29 +93,20 @@ if [ "$1" = "ventana" ]; then
     # Esquina superior derecha, justo debajo de la barra flotante (8 de margen
     # + 32 de alto + 8 = 48). Fija y no donde la deje macOS: una ventana de
     # consulta que aparece cada vez en otro lado obliga a buscarla.
-    # 104 columnas porque kobo renderiza a 100 fijas — ver lib/ui.py.
+    # 140 columnas: kobo mide el ancho real del TTY (`ui.ancho()`) y estira las
+    # columnas de la tabla, así que la ventana más ancha se ve más, no más aire.
     open -na Ghostty.app --args \
         --title=kobo-alarma \
-        --window-width=104 \
-        --window-height=32 \
-        --window-position-x=1640 \
+        --window-width=140 \
+        --window-height=34 \
+        --window-position-x=1400 \
         --window-position-y=56 \
-        --command="$PLUGIN_DIR/kobo-ventana.sh"
+        --command="$AQUI/kobo-ventana.sh"
     exit 0
 fi
 
 # --- el popup, solo al hacer clic -------------------------------------------
 if [ "$1" = "popup" ]; then
-    ESTADO=$(sketchybar --query "$NAME" | /usr/bin/python3 -c "
-import json,sys
-try: print(json.load(sys.stdin)['popup']['drawing'])
-except Exception: print('off')
-")
-    if [ "$ESTADO" = "on" ]; then
-        sketchybar --set "$NAME" popup.drawing=off
-        exit 0
-    fi
-
     # Se rearma entero cada vez: los items viejos se borran antes de agregar.
     for viejo in $(sketchybar --query bar | /usr/bin/python3 -c "
 import json,sys
@@ -109,23 +115,55 @@ print(' '.join(x for x in json.load(sys.stdin)['items'] if x.startswith('kobo.li
         sketchybar --remove "$viejo"
     done
 
+    # El ancho del popup lo fija el item más ancho, y sketchybar no tiene
+    # columnas: se rellena con espacios y se declara la fuente monoespaciada,
+    # que es lo que hace que rellenar alinee. Sin `icon.font` los items heredan
+    # la de la barra y las dos columnas quedan dentadas.
     printf '%s' "$DATOS" | /usr/bin/python3 -c "
 import json,sys
-d=json.load(sys.stdin)
-for i,x in enumerate(d.get('items') or []):
+
+TEMA, MOTIVO = 34, 76
+
+def caja(texto, ancho):
+    t = str(texto or '')
+    if len(t) > ancho:
+        t = t[:ancho - 1] + '…'
+    return t.ljust(ancho)
+
+d = json.load(sys.stdin)
+for i, x in enumerate(d.get('items') or []):
     # El detalle trae el motivo y la acción separados por una flecha; en el
     # popup entra el motivo, que es lo que dice qué pasa.
-    motivo=str(x.get('detalle') or '').split(' → ')[0]
-    print('%d\t%s\t%s' % (i, x.get('tema') or '', motivo[:64]))
-" | while IFS=$'\t' read -r i tema motivo; do
+    motivo = str(x.get('detalle') or '').split(' → ')[0]
+    peso = int(x.get('peso') or 0)
+    print('%d\t%s\t%s\t%d' % (i, caja(x.get('tema'), TEMA),
+                                caja(motivo, MOTIVO), peso))
+" | while IFS=$'\t' read -r i tema motivo peso; do
+        # El mismo criterio de color que la barra y que la tabla del CLI.
+        if [ "${peso:-0}" -ge 5 ]; then
+            C="$RED"
+        elif [ "${peso:-0}" -ge 4 ]; then
+            C="$YELLOW"
+        else
+            C="$LIGHT"
+        fi
         sketchybar --add item "kobo.linea.$i" popup."$NAME" \
                    --set "kobo.linea.$i" \
                          icon="$tema" \
-                         icon.color="$ACCENT" \
+                         icon.font="$FONT_MONO" \
+                         icon.color="$C" \
+                         icon.padding_left=12 \
+                         icon.padding_right=6 \
                          label="$motivo" \
+                         label.font="$FONT_MONO" \
                          label.color="$FG" \
+                         label.padding_right=12 \
                          background.color="$POPUP_BG" \
+                         background.height=24 \
                          click_script="sketchybar --set $NAME popup.drawing=off"
     done
-    sketchybar --set "$NAME" popup.drawing=on
+    # `toggle` y no `on`: el estado del popup no sale por `--query` —no hay
+    # clave `popup` en la salida— así que leerlo para decidir no es una opción.
+    # El intento anterior caía siempre en el except y el popup no cerraba nunca.
+    sketchybar --set "$NAME" popup.drawing=toggle
 fi
