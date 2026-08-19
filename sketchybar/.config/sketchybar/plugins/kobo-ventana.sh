@@ -19,7 +19,11 @@ cd "$HOME/kobo" 2>/dev/null || cd "$HOME" || exit 0
 
 "$KOBO" alarma --siempre --sin-notificar
 echo
-"$KOBO" compromisos 2>/dev/null | head -20
+# Sin pipe: `| head` le saca el TTY a stdout, y ahí kobo cae al ancho fijo de
+# 100 porque a un pipe no se le puede preguntar cuánto mide (lib/ui.py). La
+# tabla salía apretada en una ventana de 140 mientras la de alarma —que no
+# estaba pipeada— usaba el ancho entero.
+"$KOBO" compromisos 2>/dev/null
 echo
 printf '  \033[2mEnter para cerrar\033[0m'
 read -r _ </dev/tty
