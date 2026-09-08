@@ -339,3 +339,59 @@ si no `magick` (ya es dep de yazi).
 
 > El repo de origen usa la rama `master`, no `main` — está fijado en el script.
 > Si algún día migran, hay que tocar `BRANCH`.
+
+---
+
+# remote-up
+
+Deja este Mac **accesible desde afuera** por Tailscale + SSH. Pensado para
+correrlo antes de salir de casa, cuando vas a querer entrar desde el otro
+equipo. Es idempotente: correrlo dos veces no hace daño.
+
+Hace cuatro cosas, en orden:
+
+1. **Tailscale** — lo levanta si está parado e imprime el nombre MagicDNS y la
+   IP del tailnet (`100.x`, no cambia nunca).
+2. **SSH** — prende el Inicio de sesión remoto si el puerto 22 está cerrado
+   (pide sudo) y avisa si no hay `~/.ssh/authorized_keys`.
+3. **Energía** — verifica que el Mac no se duerma (`sleep 0`) y que despierte
+   por red (`womp 1`). De nada sirve lo anterior si se durmió.
+4. **Cómo conectarte** — imprime el comando listo para copiar.
+
+Solo **macOS** (usa `systemsetup` y `pmset`). Sale `1` si queda algo sin
+resolver, así que sirve como chequeo previo: si no cierra en verde, no vas a
+poder entrar.
+
+## Uso
+
+```bash
+remote-up               # levanta lo que haga falta y reporta
+remote-up -c            # solo verifica, no toca nada (no pide sudo)
+remote-up -d            # al volver: baja Tailscale
+remote-up -d --ssh-off  # ademas apaga el Inicio de sesion remoto
+remote-up -h            # ayuda
+```
+
+## Bajarlo al volver
+
+`-d` corta Tailscale, que es lo que expone la máquina más allá de la LAN. El
+**SSH queda prendido a propósito**: sin tailnet ya no se llega de afuera, así
+que apagarlo no cierra nada nuevo y te ahorra el sudo de la próxima salida. Si
+igual lo querés apagar, `--ssh-off` junto con `-d` (ahí sí pide sudo).
+
+## Trampas que ya están resueltas adentro
+
+`tailscale up` se **niega a arrancar** si hay flags no-default guardados en las
+prefs (acá `--accept-routes`) sin mencionarlos en la línea de comando — pero
+imprime en el error el comando exacto que corresponde. El script lo extrae de
+ahí y reintenta, en vez de hardcodear flags que se desincronizan el día que
+toques las prefs del tailnet.
+
+`systemsetup -getremotelogin` sin admin escupe un error pero **sale con 0**, así
+que no sirve para detectar si SSH está prendido. El script pregunta directo si
+el puerto 22 escucha (`nc -z`).
+
+Si `systemsetup -setremotelogin on` no logra prenderlo, es porque pide **Acceso
+a Disco Completo** para la terminal: el camino corto es Ajustes → General →
+Compartir → Inicio de sesión remoto.
+

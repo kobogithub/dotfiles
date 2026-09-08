@@ -241,6 +241,7 @@ Viven en el paquete `scripts/` y se enlazan a `~/.local/bin/`. Ver [`scripts/REA
 | **`logo`** | — | Busca con `fzf` en los 15k+ logos de [logos.lndev.me](https://logos.lndev.me) y arma una biblioteca local (`~/Pictures/logos`). Deja el SVG en el portapapeles para pegar en **Excalidraw** e imprime la ruta para **LikeC4**. `-p` genera además un PNG. |
 | **`macos-defaults`** | — | Aplica un baseline de preferencias de macOS (`defaults write`): teclado, Finder, Dock, screenshots, trackpad. Idempotente, solo-macOS; lo corre `install.sh` en la instalación completa. |
 | **`brew-autoupdate`** | — | Actualiza Homebrew en segundo plano (macOS; lo dispara el LaunchAgent del paquete `macos/`). |
+| **`remote-up`** | — | Deja el Mac accesible desde afuera antes de salir: levanta Tailscale, prende el Inicio de sesión remoto (SSH), avisa si el Mac se puede dormir e imprime la dirección para conectarse. `-c` solo verifica, `-d` baja todo al volver. |
 
 ## 🐚 Carga de la shell (Zsh)
 

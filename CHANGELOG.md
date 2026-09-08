@@ -17,6 +17,16 @@ alguien instale por número de versión. Cada bloque es un mes.
 
 ---
 
+## 2026-09
+
+### ✨ Agregado
+- **`remote-up`**: script para dejar el Mac accesible desde afuera antes de
+  salir — levanta Tailscale, prende el Inicio de sesión remoto, chequea que el
+  Mac no se duerma e imprime la dirección para conectarse. `-c` solo verifica;
+  `-d` hace el camino inverso al volver.
+- **Host `mac` en `ssh/.ssh/config`**: entrada al Mac mini por el nombre
+  MagicDNS del tailnet, para entrar desde la notebook.
+
 ## 2026-08
 
 ### ✨ Agregado
