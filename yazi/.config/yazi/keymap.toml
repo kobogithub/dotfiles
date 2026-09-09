@@ -1,0 +1,31 @@
+#:schema https://yazi-rs.github.io/schemas/keymap.json
+# Atajos propios de Yazi. `prepend_keymap` se suma a los del preset y tiene
+# prioridad, asi que todo lo default (s/S buscar, z fzf, Z zoxide, f filtrar,
+# y/p copiar-pegar, . ocultos, ~ ayuda) sigue funcionando igual.
+
+[mgr]
+prepend_keymap = [
+	# Saltos a los directorios de siempre (prefijo `g`).
+	# El preset ya trae: gh (~), gc (~/.config), gd (~/Downloads), g<Space>.
+	{ on = [ "g", "." ], run = "cd ~/.dotfiles",          desc = "Ir a ~/.dotfiles" },
+	{ on = [ "g", "G" ], run = "cd ~/Github",             desc = "Ir a ~/Github" },
+	{ on = [ "g", "p" ], run = "cd ~/Github/personal",    desc = "Ir a ~/Github/personal" },
+	{ on = [ "g", "w" ], run = "cd ~/Github/taligent",    desc = "Ir a ~/Github/taligent" },
+	{ on = [ "g", "l" ], run = "cd ~/.claude",            desc = "Ir a ~/.claude" },
+	{ on = [ "g", "D" ], run = "cd ~/Desktop",            desc = "Ir a ~/Desktop" },
+	{ on = [ "g", "t" ], run = "cd /tmp",                 desc = "Ir a /tmp" },
+
+	# Abrir eligiendo con que (nvim / Chrome / reveal en Finder)
+	{ on = "O", run = "open --interactive", desc = "Abrir con..." },
+
+	# Portapapeles del sistema (script `clip-file`, paquete stow scripts/).
+	# Prefijo `C` mayuscula; el `c` minuscula del preset (cc/cd/cf/cn) sigue
+	# copiando rutas y nombres. Actua sobre lo seleccionado, o lo hovereado.
+	{ on = [ "C", "t" ], run = "shell 'clip-file text %s'",  desc = "Copiar el CONTENIDO como texto (pegar en un chat)" },
+	{ on = [ "C", "i" ], run = "shell 'clip-file image %h'", desc = "Copiar como IMAGEN (se pega inline)" },
+	{ on = [ "C", "f" ], run = "shell 'clip-file file %s'",  desc = "Copiar el ARCHIVO (adjuntar en un chat / pegar en Finder)" },
+	{ on = [ "C", "p" ], run = "shell 'clip-file path %s'",  desc = "Copiar la RUTA absoluta" },
+
+	# Vista: alternar el panel de preview y los ocultos
+	{ on = "T", run = "hidden toggle", desc = "Alternar archivos ocultos" },
+]

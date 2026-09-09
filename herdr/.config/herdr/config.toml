@@ -6,5 +6,118 @@ onboarding = false
 name = "terminal"
 auto_switch = false
 
+# El estado del agente en el sidebar se pinta con estos tokens:
+#   blocked -> red · working -> yellow · done -> teal · idle -> green
+#
+# Con name = "terminal" cada token sale de la paleta ANSI de Ghostty, y en
+# Frostmourne el amarillo (ANSI 3) no es amarillo: es #A9D4E8, un celeste
+# pálido. Así "working" quedaba a un paso del cyan de "done" (#3FE0E0), del
+# verde de "idle" (#5FD9B0) y hasta del texto normal (#D6E4F0) — los cuatro
+# fríos, imposible distinguirlos de reojo.
+#
+# El ámbar es el único token que se pisa: `yellow` fuera de este estado solo
+# aparece en el popup de settings. Es el mismo YELLOW que usa sketchybar.
+[theme.custom]
+yellow = "#E3B341"
+
+# PENDIENTE — descomentar cuando herdr pase de 0.8.0 en el canal stable.
+#
+# Con "dots" (el default) blocked, working y done comparten el MISMO glifo ●:
+# lo unico que los separa es el color. "symbols" les da forma propia —
+# × bloqueado · ◐ trabajando · ✓ terminado · ○ inactivo — asi el estado se lee
+# de reojo, sin depender de distinguir cyan de verde.
+#
+# En 0.8.0 la clave todavia no existe: herdr responde "unknown config key
+# ui.status_indicators; ignoring key" y `herdr config check` deja de dar limpio.
+# La feature esta en el changelog de la proxima version (#2260), o sea solo en
+# builds del canal preview.
+#
+# [ui]
+# status_indicators = "symbols"
+
 [keys]
 split_vertical = "prefix+\\"
+
+# Salto directo al workspace N. herdr trae este binding pero lo deja sin
+# asignar; queda espejado con el de pestañas, que ya es prefix+1..9 por
+# defecto. El ciclado prev/next (previous_workspace / next_workspace) tambien
+# existe y sigue libre, por si algun dia hace falta.
+switch_workspace = "prefix+shift+1..9"
+
+# Buscador de sesiones de Claude Code (plugin local, ver plugins/claude-sessions).
+# prefix+s ya es settings, asi que va con shift. El plugin hay que linkearlo una
+# vez por maquina — sin eso, la tecla no hace nada:
+#   herdr plugin link ~/.config/herdr/plugins/claude-sessions
+[[keys.command]]
+key = "prefix+shift+s"
+type = "plugin_action"
+command = "dotfiles.claude-sessions.open"
+description = "Buscar sesiones de Claude Code"
+
+# --- Plugins de terceros -----------------------------------------------------
+# Se instalan con `herdr plugin install <owner>/<repo>` (ver README, pasos
+# manuales). Las teclas se eligieron entre las que herdr deja libres: prefix+s,
+# c, g, o, w, p, n, e, z, r, b, x, hjkl y tab ya estan tomadas por defecto.
+
+# memex: paleta de sesiones de TODOS los agentes (claude, codex, cursor...).
+[[keys.command]]
+key = "prefix+m"
+type = "plugin_action"
+command = "nicosuave.memex.palette"
+description = "memex: paleta de sesiones"
+
+# Navegador difuso: workspace, agente, proyecto, sesion, directorio o accion.
+[[keys.command]]
+key = "prefix+f"
+type = "plugin_action"
+command = "herdr-navigator.open"
+description = "Navegador difuso"
+
+# Abrir un directorio de zoxide como workspace, pestaña o split.
+[[keys.command]]
+key = "prefix+d"
+type = "plugin_action"
+command = "herdr-zoxide.browse"
+description = "Directorios de zoxide"
+
+# Code review del diff del agente al lado del chat, con vista del PR y sus
+# checks. prefix+v quedo libre al mover split_vertical a prefix+\ mas arriba.
+# Ademas se abre solo al crear un worktree (evento worktree.created del plugin).
+[[keys.command]]
+key = "prefix+v"
+type = "plugin_action"
+command = "persiyanov.reviewr.toggle"
+description = "reviewr: revisar el diff"
+
+# Navegacion vim <-> herdr: ctrl+hjkl mueve entre splits de Neovim y, al llegar
+# al borde, cruza al pane vecino. El lado de Neovim esta en
+# nvim/.config/nvim/after/plugin/herdr_nav.lua.
+#
+# OJO: son bindings DIRECTOS, sin prefijo, o sea que se los saca a todo el
+# mundo. Los que duelen: ctrl+l ya no limpia la pantalla en una shell y ctrl+j
+# deja de ser un newline. Dos salidas si molesta: pasar las teclas a ciertas
+# apps con HERDR_NAV_PASSTHROUGH_RE (ej. '^(lazygit|k9s)$'), o mover todo esto a
+# alt+hjkl, que no pisa nada de la terminal.
+[[keys.command]]
+key = "ctrl+h"
+type = "plugin_action"
+command = "vim-herdr-navigation.left"
+description = "Navegar izquierda (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+j"
+type = "plugin_action"
+command = "vim-herdr-navigation.down"
+description = "Navegar abajo (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+k"
+type = "plugin_action"
+command = "vim-herdr-navigation.up"
+description = "Navegar arriba (vim/herdr)"
+
+[[keys.command]]
+key = "ctrl+l"
+type = "plugin_action"
+command = "vim-herdr-navigation.right"
+description = "Navegar derecha (vim/herdr)"

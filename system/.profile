@@ -1,3 +1,7 @@
+# The following lines were added by Docker Desktop to add commands to your PATH.
+export PATH="$PATH:/Users/kobo/.docker/bin"
+# End of Docker Desktop section.
+
 # ~/.profile - Configuraciones del sistema
 
 # Configuración de locale para evitar warnings de Perl
@@ -28,8 +32,17 @@ export HISTFILESIZE=20000
 export LESSHISTFILE=-
 export LESSCHARSET=utf-8
 
-# Configuración para aplicaciones
-export GNUPGHOME="$XDG_DATA_HOME/gnupg"
-export CARGO_HOME="$XDG_DATA_HOME/cargo"
-export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
-. "/home/kobo/.local/share/cargo/env"
+# GnuPG no respeta XDG: su default es ~/.gnupg en Arch y macOS. No seteamos
+# GNUPGHOME — apuntarlo a $XDG_DATA_HOME/gnupg rompe la firma de commits
+# porque el keyring real nunca vive ahí.
+
+# Cargo/Rust — portable: si cargo vive en XDG (Arch) usar esa ubicación;
+# si está en el default ~/.cargo (macOS/rustup) usar esa. Guardado para no
+# romper en máquinas sin Rust.
+if [ -f "$XDG_DATA_HOME/cargo/env" ]; then
+    export CARGO_HOME="$XDG_DATA_HOME/cargo"
+    export RUSTUP_HOME="$XDG_DATA_HOME/rustup"
+    . "$XDG_DATA_HOME/cargo/env"
+elif [ -f "$HOME/.cargo/env" ]; then
+    . "$HOME/.cargo/env"
+fi

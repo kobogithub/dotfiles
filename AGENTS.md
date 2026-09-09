@@ -243,10 +243,10 @@ git commit -m "Add new-package configuration"
 ### Modifying Existing Scripts
 ```bash
 # 1. Edit file in dotfiles directory
-nvim ~/github/dotfiles/zsh/.zshrc
+nvim ~/.dotfiles/zsh/.zshrc
 
 # 2. Restow if needed (usually automatic with symlinks)
-stow -R -d ~/github/dotfiles -t $HOME zsh
+stow -R -d ~/.dotfiles -t $HOME zsh
 
 # 3. Test changes
 source ~/.zshrc  # or restart shell
@@ -293,4 +293,4 @@ git commit -am "Update zsh configuration for feature X"
 **Default Branch**: dev
 **Editor**: nvim
 **Shell**: zsh
-**Working Directory**: /home/kobo/github/dotfiles
+**Working Directory**: `~/.dotfiles`

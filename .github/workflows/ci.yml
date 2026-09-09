@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+jobs:
+  shell:
+    name: Shell lint (bash -n + shellcheck)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Instalar shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Descubrir scripts propios
+        run: |
+          # *.sh + scripts ejecutables en scripts/.local/bin/.
+          # Se excluye .specify/ (spec-kit, codigo de terceros) y .git/.
+          {
+            find . -type f -name '*.sh' -not -path './.git/*' -not -path './.specify/*'
+            find scripts/.local/bin -type f
+          } | sort -u > /tmp/shfiles.txt
+          echo "Archivos a analizar:"; cat /tmp/shfiles.txt
+
+      - name: bash -n (chequeo de sintaxis)
+        run: |
+          rc=0
+          while IFS= read -r f; do
+            [ -f "$f" ] || continue
+            bash -n "$f" || { echo "::error file=$f::error de sintaxis"; rc=1; }
+          done < /tmp/shfiles.txt
+          exit $rc
+
+      - name: shellcheck (solo errores reales, no estilo)
+        run: |
+          rc=0
+          while IFS= read -r f; do
+            [ -f "$f" ] || continue
+            shellcheck -x -S error "$f" || rc=1
+          done < /tmp/shfiles.txt
+          exit $rc
+
+  docs:
+    name: Docs consistentes (dotfiles-doctor)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verificar README.md vs DOTFILE_PACKAGES
+        run: ./scripts/.local/bin/dotfiles-doctor --only docs

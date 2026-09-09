@@ -39,7 +39,7 @@
       "mcp__plugin_engram_engram__mem_update"
     ]
   },
-  "model": "sonnet",
+  "model": "opus",
   "hooks": {
     "SessionStart": [
       {
@@ -47,7 +47,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash '/Users/kobo/.claude/hooks/herdr-agent-state.sh' session",
+            "command": "bash \"$HOME/.claude/hooks/herdr-agent-state.sh\" session 2>/dev/null || true",
+            "timeout": 10
+          },
+          {
+            "type": "command",
+            "command": "$HOME/.local/bin/kobo hoy --hook 2>/dev/null || true",
             "timeout": 10
           }
         ]
@@ -68,7 +73,9 @@
   },
   "enabledPlugins": {
     "rust-analyzer-lsp@claude-plugins-official": true,
-    "engram@engram": true
+    "engram@engram": true,
+    "figma@claude-plugins-official": true,
+    "wiki@llm-wiki": true
   },
   "extraKnownMarketplaces": {
     "engram": {
@@ -76,7 +83,14 @@
         "source": "github",
         "repo": "Gentleman-Programming/engram"
       }
+    },
+    "llm-wiki": {
+      "source": {
+        "source": "github",
+        "repo": "nvk/llm-wiki"
+      }
     }
   },
-  "theme": "auto"
+  "theme": "auto",
+  "agentPushNotifEnabled": true
 }

@@ -2,8 +2,8 @@
     email = kevin.barroso@taligent.com.ar
     signingkey = F9670AD31985EC24
 
-# Reescribe cualquier URL de github.com al alias SSH 'work' (~/.ssh/kevintali),
-# así push/fetch usan la cuenta de trabajo sin depender de la cuenta activa de gh.
-[url "git@work:"]
-    insteadOf = https://github.com/
-    insteadOf = git@github.com:
+# Fija la clave SSH de trabajo sin tocar la URL del remote. Ver el comentario
+# largo en .gitconfig-personal: el [url "git@work:"] con insteadOf que habia
+# antes escondia el host github.com detras del alias y rompia la lectura del PR.
+[core]
+    sshCommand = ssh -i ~/.ssh/kevintali -o IdentitiesOnly=yes -o ControlPath=~/.ssh/sockets/work-%r@%h-%p

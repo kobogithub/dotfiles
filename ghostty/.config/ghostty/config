@@ -3,7 +3,7 @@
 # Fuente — Iosevka: estrecha y afilada (carámbano/runa) para el tema Frostmourne
 font-family = "Iosevka Nerd Font Mono"
 font-size = 15
-font-thickening = true
+font-thicken = true
 
 # Tamaño y geometría
 window-width = 220

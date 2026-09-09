@@ -1,5 +1,9 @@
 # Changelog - OpenCode Configuration Tools
 
+> **Histórico / congelado.** Cubre solo la config de OpenCode y no se actualiza
+> desde enero de 2026; los cambios posteriores del paquete no están acá. Para el
+> resto del repo, ver el [`CHANGELOG.md`](../CHANGELOG.md) de la raíz.
+
 ## [1.2.0] - 2026-01-20
 
 ### ✨ Added

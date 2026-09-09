@@ -39,9 +39,10 @@ alias-manager list general      # Solo generales
 alias-manager list k8s          # Solo Kubernetes
 alias-manager list docker       # Solo Docker
 
-# Buscar aliases
+# Buscar aliases (busca en general/k8s/docker Y en .zshrc)
 alias-manager search git        # Busca "git" en nombre o comando
 alias-manager search docker
+# Para un buscador interactivo con fzf sobre TODOS los aliases activos: `als`
 
 # Editar archivos de aliases
 alias-manager edit              # Edita aliases generales
@@ -145,6 +146,19 @@ dotfiles-doctor --only stow        # una sola categoría: stow|tools|secrets|doc
 dotfiles-doctor -h                 # ayuda
 ```
 
+## Omitir paquetes por máquina
+
+Para deviaciones intencionales en un equipo puntual (ej. no stowear `atuin` en
+una Mac porque su config apunta a otra db), listá los paquetes a omitir —uno por
+línea, con comentarios `#`— en `~/.dotfiles-doctor-skip` (archivo local, no
+trackeado). El check de `stow` los reporta como OK con la nota "omitido a
+propósito", sin marcar FAIL.
+
+```
+# ~/.dotfiles-doctor-skip
+atuin   # se usa la config default en esta máquina
+```
+
 ## Códigos de salida
 
 | Código | Significado |
@@ -152,3 +166,232 @@ dotfiles-doctor -h                 # ayuda
 | `0` | Sin `FAIL` (todo OK, o solo `WARN`) |
 | `1` | Al menos un `FAIL` |
 | `2` | Error de uso (opción/categoría inválida) |
+
+---
+
+# claude-sessions
+
+Buscador **global** de sesiones de Claude Code con `fzf`. Lee todas las
+sesiones guardadas en `~/.claude/projects/*/*.jsonl` (de **todos** los
+repositorios), las lista ordenadas por más reciente, y al elegir una hace
+`cd` al proyecto correcto y ejecuta `claude --resume <sessionId>`.
+
+Cada fila muestra: antigüedad relativa, título de la sesión (el `aiTitle`
+que genera Claude, o el primer prompt como fallback) y el nombre del
+proyecto. El panel de preview muestra los últimos prompts de esa sesión.
+
+Requiere `python3` y `fzf` (ambos ya en el `Brewfile`).
+
+## Uso
+
+```bash
+claude-sessions            # abre el selector con todas las sesiones
+claude-sessions bunge      # abre el selector con "bunge" como query inicial
+claude-sessions --print    # imprime "<sessionId>TAB<cwd>" en vez de reanudar
+claude-sessions -h         # ayuda
+ccs                        # alias (zsh/.aliases_general)
+```
+
+`--print` existe para que otros programas puedan usar este mismo buscador sin
+heredar el `cd` + `exec` final. Lo usa el **plugin de herdr**
+(`herdr/.config/herdr/plugins/claude-sessions/`), que abre la sesión elegida en
+un workspace propio en vez de comerse el pane actual — el listado y el preview
+siguen viviendo acá, para no terminar con dos implementaciones.
+
+Dentro de `fzf`: escribí para filtrar, `Enter` reanuda la sesión en su
+proyecto, `Ctrl-C` cancela. Diferencia con `claude --resume`: ese solo
+muestra las sesiones del directorio actual; `claude-sessions` las cruza
+todas sin importar en qué repo estés parado.
+
+---
+
+# claude-usage
+
+Analisis de uso de **tokens y costos** de Claude Code. Recorre todas las
+sesiones de `~/.claude/projects/*/*.jsonl`, lee el campo `usage` de cada
+respuesta del asistente (input/output, cache read/write, modelo) y estima
+el costo para evaluar estrategias de optimizacion.
+
+Muestra: costo total estimado, **cache hit ratio**, desglose de costo por
+componente (output / cache_write / cache_read / input), costo por modelo,
+y top de proyectos por costo. Con `--html` genera un dashboard autocontenido
+(sin dependencias externas, tema claro/oscuro) que incluye la evolucion diaria.
+
+Precios embebidos (USD/millon de tokens): Opus 4.8 `$5/$25`, Sonnet 5 y 4.6
+`$3/$15`, Haiku 4.5 `$1/$5`. Cache: escritura 1h = 2x input, escritura 5m =
+1.25x input, lectura = 0.1x input. El costo es una **estimacion API
+pay-as-you-go** (valor consumido), no el gasto real si hay suscripcion.
+
+Requiere `python3` (ya en el `Brewfile`).
+
+## Uso
+
+```bash
+claude-usage                       # reporte en terminal (historico completo)
+claude-usage --days 30             # solo ultimos 30 dias
+claude-usage --html ~/uso.html     # ademas genera el dashboard HTML
+claude-usage -h                    # ayuda
+ccu                                # alias (zsh/.aliases_general)
+```
+
+---
+
+# macos-defaults
+
+Aplica un **baseline reproducible de preferencias de macOS** vía `defaults write`
+(nivel usuario, sin sudo, idempotente). Cubre: teclado (repetición rápida +
+repetir tecla al mantener), Finder (extensiones visibles, path/status bar,
+buscar en carpeta actual, sin `.DS_Store` en red/USB), screenshots (a
+`~/Screenshots`, PNG, sin sombra), Dock (autohide instantáneo, sin recientes),
+trackpad (tap para click) y varios ajustes de UX.
+
+Solo corre en **macOS** (en otro SO sale sin hacer nada). Lo ejecuta
+`install.sh` en la instalación completa; también se puede correr a mano. Cada
+bloque del script está comentado para togglear a gusto — **son tus preferencias,
+revisalas**.
+
+## Uso
+
+```bash
+macos-defaults              # aplica y reinicia Finder/Dock/SystemUIServer
+macos-defaults --no-restart # aplica sin reiniciar apps
+macos-defaults -h           # ayuda
+```
+
+---
+
+# clip-file
+
+Copia archivos al **portapapeles del sistema** en el formato que necesites, para
+pegarlos después en una app gráfica (Google Chat, Slack, Gmail, Finder). Nació
+para usarse desde `yazi` con las teclas `C t` / `C i` / `C f` / `C p`, pero sirve
+igual desde la terminal.
+
+En macOS usa `pbcopy` y `osascript`; en Linux, `wl-copy` o `xclip`. Para el modo
+`image` convierte a PNG con `sips` (nativo) o `magick` si el archivo no lo es.
+
+| Modo | Qué deja en el portapapeles | Para qué sirve |
+|---|---|---|
+| `text` | El **contenido** del archivo como texto plano | Pegar un `.md` en un chat |
+| `image` | La imagen (PNG) | Que se pegue **inline** en el chat |
+| `file` | El **archivo en sí** (referencia) | Adjuntarlo pegando, o pegar en Finder |
+| `path` | La ruta absoluta | Mandar una ruta por mensaje |
+| `auto` | Según el tipo MIME: imagen→`image`, texto→`text`, resto→`file` | Es el modo por defecto |
+
+## Uso
+
+```bash
+clip-file notas.md            # auto -> copia el texto
+clip-file text README.md      # fuerza el contenido como texto
+clip-file image captura.jpg   # la convierte a PNG y la deja pegable inline
+clip-file file informe.pdf    # para adjuntarlo en un chat
+clip-file path *.md           # las rutas, una por línea
+clip-file -h                  # ayuda
+```
+
+Con varios archivos: `text` los concatena poniendo `--- nombre ---` como
+separador; `file` y `path` los copian todos.
+
+---
+
+# logo
+
+Biblioteca local de logos de tecnologías, para diagramas.
+
+Fuente: **[logos.lndev.me](https://logos.lndev.me)** — colección abierta de 15k+
+SVG limpios de marcas, apps y herramientas (repo
+[`ln-dev7/logos-apps`](https://github.com/ln-dev7/logos-apps), licencia abierta;
+los logos siguen siendo marcas registradas de cada empresa).
+
+El catálogo son 15k nombres, así que se cachea en
+`~/.cache/logo-index.txt` (se refresca solo cada 7 días) y se filtra con `fzf`,
+igual que `als` o `ccs`. Cada logo elegido se guarda **una sola vez** en la
+biblioteca.
+
+## Uso
+
+```bash
+logo docker           # busca "docker", baja el que elijas
+logo                  # catálogo completo, a filtrar en fzf
+logo -p postgres      # además del SVG, un PNG de 512px con fondo transparente
+logo -l               # qué hay ya en la biblioteca
+logo -u               # refrescar el catálogo a mano
+logo -o               # abrir la biblioteca en Finder
+```
+
+Con `Tab` se marcan varios de una.
+
+## Por qué copia el SVG como texto
+
+Excalidraw convierte a formas cualquier SVG que le pegues, así que pegar la
+fuente es un paso menos que arrastrar el archivo. La **ruta absoluta se imprime
+igual**, que es lo que pide LikeC4 en su DSL para un icono propio.
+
+El PNG (`-p`) es para cuando hace falta un raster: usa `rsvg-convert` si está, y
+si no `magick` (ya es dep de yazi).
+
+## Dónde viven
+
+| Qué | Dónde | Se cambia con |
+|---|---|---|
+| Biblioteca | `~/Pictures/logos/` | `LOGO_LIB` |
+| Cache del catálogo | `~/.cache/logo-index.txt` | `XDG_CACHE_HOME` |
+
+> El repo de origen usa la rama `master`, no `main` — está fijado en el script.
+> Si algún día migran, hay que tocar `BRANCH`.
+
+---
+
+# remote-up
+
+Deja este Mac **accesible desde afuera** por Tailscale + SSH. Pensado para
+correrlo antes de salir de casa, cuando vas a querer entrar desde el otro
+equipo. Es idempotente: correrlo dos veces no hace daño.
+
+Hace cuatro cosas, en orden:
+
+1. **Tailscale** — lo levanta si está parado e imprime el nombre MagicDNS y la
+   IP del tailnet (`100.x`, no cambia nunca).
+2. **SSH** — prende el Inicio de sesión remoto si el puerto 22 está cerrado
+   (pide sudo) y avisa si no hay `~/.ssh/authorized_keys`.
+3. **Energía** — verifica que el Mac no se duerma (`sleep 0`) y que despierte
+   por red (`womp 1`). De nada sirve lo anterior si se durmió.
+4. **Cómo conectarte** — imprime el comando listo para copiar.
+
+Solo **macOS** (usa `systemsetup` y `pmset`). Sale `1` si queda algo sin
+resolver, así que sirve como chequeo previo: si no cierra en verde, no vas a
+poder entrar.
+
+## Uso
+
+```bash
+remote-up               # levanta lo que haga falta y reporta
+remote-up -c            # solo verifica, no toca nada (no pide sudo)
+remote-up -d            # al volver: baja Tailscale
+remote-up -d --ssh-off  # ademas apaga el Inicio de sesion remoto
+remote-up -h            # ayuda
+```
+
+## Bajarlo al volver
+
+`-d` corta Tailscale, que es lo que expone la máquina más allá de la LAN. El
+**SSH queda prendido a propósito**: sin tailnet ya no se llega de afuera, así
+que apagarlo no cierra nada nuevo y te ahorra el sudo de la próxima salida. Si
+igual lo querés apagar, `--ssh-off` junto con `-d` (ahí sí pide sudo).
+
+## Trampas que ya están resueltas adentro
+
+`tailscale up` se **niega a arrancar** si hay flags no-default guardados en las
+prefs (acá `--accept-routes`) sin mencionarlos en la línea de comando — pero
+imprime en el error el comando exacto que corresponde. El script lo extrae de
+ahí y reintenta, en vez de hardcodear flags que se desincronizan el día que
+toques las prefs del tailnet.
+
+`systemsetup -getremotelogin` sin admin escupe un error pero **sale con 0**, así
+que no sirve para detectar si SSH está prendido. El script pregunta directo si
+el puerto 22 escucha (`nc -z`).
+
+Si `systemsetup -setremotelogin on` no logra prenderlo, es porque pide **Acceso
+a Disco Completo** para la terminal: el camino corto es Ajustes → General →
+Compartir → Inicio de sesión remoto.
+

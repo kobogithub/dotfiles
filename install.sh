@@ -19,7 +19,8 @@ SYSTEM_PACKAGES=(
     "starship"
     "atuin"
     "stow"
-    "kubectl"
+    # kubectl queda opcional: hoy no hay cluster en uso. Descomentar si vuelve.
+    # "kubectl"
     "k9s"
     
     # Herramientas de desarrollo (docker se verifica por separado)
@@ -30,18 +31,52 @@ SYSTEM_PACKAGES=(
     "nodejs"
     "npm"
     "yarn"
-    "code"  # VS Code
-    
+
     # Herramientas de desarrollo adicionales
     "base-devel"  # Herramientas de compilación
     "git"
     "curl"
     "wget"
     "jq"
+    "fzf"  # usado por claude-sessions (ccs)
+    "pass" # zsh/.env lo llama en cada arranque de shell; arrastra gnupg
     "tree"
     "htop"
     "unzip"
     "zip"
+
+    # CLI modernas (mejoras de experiencia). lazydocker no está en repos
+    # oficiales de Arch (solo AUR), por eso no se lista aquí; sí en el Brewfile.
+    "ripgrep"
+    "zoxide"
+    "lazygit"
+    "fd"
+    "bat"
+    "git-delta"
+    "go-yq"        # yq (mikefarah) en Arch se llama go-yq
+    "btop"
+    "tealdeer"     # tldr
+    "dust"
+    "duf"
+
+    # Terminal. herdr no está en repos oficiales de Arch (solo AUR), por eso no
+    # se lista acá; sí en el Brewfile. Los dos tienen paquete stow, así que en
+    # Arch hay que instalar herdr a mano o la config queda huérfana.
+    "ghostty"
+
+    # Las CLIs de nube y de dev (awscli, azure-cli, gcloud, cloudflared,
+    # wireguard-tools, rclone, uv, supabase, railway, playwright-mcp) por ahora
+    # solo están declaradas en el Brewfile: varias viven en AUR y los nombres de
+    # pacman no se verificaron en una Arch de verdad. No se listan a propósito —
+    # este script corre con `set -e` y un nombre inexistente aborta la
+    # instalación entera.
+
+    # Gestor de archivos en terminal (reemplazo de Finder) + deps de preview
+    "yazi"
+    "poppler"            # preview de PDF
+    "ffmpegthumbnailer"  # miniaturas de video
+    "7zip"               # preview/extraccion de archivos comprimidos
+    "imagemagick"        # preview de HEIC/AVIF/SVG
 )
 
 # Paquetes de dotfiles disponibles
@@ -64,44 +99,18 @@ DOTFILE_PACKAGES=(
     "docker"
     "python"
     "nodejs"
-    "vscode"
     "opencode"
     "ghostty"
     "herdr"
     "claude-code"
+    "yazi"         # gestor de archivos en terminal (reemplazo de Finder)
+    "aerospace"    # solo util en macOS (AeroSpace es macOS-only)
+    "sketchybar"   # solo util en macOS, acompaña a aerospace
 )
 
-# Paquetes de Homebrew para macOS (equivalen a SYSTEM_PACKAGES en Arch).
-# Omitidos por venir con el sistema o el propio node/python:
-# openssh, base-devel, python-pip, python-virtualenv, npm, zip, unzip.
-BREW_PACKAGES=(
-    "neovim"
-    "tmux"
-    "gh"          # github-cli
-    "zsh"
-    "lsd"
-    "starship"
-    "atuin"
-    "stow"
-    "kubectl"
-    "k9s"
-    "docker-compose"
-    "python"
-    "node"        # nodejs (incluye npm)
-    "yarn"
-    "git"
-    "curl"
-    "wget"
-    "jq"
-    "tree"
-    "htop"
-)
-
-# Aplicaciones GUI de macOS (Homebrew casks)
-BREW_CASKS=(
-    "visual-studio-code"  # 'code' en Arch
-    "docker"              # Docker Desktop
-)
+# Paquetes de Homebrew para macOS: la fuente de verdad es el Brewfile en la
+# raiz del repo (formulae + casks), consumido por `brew bundle`. Ver Brewfile.
+BREWFILE="$DOTFILES_DIR/Brewfile"
 
 echo "🏠 Instalando dotfiles de Kevin Barroso"
 echo "📂 Desde: $DOTFILES_DIR"
@@ -117,42 +126,55 @@ detect_os() {
     fi
 }
 
-# Verificar que Homebrew esté disponible (no lo instala, solo guía)
+# Asegurar Homebrew: si falta, lo instala (no interactivo) y lo agrega al PATH
 ensure_homebrew() {
     if command -v brew >/dev/null 2>&1; then
         return 0
     fi
-    echo "❌ Homebrew no está instalado y es necesario en macOS"
-    echo "💡 Instálalo con:"
-    echo '   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
-    return 1
+
+    echo "🍺 Homebrew no está instalado; instalándolo (script oficial, no interactivo)..."
+    if ! NONINTERACTIVE=1 /bin/bash -c \
+        "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+        echo "❌ Falló la instalación de Homebrew"
+        echo "💡 Instálalo a mano y volvé a correr ./install.sh:"
+        echo '   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+        return 1
+    fi
+
+    # Agregar brew al PATH de esta sesión (Apple Silicon: /opt/homebrew, Intel: /usr/local)
+    local brew_bin
+    for brew_bin in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+        if [[ -x "$brew_bin" ]]; then
+            eval "$("$brew_bin" shellenv)"
+            break
+        fi
+    done
+
+    if ! command -v brew >/dev/null 2>&1; then
+        echo "❌ Homebrew se instaló pero no quedó en el PATH de esta sesión"
+        echo '💡 Abrí una terminal nueva (o corré: eval "$(/opt/homebrew/bin/brew shellenv)") y reintentá'
+        return 1
+    fi
+    echo "✅ Homebrew instalado: $(brew --version | head -1)"
+    return 0
 }
 
 # Instalar paquetes del sistema en macOS con Homebrew
 install_system_packages_macos() {
-    echo "🍺 Instalando paquetes del sistema con Homebrew..."
+    echo "🍺 Instalando paquetes del sistema con Homebrew (brew bundle)..."
     ensure_homebrew || return 1
+
+    if [[ ! -f "$BREWFILE" ]]; then
+        echo "❌ No se encontró el Brewfile en $BREWFILE"
+        return 1
+    fi
 
     echo "⬆️  Actualizando Homebrew..."
     brew update
 
-    for pkg in "${BREW_PACKAGES[@]}"; do
-        if brew list --formula "$pkg" &>/dev/null; then
-            echo "✅ $pkg ya está instalado"
-        else
-            echo "📦 Instalando $pkg..."
-            brew install "$pkg"
-        fi
-    done
-
-    for cask in "${BREW_CASKS[@]}"; do
-        if brew list --cask "$cask" &>/dev/null; then
-            echo "✅ $cask ya está instalado"
-        else
-            echo "📦 Instalando $cask (cask)..."
-            brew install --cask "$cask"
-        fi
-    done
+    # brew bundle instala formulae y casks del Brewfile de forma idempotente
+    # (no elimina nada; solo agrega lo que falte).
+    brew bundle install --file="$BREWFILE"
 }
 
 # Función para instalar paquetes del sistema
@@ -239,7 +261,8 @@ install_dotfile_package() {
         return
     fi
     
-    echo "📦 ${action^}ing dotfiles: $package..."
+    # Nota: se evita ${action^} (bash 4+) porque macOS trae bash 3.2
+    echo "📦 ${action}ing dotfiles: $package..."
     
     if [ "$action" = "stow" ]; then
         # Hacer backup de archivos conflictivos antes de instalar
@@ -384,7 +407,15 @@ setup_development_tools() {
     fi
     
     # Instalar pyenv (Python Version Manager)
-    if [[ ! -d "$HOME/.pyenv" ]]; then
+    #
+    # Se chequea el COMANDO, no el directorio ~/.pyenv. Ese directorio es
+    # PYENV_ROOT — shims y versions — y lo crea cualquier pyenv, incluido el de
+    # Homebrew, que en macOS ya entra como dependencia de pyenv-virtualenv.
+    # Con el chequeo por directorio, una Mac nueva se instalaba un SEGUNDO
+    # pyenv por pyenv.run, y encima ganaba en el PATH: python/.python_config
+    # antepone $PYENV_ROOT/bin. En Arch pyenv no viene por pacman, asi que ahi
+    # el comando no existe y la instalacion por script sigue pasando igual.
+    if ! command -v pyenv >/dev/null 2>&1; then
         echo "📦 Instalando pyenv..."
         curl https://pyenv.run | bash >/dev/null 2>&1
         export PYENV_ROOT="$HOME/.pyenv"
@@ -393,7 +424,7 @@ setup_development_tools() {
             echo "✅ pyenv instalado correctamente"
         fi
     else
-        echo "✅ pyenv ya está instalado"
+        echo "✅ pyenv ya está instalado ($(command -v pyenv))"
     fi
     
     # Configurar Docker para usuario actual (grupo docker + systemd son solo Linux;
@@ -439,10 +470,10 @@ show_help() {
     done
     echo ""
     if [[ "$(detect_os)" == "macos" ]]; then
-        echo "PAQUETES del sistema (Homebrew) que se instalan:"
-        for package in "${BREW_PACKAGES[@]}" "${BREW_CASKS[@]}"; do
-            echo "  $package"
-        done
+        echo "PAQUETES del sistema (Homebrew, desde Brewfile) que se instalan:"
+        if [[ -f "$BREWFILE" ]]; then
+            sed -nE 's/^(brew|cask) "([^"]+)".*/  \2/p' "$BREWFILE"
+        fi
     else
         echo "PAQUETES del sistema (pacman) que se instalan:"
         for package in "${SYSTEM_PACKAGES[@]}"; do
@@ -572,6 +603,12 @@ if [[ "$INSTALL_SYSTEM" == true && "$ACTION" == "stow" ]]; then
     # Programar actualización periódica de Homebrew (macOS)
     setup_brew_autoupdate
 
+    # Aplicar preferencias de macOS (defaults write) — no fatal
+    if [[ "$(detect_os)" == "macos" ]]; then
+        "$DOTFILES_DIR/scripts/.local/bin/macos-defaults" \
+            || echo "⚠️  macos-defaults falló; podés correrlo a mano después"
+    fi
+
     # Inicializar atuin si es la primera vez
     if ! [[ -f "$HOME/.local/share/atuin/history.db" ]]; then
         echo "🔍 Inicializando base de datos de atuin..."
@@ -595,12 +632,6 @@ if [[ "$ACTION" == "stow" ]]; then
         echo "   • VS Code + extensiones"
         echo "   • Git con aliases optimizados"
         echo "   • Kubernetes (kubectl + k9s)"
-        echo ""
-        echo "📜 Comandos útiles:"
-        echo "   dev-status  - Verificar estado del entorno"
-        echo "   dev-init    - Crear nuevos proyectos"
-        echo "   dev-clean   - Limpiar archivos temporales"
-        echo "   code-ext    - Instalar extensiones de VS Code"
         echo ""
         echo "🐚 Para aplicar completamente la configuración:"
         echo "   1. Cierra la terminal actual"

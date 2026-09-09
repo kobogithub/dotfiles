@@ -52,7 +52,10 @@ CAT_DOCS="OK"
 
 # Herramientas esperadas. Criticas = FAIL si faltan; opcionales = WARN.
 CRITICAL_TOOLS="stow git zsh nvim tmux starship atuin jq"
-OPTIONAL_TOOLS="lsd kubectl k9s docker docker-compose node yarn htop tree gh code"
+OPTIONAL_TOOLS="lsd kubectl k9s docker docker-compose node yarn htop tree gh rg zoxide lazygit fd bat delta yq btop tldr dust duf lazydocker yazi pass ghostty"
+# Solo macOS: aerospace y sketchybar no existen en Linux, y herdr en Arch esta
+# solo en AUR. Chequearlas en la lista general daria WARN falso en Arch.
+MACOS_TOOLS="aerospace sketchybar herdr"
 
 # ---------------------------------------------------------------------------
 # Ayuda
@@ -177,8 +180,26 @@ resolve_link() {
     esac
 }
 
+# Paquetes que se omiten a propósito en ESTA máquina. Un paquete por línea en
+# ~/.dotfiles-doctor-skip (admite comentarios con #). Útil para deviaciones
+# per-máquina intencionales (ej. no stowear atuin en un equipo puntual).
+STOW_SKIP_FILE="$HOME/.dotfiles-doctor-skip"
+package_skipped() {
+    [[ -f "$STOW_SKIP_FILE" ]] || return 1
+    while IFS= read -r line; do
+        line="${line%%#*}"                 # quitar comentarios
+        line="${line//[[:space:]]/}"       # quitar espacios
+        [[ -n "$line" && "$line" == "$1" ]] && return 0
+    done < "$STOW_SKIP_FILE"
+    return 1
+}
+
 check_stow_package() {
     local pkg="$1" pkgdir
+    if package_skipped "$pkg"; then
+        report_check stow OK "$pkg" "omitido a propósito en esta máquina (~/.dotfiles-doctor-skip)"
+        return 0
+    fi
     pkgdir="$(cd "$DOTFILES_DIR/$pkg" 2>/dev/null && pwd -P)" || {
         report_check stow FAIL "$pkg" "listado en DOTFILE_PACKAGES pero falta $pkg/ en el repo"
         return 0
@@ -203,7 +224,16 @@ check_stow_package() {
                 conflict=$((conflict + 1)); [[ -z "$conflict_detail" ]] && conflict_detail="~/$rel apunta fuera del repo"
             fi
         elif [[ -e "$target" ]]; then
-            conflict=$((conflict + 1)); [[ -z "$conflict_detail" ]] && conflict_detail="~/$rel es un archivo real"
+            # El archivo no es symlink directo, pero puede estar enlazado via un
+            # directorio padre "folded" (stow enlaza la carpeta entera). En ese
+            # caso el target resuelve dentro del repo: canonicalizar y comparar.
+            local canon
+            canon="$(cd "$(dirname "$target")" 2>/dev/null && printf '%s/%s' "$(pwd -P)" "$(basename "$target")")" || canon=""
+            if [[ "$canon" == "$file" ]]; then
+                linked=$((linked + 1))
+            else
+                conflict=$((conflict + 1)); [[ -z "$conflict_detail" ]] && conflict_detail="~/$rel es un archivo real"
+            fi
         else
             missing=$((missing + 1)); [[ -z "$missing_detail" ]] && missing_detail="~/$rel"
         fi
@@ -262,6 +292,14 @@ check_tools() {
             report_check tools WARN "$t" "no encontrado (opcional)"
         fi
     done
+    [[ "$os" == "macos" ]] || return 0
+    for t in $MACOS_TOOLS; do
+        if command -v "$t" >/dev/null 2>&1; then
+            report_check tools OK "$t" "instalado"
+        else
+            report_check tools WARN "$t" "no encontrado (opcional, solo macOS)"
+        fi
+    done
 }
 
 # ---------------------------------------------------------------------------
@@ -271,7 +309,10 @@ check_tools() {
 # parse_secret_refs - extrae las rutas `pass show <ruta>` de zsh/.env (sin ejecutar el archivo)
 parse_secret_refs() {
     [[ -f "$DOTFILES_DIR/zsh/.env" ]] || return 0
-    grep -oE 'pass show [^")]+' "$DOTFILES_DIR/zsh/.env" 2>/dev/null \
+    # El patron corta en el primer espacio: la llamada puede llevar cosas
+    # detras de la ruta (p.ej. `pass show mcps/context7 2>/dev/null`) y sin
+    # eso se colaban en la ruta, dando un falso FAIL.
+    grep -oE 'pass show [^[:space:]")]+' "$DOTFILES_DIR/zsh/.env" 2>/dev/null \
         | sed 's/^pass show //; s/[[:space:]]*$//' \
         | grep -v '^[[:space:]]*$' || true
 }
@@ -322,6 +363,11 @@ list_contains() {
     return 1
 }
 
+# Paquetes reales instalados por un paso dedicado (fuera de DOTFILE_PACKAGES),
+# tipicamente OS-gated. Se documentan en el README pero no viven en el array
+# generico. Ej: "macos" lo instala install_dotfile_package "macos" solo en macOS.
+OS_SPECIFIC_PACKAGES="macos"
+
 check_docs() {
     local readme_pkgs install_pkgs pkg mismatch=0
     if [[ ! -f "$DOTFILES_DIR/README.md" ]]; then
@@ -333,6 +379,7 @@ check_docs() {
 
     while IFS= read -r pkg; do
         [[ -z "$pkg" ]] && continue
+        list_contains "$OS_SPECIFIC_PACKAGES" "$pkg" && continue
         if ! list_contains "$install_pkgs" "$pkg"; then
             report_check docs WARN "$pkg" "en README.md pero no en DOTFILE_PACKAGES (install.sh) → revisa README.md"
             mismatch=$((mismatch + 1))

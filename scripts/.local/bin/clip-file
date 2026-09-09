@@ -1,0 +1,204 @@
+#!/bin/bash
+
+# clip-file - Copia archivos al portapapeles del sistema en distintos formatos
+# Uso: clip-file [modo] <archivo>...
+#
+# Pensado para pegar en apps graficas (Google Chat, Slack, Gmail, Finder) lo que
+# estas mirando en la terminal — sobre todo desde yazi, que lo llama con las
+# teclas `C t`, `C i`, `C f` y `C p` (ver yazi/README.md).
+#
+# Modos:
+#   text   Contenido del archivo como TEXTO plano (ideal para .md en un chat)
+#   image  El archivo como IMAGEN (se pega inline; convierte a PNG si hace falta)
+#   file   El archivo en si (se pega como adjunto en Chat/Gmail, o copia en Finder)
+#   path   La ruta absoluta como texto
+#   auto   Elige segun el tipo: imagen -> image, texto -> text, resto -> file
+#
+# Sin modo explicito usa `auto`. En macOS usa pbcopy/osascript; en Linux,
+# wl-copy o xclip.
+
+set -e
+set -o pipefail
+
+# ---------------------------------------------------------------------------
+# Ayuda
+# ---------------------------------------------------------------------------
+usage() {
+    cat <<'EOF'
+clip-file - Copia archivos al portapapeles del sistema
+
+Uso: clip-file [modo] <archivo>...
+
+Modos:
+  text    Contenido del archivo como texto plano
+  image   El archivo como imagen (convierte a PNG si hace falta)
+  file    El archivo en si (adjunto en Chat/Gmail, pegable en Finder)
+  path    La ruta absoluta como texto
+  auto    Segun el tipo de archivo (por defecto)
+
+Ejemplos:
+  clip-file notas.md              # auto -> copia el texto
+  clip-file text README.md        # fuerza el contenido como texto
+  clip-file image captura.jpg     # la convierte a PNG y la deja pegable
+  clip-file file informe.pdf      # para adjuntarlo en un chat
+  clip-file path *.md             # las rutas, una por linea
+EOF
+}
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+# Corre osascript descartando su salida (devuelve los datos copiados, que
+# ensucian la terminal) y mostrando stderr solo si algo falla
+run_osascript() {
+    local err
+    if ! err="$(osascript -e "$1" 2>&1 >/dev/null)"; then
+        echo "❌ osascript falló: $err" >&2
+        return 1
+    fi
+}
+
+# Copia lo que venga por stdin como texto al portapapeles
+copy_text_stdin() {
+    if command -v pbcopy >/dev/null 2>&1; then
+        pbcopy
+    elif command -v wl-copy >/dev/null 2>&1; then
+        wl-copy
+    elif command -v xclip >/dev/null 2>&1; then
+        xclip -selection clipboard
+    else
+        echo "❌ No hay portapapeles disponible (pbcopy/wl-copy/xclip)" >&2
+        return 1
+    fi
+}
+
+# Tipo MIME del archivo, o vacio si no se puede determinar
+mime_of() {
+    file --brief --mime-type -- "$1" 2>/dev/null || true
+}
+
+# ---------------------------------------------------------------------------
+# Modos
+# ---------------------------------------------------------------------------
+
+# text: contenido como texto. Con varios archivos, antepone el nombre de cada uno
+mode_text() {
+    if [[ $# -eq 1 ]]; then
+        copy_text_stdin < "$1"
+    else
+        local f
+        for f in "$@"; do
+            echo "--- $(basename -- "$f") ---"
+            cat -- "$f"
+            echo ""
+        done | copy_text_stdin
+    fi
+    echo "📋 Texto de $# archivo(s) copiado al portapapeles"
+}
+
+# path: rutas absolutas, una por linea
+mode_path() {
+    local f
+    for f in "$@"; do
+        cd "$(dirname -- "$f")" >/dev/null && echo "$PWD/$(basename -- "$f")" && cd - >/dev/null
+    done | copy_text_stdin
+    echo "📋 Ruta de $# archivo(s) copiada al portapapeles"
+}
+
+# image: deja la imagen pegable inline. Convierte a PNG lo que no lo sea
+mode_image() {
+    local src="$1" png="$1" tmp=""
+
+    if [[ "$(mime_of "$src")" != "image/png" ]]; then
+        tmp="$(mktemp -t clip-file.XXXXXX).png"
+        # sips no entiende `--`, asi que las rutas relativas se prefijan con ./
+        [[ "$src" == -* ]] && src="./$src"
+        if command -v sips >/dev/null 2>&1 && sips -s format png "$src" --out "$tmp" >/dev/null 2>&1; then
+            : # convertido con sips (nativo de macOS)
+        elif command -v magick >/dev/null 2>&1 && magick "$src" "$tmp"; then
+            : # convertido con ImageMagick
+        else
+            echo "❌ No se pudo convertir a PNG: $src" >&2
+            rm -f -- "$tmp"
+            return 1
+        fi
+        png="$tmp"
+    fi
+
+    if command -v osascript >/dev/null 2>&1; then
+        run_osascript "set the clipboard to (read (POSIX file \"$png\") as «class PNGf»)"
+    elif command -v wl-copy >/dev/null 2>&1; then
+        wl-copy --type image/png < "$png"
+    elif command -v xclip >/dev/null 2>&1; then
+        xclip -selection clipboard -target image/png -i "$png"
+    else
+        echo "❌ No hay portapapeles disponible para imagenes" >&2
+        return 1
+    fi
+
+    [[ -n "$tmp" ]] && rm -f -- "$tmp"
+    echo "🖼️  Imagen copiada al portapapeles (pegala en el chat)"
+}
+
+# file: el archivo en si, para adjuntarlo pegando
+mode_file() {
+    if command -v osascript >/dev/null 2>&1; then
+        local script="set the clipboard to {" f abs
+        for f in "$@"; do
+            abs="$(cd "$(dirname -- "$f")" >/dev/null && printf '%s/%s' "$PWD" "$(basename -- "$f")")"
+            script+="POSIX file \"$abs\", "
+        done
+        script="${script%, }}"
+        run_osascript "$script"
+    elif command -v wl-copy >/dev/null 2>&1; then
+        local f
+        for f in "$@"; do
+            printf 'file://%s\n' "$(cd "$(dirname -- "$f")" >/dev/null && printf '%s/%s' "$PWD" "$(basename -- "$f")")"
+        done | wl-copy --type text/uri-list
+    else
+        echo "❌ No hay portapapeles disponible para archivos" >&2
+        return 1
+    fi
+    echo "📎 $# archivo(s) copiado(s) — pegalo en el chat o en Finder"
+}
+
+# auto: decide por tipo MIME
+mode_auto() {
+    local mime
+    mime="$(mime_of "$1")"
+    case "$mime" in
+        image/*) mode_image "$1" ;;
+        text/*|application/json|application/xml|inode/x-empty) mode_text "$@" ;;
+        *)       mode_file "$@" ;;
+    esac
+}
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+MODE="auto"
+case "${1:-}" in
+    -h|--help)              usage; exit 0 ;;
+    text|image|file|path|auto) MODE="$1"; shift ;;
+esac
+
+if [[ $# -eq 0 ]]; then
+    echo "❌ Falta el archivo. Ver: clip-file -h" >&2
+    exit 1
+fi
+
+for arg in "$@"; do
+    if [[ ! -e "$arg" ]]; then
+        echo "❌ No existe: $arg" >&2
+        exit 1
+    fi
+done
+
+case "$MODE" in
+    text)  mode_text "$@" ;;
+    path)  mode_path "$@" ;;
+    image) mode_image "$1" ;;
+    file)  mode_file "$@" ;;
+    auto)  mode_auto "$@" ;;
+esac

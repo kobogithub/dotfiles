@@ -1,0 +1,257 @@
+#!/bin/bash
+
+# remote-up - Deja este Mac accesible desde afuera por Tailscale + SSH
+# Uso: remote-up [-h] [-c] [-d [--ssh-off]]
+#
+# Pensado para correrlo antes de salir de casa: levanta Tailscale si esta
+# parado, verifica que el SSH y la energia esten como corresponde, e imprime
+# como conectarse desde el otro equipo. Con -d hace el camino inverso, para
+# cuando volves. Es idempotente en las dos direcciones: correrlo dos veces
+# no hace dano.
+#
+# Solo macOS: usa `systemsetup` y `pmset`.
+
+set -e
+set -o pipefail
+
+# ---------------------------------------------------------------------------
+# Colores (via tput, solo si hay TTY) y marcas de estado
+# ---------------------------------------------------------------------------
+if command -v tput >/dev/null 2>&1 && [ -t 1 ]; then
+    GREEN=$(tput setaf 2)
+    YELLOW=$(tput setaf 3)
+    RED=$(tput setaf 1)
+    BOLD=$(tput bold)
+    NC=$(tput sgr0)
+else
+    GREEN=""; YELLOW=""; RED=""; BOLD=""; NC=""
+fi
+
+CHECK_ONLY=false
+DOWN=false
+SSH_OFF=false
+fail_count=0
+
+ok()   { printf "  %s✅%s %s\n" "$GREEN" "$NC" "$1"; }
+warn() { printf "  %s⚠️ %s %s\n" "$YELLOW" "$NC" "$1"; }
+bad()  { printf "  %s❌%s %s\n" "$RED" "$NC" "$1"; fail_count=$((fail_count + 1)); }
+tip()  { printf "     %s💡 %s%s\n" "$YELLOW" "$1" "$NC"; }
+section() { printf "\n%s%s%s\n" "$BOLD" "$1" "$NC"; }
+
+backend_state() {
+    tailscale status --json 2>/dev/null | jq -r '.BackendState // "Unknown"'
+}
+
+# `systemsetup -getremotelogin` sin admin escupe un error pero sale con 0, asi
+# que no sirve para detectar nada: preguntamos directo si el puerto escucha.
+ssh_listening() { nc -z -G 2 127.0.0.1 22 >/dev/null 2>&1; }
+
+show_help() {
+    printf "%sremote-up%s - Deja este Mac accesible desde afuera\n\n" "$BOLD" "$NC"
+    printf "%sUSO:%s\n" "$YELLOW" "$NC"
+    printf "    remote-up [OPCIONES]\n\n"
+    printf "%sOPCIONES:%s\n" "$YELLOW" "$NC"
+    printf "    -h, --help      Mostrar esta ayuda\n"
+    printf "    -c, --check     Solo verificar, sin tocar nada\n"
+    printf "    -d, --down      Bajar todo: corta Tailscale\n"
+    printf "        --ssh-off   Con -d, ademas apaga el Inicio de sesion remoto\n\n"
+    printf "%sQUE HACE:%s\n" "$YELLOW" "$NC"
+    printf "    1. Levanta Tailscale si esta parado\n"
+    printf "    2. Prende el Inicio de sesion remoto (SSH) si esta apagado\n"
+    printf "    3. Avisa si el Mac se puede dormir y dejarte afuera\n"
+    printf "    4. Imprime la direccion para conectarte\n\n"
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -h|--help)  show_help; exit 0 ;;
+        -c|--check) CHECK_ONLY=true; shift ;;
+        -d|--down)  DOWN=true; shift ;;
+        --ssh-off)  SSH_OFF=true; shift ;;
+        *) echo "❌ Opcion desconocida: $1"; echo "💡 Proba: remote-up --help"; exit 1 ;;
+    esac
+done
+
+if [[ "$CHECK_ONLY" == true && "$DOWN" == true ]]; then
+    echo "❌ -c y -d se contradicen: uno verifica, el otro baja"
+    exit 1
+fi
+
+if [[ "$SSH_OFF" == true && "$DOWN" != true ]]; then
+    echo "❌ --ssh-off solo tiene sentido junto con -d"
+    echo "💡 Proba: remote-up -d --ssh-off"
+    exit 1
+fi
+
+if [[ "$(uname -s)" != "Darwin" ]]; then
+    echo "❌ remote-up es solo para macOS (usa systemsetup y pmset)"
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# 0. Bajar todo (-d) — el camino inverso, para cuando volves
+# ---------------------------------------------------------------------------
+if [[ "$DOWN" == true ]]; then
+    section "🔗 Tailscale"
+
+    if ! command -v tailscale >/dev/null 2>&1; then
+        bad "tailscale no esta instalado"
+    elif [[ "$(backend_state)" != "Running" ]]; then
+        ok "ya estaba parado"
+    else
+        tailscale down 2>/dev/null || true
+        if [[ "$(backend_state)" != "Running" ]]; then
+            ok "bajado"
+        else
+            bad "no se pudo bajar"
+        fi
+    fi
+
+    section "🔑 SSH"
+
+    if [[ "$SSH_OFF" != true ]]; then
+        # Sin el tailnet ya no se llega de afuera, asi que dejarlo prendido no
+        # abre nada nuevo: solo sigue expuesto en la LAN, y te ahorra el sudo
+        # de manana. Con --ssh-off se apaga igual.
+        if ssh_listening; then
+            warn "sigue prendido, alcanzable solo desde la LAN"
+            tip "para apagarlo tambien: remote-up -d --ssh-off"
+        else
+            ok "ya estaba apagado"
+        fi
+    elif ! ssh_listening; then
+        ok "ya estaba apagado"
+    else
+        tip "hace falta sudo para apagar el Inicio de sesion remoto"
+        sudo systemsetup -setremotelogin off >/dev/null 2>&1 || true
+        if ssh_listening; then
+            bad "no se pudo apagar por CLI"
+            tip "Ajustes → General → Compartir → Inicio de sesion remoto"
+        else
+            ok "Inicio de sesion remoto apagado"
+        fi
+    fi
+
+    if [[ "$fail_count" -eq 0 ]]; then
+        printf "\n  %s✅ Todo abajo.%s\n\n" "$GREEN" "$NC"
+        exit 0
+    fi
+    printf "\n  %s❌ %s cosa(s) sin resolver.%s\n\n" "$RED" "$fail_count" "$NC"
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# 1. Tailscale
+# ---------------------------------------------------------------------------
+section "🔗 Tailscale"
+
+if ! command -v tailscale >/dev/null 2>&1; then
+    bad "tailscale no esta instalado"
+    tip "brew install --cask tailscale-app"
+elif [[ "$(backend_state)" == "Running" ]]; then
+    ok "ya estaba corriendo"
+elif [[ "$CHECK_ONLY" == true ]]; then
+    bad "esta parado (estado: $(backend_state))"
+    tip "corre 'remote-up' sin -c para levantarlo"
+else
+    # `tailscale up` se niega a arrancar cuando hay flags no-default guardados
+    # (aca --accept-routes) sin mencionarlos, pero imprime en el error el
+    # comando exacto que corresponde. Lo reusamos en vez de hardcodear flags
+    # que pueden cambiar el dia que toques las prefs del tailnet.
+    if ! up_output=$(tailscale up --timeout=45s 2>&1); then
+        retry_cmd=$(printf '%s\n' "$up_output" \
+            | grep -E '^[[:space:]]*tailscale up ' \
+            | head -1 \
+            | sed 's/^[[:space:]]*//')
+        if [[ -n "$retry_cmd" ]]; then
+            # shellcheck disable=SC2086  # el split en palabras es lo que queremos
+            up_output=$($retry_cmd --timeout=45s 2>&1) || true
+        fi
+    fi
+
+    if [[ "$(backend_state)" == "Running" ]]; then
+        ok "levantado"
+    else
+        bad "no se pudo levantar"
+        printf "%s\n" "$up_output" | sed 's/^/     /'
+    fi
+fi
+
+if [[ "$(backend_state)" == "Running" ]]; then
+    self_ip=$(tailscale status --json | jq -r '.Self.TailscaleIPs[0]')
+    self_dns=$(tailscale status --json | jq -r '.Self.DNSName' | sed 's/\.$//')
+    ok "$self_dns ($self_ip)"
+fi
+
+# ---------------------------------------------------------------------------
+# 2. SSH
+# ---------------------------------------------------------------------------
+section "🔑 SSH"
+
+if ssh_listening; then
+    ok "Inicio de sesion remoto prendido (puerto 22)"
+elif [[ "$CHECK_ONLY" == true ]]; then
+    bad "el puerto 22 esta cerrado"
+else
+    warn "el puerto 22 esta cerrado, prendiendolo"
+    tip "hace falta sudo para esto"
+    sudo systemsetup -setremotelogin on >/dev/null 2>&1 || true
+    if ssh_listening; then
+        ok "Inicio de sesion remoto prendido"
+    else
+        bad "no se pudo prender por CLI"
+        tip "systemsetup pide Acceso a Disco Completo para la terminal"
+        tip "Ajustes → General → Compartir → Inicio de sesion remoto"
+    fi
+fi
+
+if [[ -s "$HOME/.ssh/authorized_keys" ]]; then
+    key_count=$(grep -c '^[^#]' "$HOME/.ssh/authorized_keys" || true)
+    ok "$key_count clave(s) autorizada(s)"
+else
+    warn "no hay ~/.ssh/authorized_keys: solo vas a poder entrar con password"
+    tip "desde el otro equipo: ssh-copy-id $(whoami)@${self_ip:-<ip-tailnet>}"
+fi
+
+# ---------------------------------------------------------------------------
+# 3. Energia — de nada sirve todo lo anterior si el Mac se duerme
+# ---------------------------------------------------------------------------
+section "⚡ Energia"
+
+sleep_val=$(pmset -g | awk '/^[[:space:]]*sleep[[:space:]]/ {print $2; exit}')
+womp_val=$(pmset -g | awk '/^[[:space:]]*womp[[:space:]]/ {print $2; exit}')
+
+if [[ "$sleep_val" == "0" ]]; then
+    ok "el Mac no se duerme (sleep 0)"
+else
+    bad "el Mac se duerme a los $sleep_val min y te deja afuera"
+    tip "sudo pmset -a sleep 0"
+fi
+
+if [[ "$womp_val" == "1" ]]; then
+    ok "se despierta por red (womp 1)"
+else
+    warn "no se despierta por acceso de red"
+    tip "sudo pmset -a womp 1"
+fi
+
+# ---------------------------------------------------------------------------
+# 4. Como conectarse
+# ---------------------------------------------------------------------------
+if [[ "$fail_count" -eq 0 ]]; then
+    section "📡 Desde el otro equipo"
+    printf "     ssh mac\n"
+    if [[ -n "${self_ip:-}" ]]; then
+        printf "     ssh %s@%s\n" "$(whoami)" "$self_ip"
+    fi
+    tip "entra y arranca herdr o tmux: si se corta el wifi no perdes la sesion"
+
+    online_peers=$(tailscale status 2>/dev/null | grep -vc 'offline' || true)
+    printf "\n  %s✅ Todo arriba.%s %s equipo(s) online en el tailnet.\n\n" \
+        "$GREEN" "$NC" "$online_peers"
+    exit 0
+else
+    printf "\n  %s❌ %s cosa(s) sin resolver.%s No vas a poder entrar asi.\n\n" \
+        "$RED" "$fail_count" "$NC"
+    exit 1
+fi

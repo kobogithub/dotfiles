@@ -72,6 +72,9 @@ compinit
 
 # Configuraciones de herramientas
 # Starship prompt (se carga al final)
+# STARSHIP_LOG=error silencia los WARN de timeout de comandos externos
+# (ej. `node --version` en frío) sin ocultar errores reales de config.
+export STARSHIP_LOG="error"
 eval "$(starship init zsh)"
 
 # Atuin (reemplazo de history)
@@ -134,6 +137,10 @@ alias dev-status='dev-status'
 alias dev-init='dev-init'
 alias dev-clean='dev-clean'
 alias code-ext='~/.dotfiles/vscode/install-extensions.sh'
+
+# Sync seguro (rclone bisync) del vault Taligent <-> Drive (taligent:coe)
+alias tsync='(cd /Users/kobo/taligent && ./scripts/sync/taligent-sync.sh sync)'
+alias tsync-dry='(cd /Users/kobo/taligent && ./scripts/sync/taligent-sync.sh sync --dry-run)'
 
 # Keybindings útiles
 bindkey '^[[A' history-search-backward    # Flecha arriba

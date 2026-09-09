@@ -1,0 +1,314 @@
+#!/bin/bash
+
+# claude-usage - Analisis de uso de tokens y costos de Claude Code
+# Uso: claude-usage [-h] [--days N] [--html ARCHIVO]
+#
+# Recorre todas las sesiones de ~/.claude/projects/*/*.jsonl y estima el
+# costo por modelo, por proyecto, la eficiencia de cache y la evolucion
+# diaria, para evaluar estrategias de optimizacion.
+#
+#   --days N        limita el analisis a los ultimos N dias (default: todo)
+#   --html ARCHIVO  ademas del reporte, genera un dashboard HTML autocontenido
+#
+# Precios (USD / millon de tokens) y modelo de cache embebidos abajo.
+# Cache: escritura 1h = 2x input, escritura 5m = 1.25x input, lectura = 0.1x.
+# Requiere: python3.
+
+set -euo pipefail
+
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+    sed -n '3,15p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+fi
+
+command -v python3 >/dev/null 2>&1 || { echo "Falta python3" >&2; exit 1; }
+
+DAYS=""
+HTML_OUT=""
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --days) DAYS="${2:-}"; shift 2 ;;
+        --html) HTML_OUT="${2:-}"; shift 2 ;;
+        *) echo "Opcion desconocida: $1" >&2; exit 2 ;;
+    esac
+done
+
+PROJECTS_DIR="$HOME/.claude/projects"
+[ -d "$PROJECTS_DIR" ] || { echo "No existe $PROJECTS_DIR" >&2; exit 1; }
+
+export CU_PROJECTS_DIR="$PROJECTS_DIR" CU_DAYS="$DAYS" CU_HTML="$HTML_OUT"
+
+python3 <<'PYEOF'
+import json, os, glob, sys, time, datetime
+from collections import defaultdict
+
+HTML_TEMPLATE = r"""<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Code — Uso y Costos</title>
+<style>
+  :root { --bg:#0f1117; --card:#181b24; --fg:#e6e8ee; --dim:#9aa2b1; --acc:#d97757; --acc2:#5a9; --line:#262a35; }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#f6f5f2; --card:#fff; --fg:#1a1c22; --dim:#6b7280; --acc:#c2410c; --acc2:#0d7a5f; --line:#e5e4df; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; padding:24px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:var(--dim); font-size:13px; margin-bottom:22px; }
+  .grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); margin-bottom:20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:16px 18px; }
+  .kpi .n { font-size:30px; font-weight:700; }
+  .kpi .l { color:var(--dim); font-size:12px; text-transform:uppercase; letter-spacing:.04em; }
+  .card h2 { font-size:14px; margin:0 0 14px; color:var(--dim); text-transform:uppercase; letter-spacing:.04em; }
+  .row { display:flex; align-items:center; gap:10px; margin:7px 0; font-size:13px; }
+  .row .lbl { flex:0 0 40%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .row .barwrap { flex:1; background:var(--line); border-radius:5px; height:14px; overflow:hidden; }
+  .row .bar { height:100%; background:var(--acc); border-radius:5px; }
+  .row .val { flex:0 0 84px; text-align:right; font-variant-numeric:tabular-nums; color:var(--dim); }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th,td { text-align:right; padding:6px 8px; border-bottom:1px solid var(--line); font-variant-numeric:tabular-nums; }
+  th:first-child,td:first-child { text-align:left; }
+  th { color:var(--dim); font-weight:600; }
+  .spark { display:block; width:100%; height:120px; }
+  .two { display:grid; gap:16px; grid-template-columns:1fr 1fr; }
+  @media (max-width:720px){ .two { grid-template-columns:1fr; } }
+  .tip { color:var(--dim); font-size:12px; margin-top:8px; }
+</style>
+</head>
+<body>
+<h1>Claude Code — Uso y Costos</h1>
+<div class="sub" id="sub"></div>
+<div class="grid" id="kpis"></div>
+<div class="two">
+  <div class="card"><h2>Costo por componente</h2><div id="components"></div>
+    <div class="tip">Menos <b>output</b> y mas <b>cache_read</b> = mas barato. cache_read cuesta 0.1x el input.</div></div>
+  <div class="card"><h2>Costo por modelo</h2><div id="models"></div></div>
+</div>
+<div class="card" style="margin-top:16px"><h2>Costo diario (USD)</h2><svg class="spark" id="daily" preserveAspectRatio="none"></svg></div>
+<div class="card" style="margin-top:16px"><h2>Top proyectos por costo</h2>
+  <table id="projects"><thead><tr><th>Proyecto</th><th>Costo</th><th>%</th><th>Msgs</th></tr></thead><tbody></tbody></table></div>
+<script>
+const D = __DATA__;
+const $ = s => document.querySelector(s);
+const money = n => "$" + n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+$("#sub").textContent = `${D.scope} · ${D.sessions} sesiones · ${D.msgs} respuestas · generado ${D.generated}`;
+
+const kpis = [
+  ["Costo total estimado", money(D.total_cost)],
+  ["Cache hit ratio", D.cache_hit + "%"],
+  ["Sesiones", D.sessions.toLocaleString()],
+  ["Respuestas del asistente", D.msgs.toLocaleString()],
+];
+$("#kpis").innerHTML = kpis.map(([l,n])=>`<div class="card kpi"><div class="n">${n}</div><div class="l">${l}</div></div>`).join("");
+
+function bars(el, rows, total) {
+  el.innerHTML = rows.map(([lbl,val])=>{
+    const pct = total ? (val/total*100) : 0;
+    return `<div class="row"><span class="lbl" title="${lbl}">${lbl}</span>
+      <span class="barwrap"><span class="bar" style="width:${pct.toFixed(1)}%"></span></span>
+      <span class="val">${money(val)}</span></div>`;
+  }).join("");
+}
+const co = D.components;
+bars($("#components"), [["output",co.output],["cache_write",co.cache_write],["cache_read",co.cache_read],["input",co.input]], D.total_cost);
+bars($("#models"), D.models.map(m=>[m.model, m.cost]), D.total_cost);
+
+$("#projects tbody").innerHTML = D.projects.map(p=>{
+  const pct = D.total_cost ? (p.cost/D.total_cost*100).toFixed(1) : "0";
+  return `<tr><td>${p.proj}</td><td>${money(p.cost)}</td><td>${pct}%</td><td>${p.msgs}</td></tr>`;
+}).join("");
+
+// sparkline area
+(function(){
+  const svg = $("#daily"), d = D.daily;
+  if(!d.length) return;
+  const W=1000,H=120,pad=4;
+  const max = Math.max(...d.map(x=>x.cost),0.01);
+  const stepX = d.length>1 ? (W-2*pad)/(d.length-1) : 0;
+  const pts = d.map((x,i)=>[pad+i*stepX, H-pad-(x.cost/max)*(H-2*pad)]);
+  const line = pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" ");
+  const area = line + ` L ${pad+(d.length-1)*stepX} ${H-pad} L ${pad} ${H-pad} Z`;
+  svg.setAttribute("viewBox",`0 0 ${W} ${H}`);
+  const acc = getComputedStyle(document.documentElement).getPropertyValue("--acc").trim();
+  svg.innerHTML = `<path d="${area}" fill="${acc}" opacity="0.18"/><path d="${line}" fill="none" stroke="${acc}" stroke-width="2"/>`;
+  const last = d[d.length-1];
+  const t = document.createElement("div"); t.className="tip";
+  t.textContent = `${d.length} dias · ultimo (${last.day}): ${money(last.cost)} · pico: ${money(max)}`;
+  svg.after(t);
+})();
+</script>
+</body>
+</html>
+"""
+
+projects_dir = os.environ["CU_PROJECTS_DIR"]
+days = os.environ.get("CU_DAYS", "").strip()
+html_out = os.environ.get("CU_HTML", "").strip()
+cutoff = None
+if days:
+    cutoff = time.time() - float(days) * 86400
+
+# Precios USD por millon de tokens: input, output.
+# Derivados: cache_read = input*0.1, cache_write_1h = input*2, cache_write_5m = input*1.25
+PRICING = {
+    "claude-opus-4-8":   (5.0, 25.0),
+    "claude-opus-4-7":   (5.0, 25.0),
+    "claude-opus-4-6":   (5.0, 25.0),
+    "claude-opus-4-5":   (5.0, 25.0),
+    "claude-sonnet-5":   (3.0, 15.0),
+    "claude-sonnet-4-6": (3.0, 15.0),
+    "claude-sonnet-4-5": (3.0, 15.0),
+    "claude-haiku-4-5":  (1.0, 5.0),
+}
+
+def rates(model):
+    return PRICING.get(model)
+
+def blank():
+    return {"in": 0, "out": 0, "cw1h": 0, "cw5m": 0, "cr": 0, "cost": 0.0, "msgs": 0}
+
+by_model = defaultdict(blank)
+by_proj = defaultdict(blank)
+by_day = defaultdict(blank)
+totals = blank()
+sessions = 0
+skipped_models = set()
+
+for path in glob.glob(os.path.join(projects_dir, "*", "*.jsonl")):
+    sessions += 1
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            try:
+                d = json.loads(line)
+            except Exception:
+                continue
+            if d.get("type") != "assistant":
+                continue
+            m = d.get("message", {})
+            u = m.get("usage")
+            if not u:
+                continue
+            ts = d.get("timestamp")
+            epoch = None
+            day = "?"
+            if ts:
+                try:
+                    dt = datetime.datetime.fromisoformat(ts.replace("Z", "+00:00"))
+                    epoch = dt.timestamp()
+                    day = dt.date().isoformat()
+                except Exception:
+                    pass
+            if cutoff and epoch and epoch < cutoff:
+                continue
+            model = m.get("model", "?")
+            r = rates(model)
+            if r is None:
+                if model not in ("<synthetic>",):
+                    skipped_models.add(model)
+                continue
+            rin, rout = r
+            it = u.get("input_tokens", 0)
+            ot = u.get("output_tokens", 0)
+            crd = u.get("cache_read_input_tokens", 0)
+            cc = u.get("cache_creation", {}) or {}
+            cw1h = cc.get("ephemeral_1h_input_tokens", 0)
+            cw5m = cc.get("ephemeral_5m_input_tokens", 0)
+            # fallback si no hay desglose
+            if not cw1h and not cw5m:
+                cw5m = u.get("cache_creation_input_tokens", 0)
+            cost = (it * rin + ot * rout + crd * rin * 0.1
+                    + cw1h * rin * 2 + cw5m * rin * 1.25) / 1e6
+            proj = os.path.basename((d.get("cwd") or "?").rstrip("/"))
+            for bucket in (by_model[model], by_proj[proj], by_day[day], totals):
+                bucket["in"] += it
+                bucket["out"] += ot
+                bucket["cw1h"] += cw1h
+                bucket["cw5m"] += cw5m
+                bucket["cr"] += crd
+                bucket["cost"] += cost
+                bucket["msgs"] += 1
+
+# ---- salida terminal ----
+def m(n):  # millones
+    return n / 1e6
+
+BOLD = "\033[1m"; DIM = "\033[2m"; CYAN = "\033[36m"; YEL = "\033[33m"; GRN = "\033[32m"; RST = "\033[0m"
+try:
+    tty = sys.stdout.isatty()
+except Exception:
+    tty = False
+if not tty:
+    BOLD = DIM = CYAN = YEL = GRN = RST = ""
+
+scope = f"ultimos {days} dias" if days else "historico completo"
+print(f"\n{BOLD}=== Uso de Claude Code — {scope} ==={RST}")
+print(f"{DIM}{sessions} sesiones · {totals['msgs']} respuestas del asistente{RST}\n")
+
+print(f"{BOLD}COSTO TOTAL ESTIMADO: {GRN}${totals['cost']:,.2f}{RST}")
+cr = totals["cr"]; cw = totals["cw1h"] + totals["cw5m"]; inp = totals["in"]
+read_side = cr + cw + inp
+cache_hit = (cr / read_side * 100) if read_side else 0
+print(f"{DIM}Cache hit ratio (lectura / total lado-input): {cache_hit:.1f}%  "
+      f"— mas alto = mas barato{RST}\n")
+
+# Desglose de costo por componente
+comp = {
+    "input (sin cache)": totals["in"] * 0,  # se recalcula abajo por modelo
+}
+# recomputamos costo por componente global sumando por modelo
+comp_cost = {"input": 0.0, "output": 0.0, "cache_write": 0.0, "cache_read": 0.0}
+for model, b in by_model.items():
+    r = rates(model)
+    if not r: continue
+    rin, rout = r
+    comp_cost["input"] += b["in"] * rin / 1e6
+    comp_cost["output"] += b["out"] * rout / 1e6
+    comp_cost["cache_write"] += (b["cw1h"] * rin * 2 + b["cw5m"] * rin * 1.25) / 1e6
+    comp_cost["cache_read"] += b["cr"] * rin * 0.1 / 1e6
+print(f"{BOLD}Costo por componente:{RST}")
+for k in ("output", "cache_write", "cache_read", "input"):
+    v = comp_cost[k]
+    pct = (v / totals["cost"] * 100) if totals["cost"] else 0
+    bar = "█" * int(pct / 2)
+    print(f"  {k:<12} ${v:>8,.2f}  {pct:>5.1f}%  {CYAN}{bar}{RST}")
+
+print(f"\n{BOLD}Por modelo:{RST}")
+print(f"  {'modelo':<20}{'$costo':>10}{'%':>6}   {'in(M)':>7}{'out(M)':>7}{'cacheRd(M)':>11}")
+for model, b in sorted(by_model.items(), key=lambda x: -x[1]["cost"]):
+    pct = (b["cost"] / totals["cost"] * 100) if totals["cost"] else 0
+    print(f"  {model:<20}{b['cost']:>10,.2f}{pct:>5.1f}%   "
+          f"{m(b['in']):>7.2f}{m(b['out']):>7.2f}{m(b['cr']):>11.1f}")
+
+print(f"\n{BOLD}Top 10 proyectos por costo:{RST}")
+print(f"  {'proyecto':<34}{'$costo':>10}{'%':>6}{'msgs':>7}")
+for proj, b in sorted(by_proj.items(), key=lambda x: -x[1]["cost"])[:10]:
+    pct = (b["cost"] / totals["cost"] * 100) if totals["cost"] else 0
+    print(f"  {proj:<34}{b['cost']:>10,.2f}{pct:>5.1f}%{b['msgs']:>7}")
+
+if skipped_models:
+    print(f"\n{YEL}Nota: modelos sin precio conocido (omitidos): {', '.join(sorted(skipped_models))}{RST}")
+print()
+
+# ---- HTML opcional ----
+if html_out:
+    days_sorted = sorted((k for k in by_day if k != "?"))
+    daily = [{"day": k, "cost": round(by_day[k]["cost"], 2)} for k in days_sorted]
+    models = [{"model": k, "cost": round(v["cost"], 2), "in": v["in"], "out": v["out"],
+               "cr": v["cr"], "cw": v["cw1h"] + v["cw5m"], "msgs": v["msgs"]}
+              for k, v in sorted(by_model.items(), key=lambda x: -x[1]["cost"])]
+    projs = [{"proj": k, "cost": round(v["cost"], 2), "msgs": v["msgs"]}
+             for k, v in sorted(by_proj.items(), key=lambda x: -x[1]["cost"])[:15]]
+    payload = {
+        "generated": datetime.datetime.now().isoformat(timespec="seconds"),
+        "scope": scope, "sessions": sessions, "msgs": totals["msgs"],
+        "total_cost": round(totals["cost"], 2), "cache_hit": round(cache_hit, 1),
+        "components": {k: round(v, 2) for k, v in comp_cost.items()},
+        "models": models, "projects": projs, "daily": daily,
+    }
+    html = HTML_TEMPLATE.replace("__DATA__", json.dumps(payload))
+    with open(html_out, "w", encoding="utf-8") as f:
+        f.write(html)
+    print(f"Dashboard HTML escrito en: {html_out}")
+PYEOF

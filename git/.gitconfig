@@ -7,7 +7,17 @@
 [core]
 	editor = nvim
 	autocrlf = false
-  pager = cat
+	pager = delta
+
+[interactive]
+	diffFilter = delta --color-only
+
+[delta]
+	navigate = true       # usar n/N para saltar entre archivos en el diff
+	line-numbers = true
+
+[merge]
+	conflictstyle = zdiff3
 
 [alias]
 	st = status
@@ -46,4 +56,9 @@
 
 # El repo de dotfiles usa la identidad personal para firmar commits
 [includeIf "gitdir:~/.dotfiles/"]
+    path = ~/.gitconfig-personal
+
+# ~/kobo — sistema personal de agenda. Vive fuera de ~/Github porque es global,
+# pero el repo es kobogithub/kobo: identidad personal.
+[includeIf "gitdir:~/kobo/"]
     path = ~/.gitconfig-personal
