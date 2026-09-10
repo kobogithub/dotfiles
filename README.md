@@ -154,6 +154,13 @@ tecla del buscador de sesiones no hace nada.
 Aparte hay que restaurar el store de `pass` (no está en el repo, por razones
 obvias) y la clave GPG que lo abre.
 
+**Kiro CLI** (agente de terminal de AWS, ex Amazon Q) es un caso aparte: los
+bloques `pre`/`post` de su integración de shell **sí** están versionados en
+`.zshrc`, `.bashrc` y `.profile`, pero el binario no está en `brew` — se baja de
+[kiro.dev](https://kiro.dev) y queda en `~/.local/bin/kiro-cli`. Sin el binario
+los bloques no hacen nada (van con guard `[ -f ... ]`), así que el paso es
+opcional. Para regenerarlos: `kiro-cli integrations install dotfiles`.
+
 ### 🐑 Plugin de herdr: buscador de sesiones de Claude Code
 
 `herdr/.config/herdr/plugins/claude-sessions/` — con **`prefix+shift+s`** se abre

@@ -29,6 +29,11 @@ alguien instale por número de versión. Cada bloque es un mes.
 - **Claude Code**: statusline propia con el contexto consumido, plugin `coe`
   del framework del Centro de Excelencia, modelo `opus[1m]` (ventana de 1M) y
   figma apagado.
+- **Kiro CLI** (agente de terminal de AWS, ex Amazon Q): se versiona su
+  integración de shell — los bloques `pre`/`post` en `.zshrc`, `.bashrc` y
+  `.profile` que dan autocompletado inline y contexto de comandos. Van con
+  guard, así que en Arch —donde esas rutas de `~/Library` no existen— son
+  inertes. El binario se baja aparte de kiro.dev.
 
 ## 2026-08
 

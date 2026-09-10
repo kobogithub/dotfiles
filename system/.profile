@@ -2,6 +2,10 @@
 export PATH="$PATH:/Users/kobo/.docker/bin"
 # End of Docker Desktop section.
 
+# Kiro CLI pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/profile.pre.bash" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/profile.pre.bash"
+
+
 # ~/.profile - Configuraciones del sistema
 
 # Configuración de locale para evitar warnings de Perl
@@ -46,3 +50,7 @@ if [ -f "$XDG_DATA_HOME/cargo/env" ]; then
 elif [ -f "$HOME/.cargo/env" ]; then
     . "$HOME/.cargo/env"
 fi
+
+
+# Kiro CLI post block. Keep at the bottom of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/profile.post.bash" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/profile.post.bash"

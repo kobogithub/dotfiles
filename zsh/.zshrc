@@ -1,3 +1,7 @@
+
+# Kiro CLI pre block. Keep at the top of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.pre.zsh"
+
 # ~/.zshrc - Configuración de Zsh
 
 # Cargar configuración del sistema
@@ -172,3 +176,7 @@ export NVM_DIR="$HOME/.config/nvm"
 
 # Secrets / env vars locales
 [[ -f "$HOME/.env" ]] && source "$HOME/.env"
+
+
+# Kiro CLI post block. Keep at the bottom of this file.
+[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/zshrc.post.zsh"
