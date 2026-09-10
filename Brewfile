@@ -95,6 +95,7 @@ brew "poppler"             # yazi: preview de PDF
 brew "ffmpegthumbnailer"   # yazi: miniaturas de video
 brew "sevenzip"            # yazi: preview/extraccion de comprimidos
 brew "imagemagick"         # yazi: preview de HEIC/AVIF/SVG
+brew "tdf"                 # visor de PDF en la terminal (yazi abre PDFs con esto)
 
 # --- Fonts (casks) ---
 cask "font-iosevka-nerd-font"   # usada por ghostty (Iosevka Nerd Font Mono)

@@ -29,15 +29,21 @@ chrome = [
 	{ run = 'open -a "Google Chrome" %s', desc = "Abrir en Chrome", for = "macos", orphan = true },
 	{ run = 'google-chrome-stable %s',    desc = "Abrir en Chrome", for = "linux", orphan = true },
 ]
+tdf = [
+	{ run = 'tdf %s', desc = "Leer en la terminal (tdf)", block = true },
+]
 
 # --- Reglas de apertura ------------------------------------------------
 # prepend_rules tiene prioridad sobre las reglas del preset.
 [open]
 prepend_rules = [
-	# Documentos que rinden mejor en el navegador
-	{ mime = "application/pdf", use = [ "chrome", "open", "reveal" ] },
+	# PDF -> tdf (visor en la terminal); Chrome queda a un `O` de distancia
+	{ mime = "application/pdf", use = [ "tdf", "chrome", "open", "reveal" ] },
+	{ url = "*.pdf",            use = [ "tdf", "chrome", "open", "reveal" ] },
+
+	# HTML rinde mejor en el navegador
 	{ mime = "text/html",       use = [ "chrome", "nvim", "reveal" ] },
-	{ url = "*.{pdf,html,htm}", use = [ "chrome", "nvim", "reveal" ] },
+	{ url = "*.{html,htm}",     use = [ "chrome", "nvim", "reveal" ] },
 
 	# Markdown y texto -> nvim
 	{ url = "*.{md,mdx,markdown}", use = [ "nvim", "chrome", "reveal" ] },

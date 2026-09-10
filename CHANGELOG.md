@@ -59,6 +59,9 @@ alguien instale por número de versión. Cada bloque es un mes.
 - **yazi** como gestor de archivos en la terminal (paquete stow nuevo, tema
   Frostmourne), con `yz` para que el shell herede el directorio al salir, y sus
   deps de preview (poppler, ffmpegthumbnailer, 7zip/sevenzip, imagemagick).
+- **`tdf` como visor de PDF de yazi**: los PDFs abren dentro de la terminal en
+  vez de saltar a Chrome (renderiza la página con el protocolo gráfico de Kitty,
+  que ghostty soporta). Chrome sigue a mano con `O` para imprimir o firmar.
 - **`clip-file`**: copia archivos al portapapeles como texto, imagen, adjunto o
   ruta — para pegar en Google Chat, Slack o Finder desde la terminal.
 - **sketchybar**: barra Frostmourne para AeroSpace, con items de clima, CPU,
