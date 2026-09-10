@@ -26,6 +26,9 @@ alguien instale por número de versión. Cada bloque es un mes.
   `-d` hace el camino inverso al volver.
 - **Host `mac` en `ssh/.ssh/config`**: entrada al Mac mini por el nombre
   MagicDNS del tailnet, para entrar desde la notebook.
+- **Claude Code**: statusline propia con el contexto consumido, plugin `coe`
+  del framework del Centro de Excelencia, modelo `opus[1m]` (ventana de 1M) y
+  figma apagado.
 
 ## 2026-08
 

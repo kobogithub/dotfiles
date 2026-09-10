@@ -39,7 +39,7 @@
       "mcp__plugin_engram_engram__mem_update"
     ]
   },
-  "model": "opus",
+  "model": "opus[1m]",
   "hooks": {
     "SessionStart": [
       {
@@ -71,11 +71,17 @@
       }
     ]
   },
+  "statusLine": {
+    "type": "command",
+    "command": "$HOME/.claude/statusline-contexto.py",
+    "padding": 0
+  },
   "enabledPlugins": {
     "rust-analyzer-lsp@claude-plugins-official": true,
     "engram@engram": true,
-    "figma@claude-plugins-official": true,
-    "wiki@llm-wiki": true
+    "figma@claude-plugins-official": false,
+    "wiki@llm-wiki": true,
+    "coe@taligent-coe": true
   },
   "extraKnownMarketplaces": {
     "engram": {
@@ -89,8 +95,15 @@
         "source": "github",
         "repo": "nvk/llm-wiki"
       }
+    },
+    "taligent-coe": {
+      "source": {
+        "source": "github",
+        "repo": "Taligent-SA/taligent_coe_framework"
+      }
     }
   },
+  "pluginConfigs": {},
   "theme": "auto",
   "agentPushNotifEnabled": true
 }
