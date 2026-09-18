@@ -15,6 +15,11 @@ Dependencias de preview (ya en el `Brewfile` / `SYSTEM_PACKAGES`):
 `poppler` (PDF), `ffmpegthumbnailer` (video), `sevenzip` (comprimidos),
 `imagemagick` (HEIC/AVIF/SVG).
 
+Para **leer** PDFs (no solo previsualizarlos) se usa `tdf`, un visor de PDF que
+corre dentro de la terminal: renderiza la pagina como imagen usando el protocolo
+grafico de Kitty, que ghostty soporta. Esta en el `Brewfile`, no en
+`SYSTEM_PACKAGES` (en Arch vive en AUR y el nombre no se verifico).
+
 ## Uso
 
 ```bash
@@ -33,12 +38,14 @@ directorio.
 |---|---|
 | `.md`, `.markdown`, texto plano | `nvim` (LazyVim), en bloque |
 | Código y configs (`.ts`, `.py`, `.toml`, `.yaml`, …) | `nvim` |
-| `.pdf`, `.html` | Google Chrome |
+| `.pdf` | `tdf` (visor en la terminal), en bloque |
+| `.html` | Google Chrome |
 | Imágenes, audio, video | app por defecto de macOS (`open`) |
 | Comprimidos | extraer en el lugar |
 
 Con `O` se abre el selector "Abrir con…" para elegir otra opción (nvim, Chrome,
-o revelar en Finder) sobre cualquier archivo.
+`tdf`, o revelar en Finder) sobre cualquier archivo — es la salida para cuando un
+PDF hay que imprimirlo o firmarlo y conviene Chrome.
 
 ## Teclas
 
@@ -55,6 +62,7 @@ Las del preset de yazi siguen todas activas. Las más usadas:
 | `d` / `D` | a la papelera / borrar definitivo |
 | `a` / `r` | crear (dir si termina en `/`) / renombrar |
 | `.` | alternar archivos ocultos |
+| `J` / `K` | mover el preview (en PDF, de pagina) |
 | `~` | ayuda con todas las teclas |
 | `q` / `Q` | salir con cd / salir sin cd |
 

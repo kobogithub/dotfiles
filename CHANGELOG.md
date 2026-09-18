@@ -26,6 +26,14 @@ alguien instale por número de versión. Cada bloque es un mes.
   `-d` hace el camino inverso al volver.
 - **Host `mac` en `ssh/.ssh/config`**: entrada al Mac mini por el nombre
   MagicDNS del tailnet, para entrar desde la notebook.
+- **Claude Code**: statusline propia con el contexto consumido, plugin `coe`
+  del framework del Centro de Excelencia, modelo `opus[1m]` (ventana de 1M) y
+  figma apagado.
+- **Kiro CLI** (agente de terminal de AWS, ex Amazon Q): se versiona su
+  integración de shell — los bloques `pre`/`post` en `.zshrc`, `.bashrc` y
+  `.profile` que dan autocompletado inline y contexto de comandos. Van con
+  guard, así que en Arch —donde esas rutas de `~/Library` no existen— son
+  inertes. El binario se baja aparte de kiro.dev.
 
 ## 2026-08
 
@@ -59,6 +67,9 @@ alguien instale por número de versión. Cada bloque es un mes.
 - **yazi** como gestor de archivos en la terminal (paquete stow nuevo, tema
   Frostmourne), con `yz` para que el shell herede el directorio al salir, y sus
   deps de preview (poppler, ffmpegthumbnailer, 7zip/sevenzip, imagemagick).
+- **`tdf` como visor de PDF de yazi**: los PDFs abren dentro de la terminal en
+  vez de saltar a Chrome (renderiza la página con el protocolo gráfico de Kitty,
+  que ghostty soporta). Chrome sigue a mano con `O` para imprimir o firmar.
 - **`clip-file`**: copia archivos al portapapeles como texto, imagen, adjunto o
   ruta — para pegar en Google Chat, Slack o Finder desde la terminal.
 - **sketchybar**: barra Frostmourne para AeroSpace, con items de clima, CPU,
