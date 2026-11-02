@@ -17,6 +17,18 @@ alguien instale por número de versión. Cada bloque es un mes.
 
 ---
 
+## 2026-11
+
+### ✨ Agregado
+- **Herdr.app**: se versiona lo propio de `~/.config/herdr-app/` (`keys.json`,
+  `settings.json` y el tema `frostmourne`, con la paleta de Ghostty y *working*
+  en ámbar). `cmd+shift+s` abre `claude-sessions`, `cmd+shift+m` memex y
+  `cmd+shift+f` el navegador nuevo `herdr-nav` (agentes, pestañas, zoxide).
+- **`herdr-open`**: abre un directorio o un comando en su space de la app
+  (enfoca la sesión si ya está abierta); fuera de la app, `cd` + `exec`. Lo
+  usan el plugin `claude-sessions`, `herdr-nav` y la config de memex
+  (`~/.memex/config.toml`).
+
 ## 2026-09
 
 ### ✨ Agregado

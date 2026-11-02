@@ -217,6 +217,38 @@ up`), el iPhone en el mismo tailnet, y recién ahí
 dirección. Es acceso a **nivel de dispositivo, no de persona**: quien tenga el
 teléfono desbloqueado tiene una shell. Su propio README lo dice sin vueltas.
 
+### 🖥️ Herdr.app (modo app de macOS)
+
+La app de escritorio es **otro programa**: la ventana es `herdr-app` y las
+terminales las corre `hc` (herdr-core). Los dos los instala la app en
+`~/.local/bin/` y se actualizan solos. No hay server de herdr ni `HERDR_ENV`, así
+que los plugins de arriba no corren ahí. Su config vive en `~/.config/herdr-app/`,
+y de esa carpeta se versiona solo lo que es de uno, en
+`herdr/.config/herdr-app/`:
+
+| Archivo | Qué es |
+|---|---|
+| `keys.json` | Las teclas de fábrica más las tres de abajo |
+| `settings.json` | Zoom, sonidos y el tema `frostmourne` (la app escribe a través del symlink) |
+| `themes/frostmourne.json` | La paleta de Ghostty, con *working* en ámbar como en el TUI |
+
+| Tecla | Qué hace |
+|---|---|
+| `cmd+shift+s` | `claude-sessions`: elegir una sesión y reanudarla en su space |
+| `cmd+shift+m` | memex: sesiones de todos los agentes; al reanudar, abre en su space |
+| `cmd+shift+f` | `herdr-nav`: agentes (con su pantalla de preview), pestañas y directorios de zoxide |
+
+Las tres abren en una pestaña que se cierra sola al elegir, y comparten
+**`herdr-open`** (`scripts/`): enfoca la sesión si ya está abierta, si no abre
+una pestaña en el space del proyecto o un space nuevo. Fuera de la app hace
+`cd` + `exec`, por eso memex lo usa en sus comandos de reanudar
+(`herdr/.memex/config.toml` → `~/.memex/config.toml`) sin romper el TUI.
+
+> ⚠️ El tema elegido en el selector (o en la bienvenida) le gana a
+> `settings.json` y queda en `layouts/.state/`, que no se versiona. En una máquina
+> nueva: `herdr-app do app.theme --name frostmourne` una vez. memex usa el binario
+> del checkout del plugin del TUI (`~/.config/herdr/plugins/github/nicosuave.memex-*`).
+
 ## 🔧 Opciones del instalador
 
 ```bash

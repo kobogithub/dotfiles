@@ -15,6 +15,8 @@
 #   open   Pide a herdr que abra el popup del buscador. Es lo que corre la
 #          accion bindeada a una tecla, que no tiene terminal propia.
 #   pick   Corre dentro del popup: elige la sesion y la abre donde corresponda.
+#          En Herdr.app es lo que corre la tecla de keys.json (cmd+shift+s),
+#          en una pestaña propia que se cierra sola al elegir.
 
 set -euo pipefail
 
@@ -107,6 +109,17 @@ selected="$("$CCS" --print "${2:-}")" || exit 0
 sid="$(printf '%s' "$selected" | cut -f1)"
 cwd="$(printf '%s' "$selected" | cut -f2)"
 label="$(basename "${cwd%/}")"
+
+# En Herdr.app no hay server de herdr ni HERDR_ENV: la apertura la resuelve
+# herdr-open contra la ventana (misma logica: sesion abierta > proyecto > nuevo).
+if [ "${HERDR_ENV:-}" != "1" ]; then
+    OPEN="$(command -v herdr-open || echo "$HOME/.local/bin/herdr-open")"
+    if ! "$OPEN" --match "$sid" "$cwd" claude --resume "$sid"; then
+        read -r -p "Enter para cerrar..." _
+        exit 1
+    fi
+    exit 0
+fi
 
 # Busca un pane que ya tenga abierta ESTA sesion, o alguno parado en el mismo
 # proyecto. Devuelve "<motivo> <id>": la sesion misma gana, porque reanudarla

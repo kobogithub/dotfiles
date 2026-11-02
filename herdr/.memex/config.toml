@@ -1,0 +1,13 @@
+# memex - config propia (~/.memex/config.toml)
+#
+# Solo se pisan los comandos de reanudar: el resto queda en los defaults de
+# memex. Cada uno pasa por herdr-open, que en Herdr.app abre la sesion en su
+# space (o en una pestaña, si el proyecto ya esta abierto) en vez de comerse
+# el pane de memex. Fuera de la app herdr-open hace cd + exec, o sea lo mismo
+# que el default. memex corre esto con `sh -lc`, por eso la ruta absoluta.
+
+claude_resume_cmd = '"$HOME/.local/bin/herdr-open" --match {session_id} {cwd_shell} claude --resume {session_id}'
+codex_resume_cmd = '"$HOME/.local/bin/herdr-open" --match {session_id} {cwd_shell} codex resume {session_id}'
+opencode_resume_cmd = '"$HOME/.local/bin/herdr-open" --match {session_id} {cwd_shell} opencode resume {session_id}'
+cursor_resume_cmd = '"$HOME/.local/bin/herdr-open" --match {session_id} {cwd_shell} cursor-agent --resume {session_id}'
+pi_resume_cmd = '"$HOME/.local/bin/herdr-open" {cwd_shell} pi --session {source_path_shell}'

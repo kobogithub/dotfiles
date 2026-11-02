@@ -1,0 +1,111 @@
+#!/bin/bash
+
+# herdr-open - Abre un directorio (y opcionalmente un comando) en la app de herdr
+# Uso: herdr-open [-h] [--match TEXTO] CWD [COMANDO...]
+#
+# Dentro de Herdr.app abre el trabajo en su propio lugar en vez de comerse la
+# terminal actual:
+#   1. Si --match aparece en el comando de una terminal viva (por ejemplo el
+#      sessionId de una sesion de Claude), enfoca esa terminal y listo.
+#   2. Si ya hay un space parado en CWD, abre una pestaña nueva ahi.
+#   3. Si no, crea un space nuevo en CWD.
+# Sin COMANDO queda una shell. Fuera de la app hace `cd CWD` + `exec COMANDO`
+# en la terminal actual, asi los que lo llaman funcionan igual en cualquier lado.
+#
+# Lo usan el plugin claude-sessions, la config de memex y herdr-nav.
+# Requiere: python3, herdr-app y hc (los instala la app en ~/.local/bin).
+
+set -euo pipefail
+
+if [ "${1:-}" = "-h" ] || [ "${1:-}" = "--help" ]; then
+    sed -n '3,16p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+fi
+
+match=""
+if [ "${1:-}" = "--match" ]; then
+    match="${2:-}"
+    shift 2
+fi
+
+[ $# -ge 1 ] || { echo "❌ falta CWD (ver herdr-open -h)" >&2; exit 2; }
+cwd="${1%/}"
+shift
+[ -d "$cwd" ] || { echo "❌ no existe el directorio: $cwd" >&2; exit 1; }
+
+# Fuera de la app: inline, como si se hubiera tipeado en esta terminal.
+run_inline() {
+    cd "$cwd"
+    if [ $# -gt 0 ]; then
+        exec "$@"
+    fi
+    exec "${SHELL:-/bin/zsh}" -l
+}
+
+# HC_TERMINAL_ID lo pone herdr-core en cada terminal de la app. Sin eso, o sin
+# los binarios, no hay ventana a la que pedirle nada.
+if [ -z "${HC_TERMINAL_ID:-}" ] || ! command -v herdr-app >/dev/null 2>&1 \
+   || ! command -v hc >/dev/null 2>&1; then
+    run_inline "$@"
+fi
+
+# Decide donde abrir. Imprime "focus <terminal>", "tab <space>" o "space".
+#
+# La carpeta de una terminal es la de su programa en primer plano
+# (foreground.cwd) y no la de la shell: claude puede haber arrancado en otro
+# lado que la shell que lo lanzo. La sesion misma gana sobre el proyecto,
+# porque reanudarla dos veces deja dos claude peleando por el mismo transcript.
+target="$(
+    python3 - "$cwd" "$match" <<'PYEOF' || true
+import json, subprocess, sys
+
+cwd, match = sys.argv[1].rstrip("/"), sys.argv[2]
+
+def run(*args):
+    out = subprocess.run(args, capture_output=True, text=True, check=True).stdout
+    return json.loads(out)
+
+try:
+    spaces = run("herdr-app", "ls")["spaces"]
+except Exception:
+    sys.exit(0)
+
+same_project = None
+for space in spaces:
+    if space.get("machine"):
+        continue  # los spaces de otra maquina no comparten carpetas con esta
+    for tab in space["tabs"]:
+        for term in tab["terminals"]:
+            try:
+                info = run("hc", "get", term["terminal"], "--json")
+            except Exception:
+                continue
+            fg = info.get("foreground") or {}
+            if match and match in " ".join(fg.get("argv") or []):
+                print("focus", term["terminal"])
+                sys.exit(0)
+            here = (fg.get("cwd") or info.get("cwd") or "").rstrip("/")
+            if same_project is None and here == cwd:
+                same_project = space["id"]
+
+print("tab", same_project) if same_project else print("space")
+PYEOF
+)"
+
+argv_json() {
+    python3 -c 'import json, sys; print(json.dumps(sys.argv[1:]))' "$@"
+}
+
+args=(--folder "$cwd")
+[ $# -gt 0 ] && args+=(--argv "$(argv_json "$@")")
+
+case "$target" in
+    focus\ *) out="$(herdr-app "do" agent.focus --terminal "${target#focus }" 2>&1)" ;;
+    tab\ *)   out="$(herdr-app "do" tab.new --space "${target#tab }" "${args[@]}" 2>&1)" ;;
+    space)    out="$(herdr-app "do" space.new "${args[@]}" 2>&1)" ;;
+    # herdr-app ls fallo: la ventana no responde. Mejor abrir inline que nada.
+    *)        run_inline "$@" ;;
+esac || {
+    echo "❌ herdr-app fallo: $out" >&2
+    exit 1
+}
