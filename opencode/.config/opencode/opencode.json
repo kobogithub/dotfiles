@@ -33,9 +33,9 @@
   ],
   "mcp": {
     "clickup": {
-      "type":"remote",
+      "type": "remote",
       "url": "https://mcp.clickup.com/mcp",
-      "enabled":true
+      "enabled": true
     },
     "context7": {
       "type": "remote",
@@ -47,8 +47,22 @@
     },
     "engram": {
       "type": "local",
-      "command": ["engram","mcp","--tools=agent"],
+      "command": [
+        "engram",
+        "mcp",
+        "--tools=agent"
+      ],
       "enabled": true
+    },
+    "aws-mcp": {
+      "type": "local",
+      "command": [
+        "uvx",
+        "mcp-proxy-for-aws@latest",
+        "https://aws-mcp.us-east-1.api.aws/mcp",
+        "--metadata",
+        "INSTALL_SOURCE=aws-cli"
+      ]
     }
   }
 }
