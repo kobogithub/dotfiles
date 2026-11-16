@@ -409,6 +409,7 @@ klf         # kubectl logs -f
 k9s         # dashboard de k9s
 
 # Claude Code
+cct / ccp   # Claude Code con la cuenta de Taligent (~/.claude) / la personal (~/.claude-personal)
 ccs         # buscar y reanudar sesiones de cualquier repo (fzf)
 ccu         # análisis de tokens/costos (ccu --html ~/uso.html para dashboard)
 cmu / cun   # mutear / desmutear la lectura en voz alta (claude-speak)
