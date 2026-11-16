@@ -29,6 +29,12 @@ alguien instale por número de versión. Cada bloque es un mes.
   usan el plugin `claude-sessions`, `herdr-nav` y la config de memex
   (`~/.memex/config.toml`).
 
+### 🔄 Cambiado
+- **Skill `director`**: pasa del `herdr` de terminal a Herdr.app. Los workers
+  arrancan con `hc run` como hijos del director, se ven con `herdr-app` (pane,
+  space o worktree) y avisan con `hc send`. Los worktrees van en
+  `~/.worktrees/<repo>/<rama>`.
+
 ## 2026-09
 
 ### ✨ Agregado
