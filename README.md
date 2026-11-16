@@ -315,6 +315,7 @@ Los secretos **no se guardan en el repo**. `zsh/.env` (→ `~/.env`) puebla vari
 
 ### 🔒 SSH
 - ControlMaster (conexiones persistentes), compresión, timeouts/keep-alive, hosts de GitHub preconfigurados
+- Hosts propios: `camil-ado` (Azure DevOps), `kobo-pi` (Raspberry del media-stack, por mDNS; herdr la usa como máquina remota) y el Mac mini por Tailscale. Las claves privadas no están en el repo
 
 ### ☸️ Kubernetes
 - `kubectl` + `k9s` con aliases (`k`, `kgp`, `kgs`, `kl`, `klf`, `ke`…) y autocompletado
