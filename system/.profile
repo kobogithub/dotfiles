@@ -1,9 +1,11 @@
+
+# Added by Kiro CLI
+case ":$PATH:" in *":$HOME/.local/bin:"*) ;; *) export PATH="${PATH:+$PATH:}$HOME/.local/bin" ;; esac
+
 # The following lines were added by Docker Desktop to add commands to your PATH.
 export PATH="$PATH:/Users/kobo/.docker/bin"
 # End of Docker Desktop section.
 
-# Kiro CLI pre block. Keep at the top of this file.
-[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/profile.pre.bash" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/profile.pre.bash"
 
 
 # ~/.profile - Configuraciones del sistema
@@ -52,5 +54,5 @@ elif [ -f "$HOME/.cargo/env" ]; then
 fi
 
 
-# Kiro CLI post block. Keep at the bottom of this file.
-[[ -f "${HOME}/Library/Application Support/kiro-cli/shell/profile.post.bash" ]] && builtin source "${HOME}/Library/Application Support/kiro-cli/shell/profile.post.bash"
+
+
