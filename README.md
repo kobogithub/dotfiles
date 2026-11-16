@@ -89,7 +89,7 @@ Si **Homebrew** no está instalado, `install.sh` lo instala automáticamente (sc
 
 **Fórmulas base:** `neovim` · `tmux` · `gh` · `zsh` · `lsd` · `starship` · `atuin` · `stow` · `k9s` · `docker-compose` · `python` · `node` · `yarn` · `git` · `curl` · `wget` · `jq` · `fzf` · `tree` · `htop`  *(`kubectl` está comentado: no hay cluster en uso y Docker Desktop ya trae uno)*
 
-**Nubes y redes:** `awscli` · `azure-cli` · `cloudflared` · `wireguard-tools` · `rclone`
+**Nubes y redes:** `awscli` · `azure-cli` · `cloudflared` · `wireguard-tools`
 
 **Dev y agentes:** `uv` · `supabase` · `railway` · `playwright-mcp` · `pyenv-virtualenv`
 

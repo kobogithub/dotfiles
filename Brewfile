@@ -63,7 +63,6 @@ brew "awscli"
 brew "azure-cli"
 brew "cloudflared"
 brew "wireguard-tools"
-brew "rclone"
 
 # --- Dev y agentes ---
 brew "uv"                  # instalador/resolver de Python, reemplazo de pip-tools

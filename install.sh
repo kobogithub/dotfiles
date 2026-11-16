@@ -65,7 +65,7 @@ SYSTEM_PACKAGES=(
     "ghostty"
 
     # Las CLIs de nube y de dev (awscli, azure-cli, gcloud, cloudflared,
-    # wireguard-tools, rclone, uv, supabase, railway, playwright-mcp) por ahora
+    # wireguard-tools, uv, supabase, railway, playwright-mcp) por ahora
     # solo están declaradas en el Brewfile: varias viven en AUR y los nombres de
     # pacman no se verificaron en una Arch de verdad. No se listan a propósito —
     # este script corre con `set -e` y un nombre inexistente aborta la
