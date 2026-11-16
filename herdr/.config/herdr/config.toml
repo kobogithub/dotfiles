@@ -35,6 +35,16 @@ yellow = "#E3B341"
 # [ui]
 # status_indicators = "symbols"
 
+# Sonidos de estado de los agentes en workspaces de fondo. Son 8 bits
+# sintetizados con ffmpeg (onda cuadrada), no samples bajados:
+#   done.mp3    -> moneda: si5 -> mi6, cuando un agente termina
+#   request.mp3 -> mi6, mi6, la6: cuando un agente pide atencion
+# Las rutas relativas se resuelven desde el directorio de este archivo.
+[ui.sound]
+enabled = true
+done_path = "sounds/done.mp3"
+request_path = "sounds/request.mp3"
+
 [keys]
 split_vertical = "prefix+\\"
 

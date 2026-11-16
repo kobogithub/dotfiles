@@ -194,6 +194,11 @@ keybindings, en `herdr/.config/herdr/config.toml`.
 > — salto directo al workspace N, espejo del `prefix+1..9` que herdr ya trae para
 > pestañas. Viene sin asignar de fábrica, igual que `previous_workspace` y
 > `next_workspace`, que siguen libres.
+>
+> También activa `[ui.sound]`: cuando un agente de un workspace de fondo termina
+> suena `sounds/done.mp3`, y cuando pide atención, `sounds/request.mp3`. Son
+> sonidos 8 bits sintetizados con `ffmpeg` y viven en
+> `herdr/.config/herdr/sounds/`.
 
 | Tecla | Plugin | Qué hace |
 |---|---|---|
